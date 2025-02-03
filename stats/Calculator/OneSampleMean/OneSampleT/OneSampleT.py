@@ -695,3 +695,4 @@ class OneSampleT:
 
     # 1. Using a different default for CI - maybe switch to the NCP's one
     # 2. imporve the Pivotal accuracy to match r functions...
+    # 3. One Sample from Data
