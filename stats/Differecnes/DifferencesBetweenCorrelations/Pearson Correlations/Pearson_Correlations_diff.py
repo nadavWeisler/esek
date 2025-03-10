@@ -156,8 +156,8 @@ class Differences_Between_Pearson_Correlations():
             upper_ci_r34 = math.tanh(Zr34 + zcrit * Standard_Error_Correlation)
 
             # Confidence Interval for the difference (Zou)
-            Lower_CI_Zou = r12 - r34 - math.sqrt((r12 - lower_ci_r12)**2 + (upper_ci_r34 - r34)**2 - 2 * c * (r12 - lower_ci_r12) * (upper_ci_r34 - r34))
-            Upper_CI_Zou = r12 - r34 + math.sqrt((upper_ci_r12 - r12)**2 + (r34 - lower_ci_r34)**2 - 2 * c * (upper_ci_r12 - r12) * (r34 - lower_ci_r34))
+            LowerCi_Zou = r12 - r34 - math.sqrt((r12 - lower_ci_r12)**2 + (upper_ci_r34 - r34)**2 - 2 * c * (r12 - lower_ci_r12) * (upper_ci_r34 - r34))
+            UpperCi_Zou = r12 - r34 + math.sqrt((upper_ci_r12 - r12)**2 + (r34 - lower_ci_r34)**2 - 2 * c * (upper_ci_r12 - r12) * (r34 - lower_ci_r34))
 
 
             results= {}
@@ -177,14 +177,14 @@ class Differences_Between_Pearson_Correlations():
             results["Statistic_Silver"] = statistic_Silver
             results["p_value_Silver"] = p_value_Silver
             results["Standrd Error of the correlation"] = Standard_Error_r
-            results["Confidence Intervals Zou"] = f"({round(Lower_CI_Zou, 4)}, {round(Upper_CI_Zou, 4)})"
+            results["Confidence Intervals Zou"] = f"({round(LowerCi_Zou, 4)}, {round(UpperCi_Zou, 4)})"
             formatted_p_value_r12 = "{:.3f}".format(p_value_r12).lstrip('0') if p_value_r12 >= 0.001 else "\033[3mp\033[0m < .001"
             formatted_p_value_r34 = "{:.3f}".format(p_value_r34).lstrip('0') if p_value_r34 >= 0.001 else "\033[3mp\033[0m < .001"
             formatted_p_value_difference = "{:.3f}".format(p_value_Silver).lstrip('0') if p_value_Silver >= 0.001 else "\033[3mp\033[0m < .001"
 
             results["Statistical Line r12"] = "\033[3mr12\033[0m({}) = {}{}, {}{}, {}{}% CI [{}{}, {}{}]".format((sample_size - 2), ('-' if np.round(r12,3) < 0 else ''), str(np.abs(np.round(r12,3))).lstrip('0').rstrip(''), '\033[3mp = \033[0m' if p_value_r12 >= 0.001 else '', formatted_p_value_r12, int(confidence_level*100) if confidence_level.is_integer() else '{:.1f}'.format(confidence_level*100).rstrip('0').rstrip('.'), '' if confidence_level.is_integer() else '', ('-' if np.round(lower_ci_r12,3) < 0 else ''), str(np.abs(np.round(lower_ci_r12,3))).lstrip('0').rstrip(''), ('-' if np.round(upper_ci_r12,3) < 0 else ''), str(np.abs(np.round(upper_ci_r12,3))).lstrip('0').rstrip(''))
             results["Statistical Line r34"] = "\033[3mr34\033[0m({}) = {}{}, {}{}, {}{}% CI [{}{}, {}{}]".format((sample_size - 2), ('-' if np.round(r34,3) < 0 else ''), str(np.abs(np.round(r34,3))).lstrip('0').rstrip(''), '\033[3mp = \033[0m' if p_value_r34 >= 0.001 else '', formatted_p_value_r34, int(confidence_level*100) if confidence_level.is_integer() else '{:.1f}'.format(confidence_level*100).rstrip('0').rstrip('.'), '' if confidence_level.is_integer() else '', ('-' if np.round(lower_ci_r34,3) < 0 else ''), str(np.abs(np.round(lower_ci_r34,3))).lstrip('0').rstrip(''), ('-' if np.round(upper_ci_r34,3) < 0 else ''), str(np.abs(np.round(upper_ci_r34,3))).lstrip('0').rstrip(''))
-            results["Statistical Line difference"] = "\033[3mZ\033[0m = {}, {}{}, {}{}% CI [{}{}, {}{}]".format( round(statistic_Silver,3), '\033[3mp = \033[0m' if p_value_Silver >= 0.001 else '', formatted_p_value_difference, int(confidence_level*100) if confidence_level.is_integer() else '{:.1f}'.format(confidence_level*100).rstrip('0').rstrip('.'), '' if confidence_level.is_integer() else '', ('-' if np.round(Lower_CI_Zou,3) < 0 else ''), str(np.abs(np.round(Lower_CI_Zou,3))).lstrip('0').rstrip(''), ('-' if np.round(Upper_CI_Zou,3) < 0 else ''), str(np.abs(np.round(Upper_CI_Zou,3))).lstrip('0').rstrip(''))
+            results["Statistical Line difference"] = "\033[3mZ\033[0m = {}, {}{}, {}{}% CI [{}{}, {}{}]".format( round(statistic_Silver,3), '\033[3mp = \033[0m' if p_value_Silver >= 0.001 else '', formatted_p_value_difference, int(confidence_level*100) if confidence_level.is_integer() else '{:.1f}'.format(confidence_level*100).rstrip('0').rstrip('.'), '' if confidence_level.is_integer() else '', ('-' if np.round(LowerCi_Zou,3) < 0 else ''), str(np.abs(np.round(LowerCi_Zou,3))).lstrip('0').rstrip(''), ('-' if np.round(UpperCi_Zou,3) < 0 else ''), str(np.abs(np.round(UpperCi_Zou,3))).lstrip('0').rstrip(''))
 
             return results
 

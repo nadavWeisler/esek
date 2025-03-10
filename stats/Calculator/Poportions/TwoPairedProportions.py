@@ -63,30 +63,30 @@ def Main_Two_Dep_Proportions_From_Parameters (proportion_sample_1, proportion_sa
 
         # 1. Wald CI's
         Standard_Error_Wald = np.sqrt((yes_no + no_yes) - ((yes_no - no_yes)**2) / sample_size) / sample_size
-        Lower_CI_WALD = max(difference_between_proportions - z_critical_value *Standard_Error_Wald,-1 )
-        Upper_CI_WALD = min(difference_between_proportions + z_critical_value *Standard_Error_Wald,1 )
+        LowerCi_WALD = max(difference_between_proportions - z_critical_value *Standard_Error_Wald,-1 )
+        UpperCi_WALD = min(difference_between_proportions + z_critical_value *Standard_Error_Wald,1 )
 
         # 2. Wald with CC correction (Fleiss et al., 2003)
         Standard_Error_Wald_Corrected = np.sqrt((yes_no + no_yes) - ((yes_no - no_yes)**2) / sample_size) / sample_size
-        Lower_CI_WALD_Corrected = max(difference_between_proportions - z_critical_value *Standard_Error_Wald_Corrected - (1/sample_size),-1 )
-        Upper_CI_WALD_Corrected = min(difference_between_proportions + z_critical_value *Standard_Error_Wald_Corrected + (1/sample_size),1 )
+        LowerCi_WALD_Corrected = max(difference_between_proportions - z_critical_value *Standard_Error_Wald_Corrected - (1/sample_size),-1 )
+        UpperCi_WALD_Corrected = min(difference_between_proportions + z_critical_value *Standard_Error_Wald_Corrected + (1/sample_size),1 )
         
         # 3. Wald with Yates correction
         Standard_Error_Wald_Corrected_yates = np.sqrt((yes_no + no_yes) - ((yes_no - no_yes - 1)**2) / sample_size) / sample_size
-        Lower_CI_WALD_Corrected_Yates = max(difference_between_proportions - z_critical_value *Standard_Error_Wald_Corrected_yates,-1 )
-        Upper_CI_WALD_Corrected_Yates = min(difference_between_proportions + z_critical_value *Standard_Error_Wald_Corrected_yates,1 )
+        LowerCi_WALD_Corrected_Yates = max(difference_between_proportions - z_critical_value *Standard_Error_Wald_Corrected_yates,-1 )
+        UpperCi_WALD_Corrected_Yates = min(difference_between_proportions + z_critical_value *Standard_Error_Wald_Corrected_yates,1 )
         
         # 4. Agresti & Min (2005)
         Standard_Error_AM =np.sqrt(((yes_no+0.5) + (no_yes+0.5)) - (((yes_no+0.5) - (no_yes+0.5))**2) / (sample_size+2)) / (sample_size+2)
-        Lower_CI_AM = max(((yes_no+0.5) - (no_yes+0.5)) /  (sample_size + 2) - z_critical_value * Standard_Error_AM,-1 )
-        Upper_CI_AM = min(((yes_no+0.5) - (no_yes+0.5)) /  (sample_size + 2) + z_critical_value * Standard_Error_AM, 1 )
+        LowerCi_AM = max(((yes_no+0.5) - (no_yes+0.5)) /  (sample_size + 2) - z_critical_value * Standard_Error_AM,-1 )
+        UpperCi_AM = min(((yes_no+0.5) - (no_yes+0.5)) /  (sample_size + 2) + z_critical_value * Standard_Error_AM, 1 )
 
         # 5. Bonett & Price (2005)
         p1_adjusted = (yes_no + 1) / (sample_size + 2)
         p2_adjusted = (no_yes + 1) / (sample_size + 2)
         Standard_Error_BP = np.sqrt((p1_adjusted+p2_adjusted-(p2_adjusted-p1_adjusted)**2)/(sample_size+2))
-        Lower_CI_BP = max(p1_adjusted - p2_adjusted - z_critical_value * Standard_Error_BP,-1 )
-        Upper_CI_BP = min(p1_adjusted - p2_adjusted + z_critical_value * Standard_Error_BP,1 )
+        LowerCi_BP = max(p1_adjusted - p2_adjusted - z_critical_value * Standard_Error_BP,-1 )
+        UpperCi_BP = min(p1_adjusted - p2_adjusted + z_critical_value * Standard_Error_BP,1 )
 
         # 6. Newcomb, Square and Add
         A1 = (2 * sample_size * ((n1total)/sample_size) + z_critical_value**2) / (2 * sample_size + 2 * z_critical_value**2)
@@ -110,8 +110,8 @@ def Main_Two_Dep_Proportions_From_Parameters (proportion_sample_1, proportion_sa
             else:
                 products_correction = cells_product / np.sqrt(marginals_product)
 
-        Lower_CI_newcomb = difference_between_proportions - np.sqrt((proportion_sample_1 - lower_p1)**2 + (upper_p2 - proportion_sample_2)**2 - 2 * products_correction * (proportion_sample_1 - lower_p1) * (upper_p2 - proportion_sample_2))
-        Upper_CI_newcomb = difference_between_proportions + np.sqrt((proportion_sample_2 - lower_p2)**2 + (upper_p1 - proportion_sample_1)**2 - 2 * products_correction * (proportion_sample_2 - lower_p2) * (upper_p1 - proportion_sample_1))
+        LowerCi_newcomb = difference_between_proportions - np.sqrt((proportion_sample_1 - lower_p1)**2 + (upper_p2 - proportion_sample_2)**2 - 2 * products_correction * (proportion_sample_1 - lower_p1) * (upper_p2 - proportion_sample_2))
+        UpperCi_newcomb = difference_between_proportions + np.sqrt((proportion_sample_2 - lower_p2)**2 + (upper_p1 - proportion_sample_1)**2 - 2 * products_correction * (proportion_sample_2 - lower_p2) * (upper_p1 - proportion_sample_1))
         
         
         # Optional - Can check this built in Functions for more version of the mcnemar test
@@ -353,12 +353,12 @@ def Main_Two_Dep_Proportions_From_Parameters (proportion_sample_1, proportion_sa
         # Confidence Intervals for the Difference Between Paired Proportions
         results["Table 3 - Difference Between Paired Proportions CI's"] = ""
         results["----------------------------------------------------"] = ""
-        results["Confidence Intervals Wald"] = f"({round(Lower_CI_WALD, 4)}, {round(Upper_CI_WALD, 4)})"
-        results["Confidence Intervals Wald Corrected (Edwards)"] = f"({round(Lower_CI_WALD_Corrected, 4)}, {round(Upper_CI_WALD_Corrected, 4)})"
-        results["Confidence Intervals Wald Corrected (Yates)"] = f"({round(Lower_CI_WALD_Corrected_Yates, 4)}, {round(Upper_CI_WALD_Corrected_Yates, 4)})"
-        results["Confidence Intervals adjusted (Agresti & Min, 2005)"] = f"({round(Lower_CI_AM, 4)}, {round(Upper_CI_AM, 4)})"
-        results["Confidence Intervals adjusted (Bonett & Price, 2012)"] = f"({round(Lower_CI_BP, 4)}, {round(Upper_CI_BP, 4)})"
-        results["Confidence Intervals (Newcomb)"] = f"({round(Lower_CI_newcomb, 4)}, {round(Upper_CI_newcomb, 4)})"
+        results["Confidence Intervals Wald"] = f"({round(LowerCi_WALD, 4)}, {round(UpperCi_WALD, 4)})"
+        results["Confidence Intervals Wald Corrected (Edwards)"] = f"({round(LowerCi_WALD_Corrected, 4)}, {round(UpperCi_WALD_Corrected, 4)})"
+        results["Confidence Intervals Wald Corrected (Yates)"] = f"({round(LowerCi_WALD_Corrected_Yates, 4)}, {round(UpperCi_WALD_Corrected_Yates, 4)})"
+        results["Confidence Intervals adjusted (Agresti & Min, 2005)"] = f"({round(LowerCi_AM, 4)}, {round(UpperCi_AM, 4)})"
+        results["Confidence Intervals adjusted (Bonett & Price, 2012)"] = f"({round(LowerCi_BP, 4)}, {round(UpperCi_BP, 4)})"
+        results["Confidence Intervals (Newcomb)"] = f"({round(LowerCi_newcomb, 4)}, {round(UpperCi_newcomb, 4)})"
 
         results["Standard Error Wald"] = f"({round(Standard_Error_Wald, 4)})"
         results["Standard Error Wald CC Correction"] = f"({round(Standard_Error_Wald_Corrected, 4)})"

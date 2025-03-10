@@ -200,8 +200,8 @@ class Indpendnent_samples_ttest():
         Standard_Error_of_means_ratio = np.sqrt(Varaince_of_means_ratio)
         Degrees_of_freedom_means_ratio =  Varaince_of_means_ratio**2/(sample_sd_1**4/(sample_mean_1**4*(sample_size_1**3 - sample_size_1**2)) + sample_sd_2**4/(sample_mean_2**4*(sample_size_2**3 - sample_size_2**2))) 
         t_critical_value = t.ppf(confidence_level + ((1 - confidence_level) / 2), Degrees_of_freedom_means_ratio)
-        Lower_CI_Means_Ratio = math.exp(np.log(ratio_of_means) - t_critical_value * np.sqrt(Varaince_of_means_ratio))
-        Upper_CI_Means_Ratio = math.exp(np.log(ratio_of_means) + t_critical_value * np.sqrt(Varaince_of_means_ratio))
+        LowerCi_Means_Ratio = math.exp(np.log(ratio_of_means) - t_critical_value * np.sqrt(Varaince_of_means_ratio))
+        UpperCi_Means_Ratio = math.exp(np.log(ratio_of_means) + t_critical_value * np.sqrt(Varaince_of_means_ratio))
 
 
         # Set results
@@ -258,8 +258,8 @@ class Indpendnent_samples_ttest():
         # Ratio of Means
         results["Ratio of Means"] = round(ratio_of_means, 4)
         results["Standard Error of Ratio of Means"] = round(Standard_Error_of_means_ratio, 4)
-        results["Lower CI's Ratio of Means"] = round(Lower_CI_Means_Ratio, 4)
-        results["Upper CI's Ratio of Means"] = round(Upper_CI_Means_Ratio, 4)
+        results["Lower CI's Ratio of Means"] = round(LowerCi_Means_Ratio, 4)
+        results["Upper CI's Ratio of Means"] = round(UpperCi_Means_Ratio, 4)
                 
         formatted_p_value = "{:.3f}".format(p_value).lstrip('0') if p_value >= 0.001 else "\033[3mp\033[0m < .001"        
         results["Statistical Line Cohen's ds"] = " \033[3mt\033[0m({}) = {:.3f}, {}{}, Cohen's d\u209B = {:.3f}, {}% CI(Pivotal) [{:.3f}, {:.3f}]".format(df, t_score, '\033[3mp = \033[0m' if p_value >= 0.001 else '', formatted_p_value, cohens_ds, confidence_level_percentages, ci_lower_cohens_ds_Pivotal, ci_upper_cohens_ds_Pivotal)

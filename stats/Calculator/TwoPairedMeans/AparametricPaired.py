@@ -274,72 +274,72 @@ class Aparametric_Paired_Samples:
         )
         Z_Critical_Value = norm.ppf((1 - confidence_level) + ((confidence_level) / 2))
 
-        Lower_CI_Matched_Wilcoxon = math.tanh(
+        LowerCi_Matched_Wilcoxon = math.tanh(
             math.atanh(wilcoxon_RBCwilcoxon) - Z_Critical_Value * Standrd_Error_RBR
         )
-        Upper_CI_Matched_Wilcoxon = math.tanh(
+        UpperCi_Matched_Wilcoxon = math.tanh(
             math.atanh(wilcoxon_RBCwilcoxon) + Z_Critical_Value * Standrd_Error_RBR
         )
-        Lower_CI_Adjusted_Wilcoxon = math.tanh(
+        LowerCi_Adjusted_Wilcoxon = math.tanh(
             math.atanh(wilcoxon_RBC_adjusted) - Z_Critical_Value * Standrd_Error_RBR
         )
-        Upper_CI_Adjusted_Wilcoxon = math.tanh(
+        UpperCi_Adjusted_Wilcoxon = math.tanh(
             math.atanh(wilcoxon_RBC_adjusted) + Z_Critical_Value * Standrd_Error_RBR
         )
-        Lower_CI_Unadjusted_Wilcoxon = math.tanh(
+        LowerCi_Unadjusted_Wilcoxon = math.tanh(
             math.atanh(wilcoxon_RBC_unadjusted) - Z_Critical_Value * Standrd_Error_RBR
         )
-        Upper_CI_Unadjusted_Wilcoxon = math.tanh(
+        UpperCi_Unadjusted_Wilcoxon = math.tanh(
             math.atanh(wilcoxon_RBC_unadjusted) + Z_Critical_Value * Standrd_Error_RBR
         )
-        Lower_CI_Adjusted_Corrected_Wilcoxon = math.tanh(
+        LowerCi_Adjusted_Corrected_Wilcoxon = math.tanh(
             math.atanh(wilcoxon_RBC_unajusted_corrected)
             - Z_Critical_Value * Standrd_Error_RBR
         )
-        Upper_CI_Adjusted_Corrected_Wilcoxon = math.tanh(
+        UpperCi_Adjusted_Corrected_Wilcoxon = math.tanh(
             math.atanh(wilcoxon_RBC_unajusted_corrected)
             + Z_Critical_Value * Standrd_Error_RBR
         )
-        Lower_CI_Unadjusted_Corrected_Wilcoxon = math.tanh(
+        LowerCi_Unadjusted_Corrected_Wilcoxon = math.tanh(
             math.atanh(wilcoxon_RBC_adjusted_corrected)
             - Z_Critical_Value * Standrd_Error_RBR
         )
-        Upper_CI_Unadjusted_Corrected_Wilcoxon = math.tanh(
+        UpperCi_Unadjusted_Corrected_Wilcoxon = math.tanh(
             math.atanh(wilcoxon_RBC_adjusted_corrected)
             + Z_Critical_Value * Standrd_Error_RBR
         )
 
-        Lower_CI_Matched_Pratt = math.tanh(
+        LowerCi_Matched_Pratt = math.tanh(
             math.atanh(RBCpratt) - Z_Critical_Value * Standrd_Error_RBR
         )
-        Upper_CI_Matched_Pratt = math.tanh(
+        UpperCi_Matched_Pratt = math.tanh(
             math.atanh(RBCpratt) + Z_Critical_Value * Standrd_Error_RBR
         )
-        Lower_CI_Adjusted_Pratt = math.tanh(
+        LowerCi_Adjusted_Pratt = math.tanh(
             math.atanh(pratt_RBC_adjusted) - Z_Critical_Value * Standrd_Error_RBR
         )
-        Upper_CI_Adjusted_Pratt = math.tanh(
+        UpperCi_Adjusted_Pratt = math.tanh(
             math.atanh(pratt_RBC_adjusted) + Z_Critical_Value * Standrd_Error_RBR
         )
-        Lower_CI_Unadjusted_Pratt = math.tanh(
+        LowerCi_Unadjusted_Pratt = math.tanh(
             math.atanh(pratt_RBC_unadjusted) - Z_Critical_Value * Standrd_Error_RBR
         )
-        Upper_CI_Unadjusted_Pratt = math.tanh(
+        UpperCi_Unadjusted_Pratt = math.tanh(
             math.atanh(pratt_RBC_unadjusted) + Z_Critical_Value * Standrd_Error_RBR
         )
-        Lower_CI_Adjusted_Corrected_Pratt = math.tanh(
+        LowerCi_Adjusted_Corrected_Pratt = math.tanh(
             math.atanh(pratt_RBC_unajusted_corrected)
             - Z_Critical_Value * Standrd_Error_RBR
         )
-        Upper_CI_Adjusted_Corrected_Pratt = math.tanh(
+        UpperCi_Adjusted_Corrected_Pratt = math.tanh(
             math.atanh(pratt_RBC_unajusted_corrected)
             + Z_Critical_Value * Standrd_Error_RBR
         )
-        Lower_CI_Unadjusted_Corrected_Pratt = math.tanh(
+        LowerCi_Unadjusted_Corrected_Pratt = math.tanh(
             math.atanh(pratt_RBC_adjusted_corrected)
             - Z_Critical_Value * Standrd_Error_RBR
         )
-        Upper_CI_Unadjusted_Corrected_Pratt = math.tanh(
+        UpperCi_Unadjusted_Corrected_Pratt = math.tanh(
             math.atanh(pratt_RBC_adjusted_corrected)
             + Z_Critical_Value * Standrd_Error_RBR
         )
@@ -388,23 +388,23 @@ class Aparametric_Paired_Samples:
         results["Wilcoxon RBC Unadjusted Corrected"] = wilcoxon_RBC_unajusted_corrected
         results["Wilcoxon RBC Adjusted Corrected"] = wilcoxon_RBC_adjusted_corrected
 
-        results["Lower CI RBC Matched Pairs Wilcoxon"] = Lower_CI_Matched_Wilcoxon
-        results["Upper CI RBC Matched Pairs Wilcoxon"] = Upper_CI_Matched_Wilcoxon
-        results["Lower CI RBC Adjusted Wilcoxon"] = Lower_CI_Adjusted_Wilcoxon
-        results["Upper CI RBC Adjusted Wilcoxon"] = Upper_CI_Adjusted_Wilcoxon
-        results["Lower CI RBC Unadjusted Wilcoxon"] = Lower_CI_Unadjusted_Wilcoxon
-        results["Upper CI RBC Unadjusted Wilcoxon"] = Upper_CI_Unadjusted_Wilcoxon
+        results["Lower CI RBC Matched Pairs Wilcoxon"] = LowerCi_Matched_Wilcoxon
+        results["Upper CI RBC Matched Pairs Wilcoxon"] = UpperCi_Matched_Wilcoxon
+        results["Lower CI RBC Adjusted Wilcoxon"] = LowerCi_Adjusted_Wilcoxon
+        results["Upper CI RBC Adjusted Wilcoxon"] = UpperCi_Adjusted_Wilcoxon
+        results["Lower CI RBC Unadjusted Wilcoxon"] = LowerCi_Unadjusted_Wilcoxon
+        results["Upper CI RBC Unadjusted Wilcoxon"] = UpperCi_Unadjusted_Wilcoxon
         results["Lower CI RBC Adjusted Corrected Wilcoxon"] = (
-            Lower_CI_Adjusted_Corrected_Wilcoxon
+            LowerCi_Adjusted_Corrected_Wilcoxon
         )
         results["Upper CI RBC Adjusted Corrected Wilcoxon"] = (
-            Upper_CI_Adjusted_Corrected_Wilcoxon
+            UpperCi_Adjusted_Corrected_Wilcoxon
         )
         results["Lower CI RBC Unadjusted Corrected Wilcoxon"] = (
-            Lower_CI_Unadjusted_Corrected_Wilcoxon
+            LowerCi_Unadjusted_Corrected_Wilcoxon
         )
         results["Upper CI RBC Unadjusted Corrected Wilcoxon"] = (
-            Upper_CI_Unadjusted_Corrected_Wilcoxon
+            UpperCi_Unadjusted_Corrected_Wilcoxon
         )
 
         results["Pratt Positive Count"] = pratt_positive_n
@@ -434,23 +434,23 @@ class Aparametric_Paired_Samples:
         results["Pratt RBC Unadjusted Corrected"] = pratt_RBC_unajusted_corrected
         results["Pratt RBC Adjusted Corrected"] = pratt_RBC_adjusted_corrected
 
-        results["Lower CI RBC Matched Pairs Pratt"] = Lower_CI_Matched_Pratt
-        results["Upper CI RBC Matched Pairs Pratt"] = Upper_CI_Matched_Pratt
-        results["Lower CI RBC Adjusted Pratt"] = Lower_CI_Adjusted_Pratt
-        results["Upper CI RBC Adjusted Pratt"] = Upper_CI_Adjusted_Pratt
-        results["Lower CI RBC Unadjusted Pratt"] = Lower_CI_Unadjusted_Pratt
-        results["Upper CI RBC Unadjusted Pratt"] = Upper_CI_Unadjusted_Pratt
+        results["Lower CI RBC Matched Pairs Pratt"] = LowerCi_Matched_Pratt
+        results["Upper CI RBC Matched Pairs Pratt"] = UpperCi_Matched_Pratt
+        results["Lower CI RBC Adjusted Pratt"] = LowerCi_Adjusted_Pratt
+        results["Upper CI RBC Adjusted Pratt"] = UpperCi_Adjusted_Pratt
+        results["Lower CI RBC Unadjusted Pratt"] = LowerCi_Unadjusted_Pratt
+        results["Upper CI RBC Unadjusted Pratt"] = UpperCi_Unadjusted_Pratt
         results["Lower CI RBC Adjusted Corrected Pratt"] = (
-            Lower_CI_Adjusted_Corrected_Pratt
+            LowerCi_Adjusted_Corrected_Pratt
         )
         results["Upper CI RBC Adjusted Corrected Pratt"] = (
-            Upper_CI_Adjusted_Corrected_Pratt
+            UpperCi_Adjusted_Corrected_Pratt
         )
         results["Lower CI RBC Unadjusted Corrected Pratt"] = (
-            Lower_CI_Unadjusted_Corrected_Pratt
+            LowerCi_Unadjusted_Corrected_Pratt
         )
         results["Upper CI RBC Unadjusted Corrected Pratt"] = (
-            Upper_CI_Unadjusted_Corrected_Pratt
+            UpperCi_Unadjusted_Corrected_Pratt
         )
         formatted_p_value = (
             "{:.3f}".format(pratt_p_value_adjusted_corrected).lstrip("0")
@@ -468,8 +468,8 @@ class Aparametric_Paired_Samples:
                 formatted_p_value,
                 str(round(pratt_RBC_adjusted_corrected, 9)).lstrip("0"),
                 (confidence_level * 100),
-                str(round(Lower_CI_Matched_Pratt, 3)).lstrip("0"),
-                str(round(Upper_CI_Matched_Pratt, 4)).lstrip("0"),
+                str(round(LowerCi_Matched_Pratt, 3)).lstrip("0"),
+                str(round(UpperCi_Matched_Pratt, 4)).lstrip("0"),
             )
         )
 

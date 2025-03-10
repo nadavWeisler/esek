@@ -1,3 +1,11 @@
+"""
+This module provides functions to calculate various interval/ratio correlations, 
+including the non-central F function and Pearson correlation with confidence intervals.
+
+Functions:
+- Non_Central_CI_F: Computes the confidence interval for the non-central F distribution.
+- pearson_correlation: Calculates the Pearson correlation coefficient and its confidence interval.
+"""
 
 import numpy as np
 import math
@@ -9,38 +17,60 @@ import pandas as pd
 # Relevant Fnctions for Interval/Ratio Correlations
 
 ### 0. The non Central F function 
-def Non_Central_CI_F(F_Statistic, df1, df2, confidence_level):
-    Upper_Limit = 1 - (1 - confidence_level) / 2
-    Lower_Limit = 1 - Upper_Limit
-    Lower_CI_Difference_Value = 1
+def Non_Central_CI_F(f_statistic, df1, df2, confidence_level):
+    """
+    Computes the confidence interval for the non-central F distribution.
 
-    def Lower_CI(F_Statistic, df1, df2, Upper_Limit, Lower_CI_Difference_Value):
-        Lower_Bound = [0.001, F_Statistic / 2, F_Statistic]       
-        while ncf.cdf(F_Statistic, df1, df2, Lower_Bound[0]) < Upper_Limit:
-            return [0, ncf.cdf(F_Statistic, df1, df2)] if ncf.cdf(F_Statistic, df1, df2) < Upper_Limit else None
-            Lower_Bound = [Lower_Bound[0] / 4, Lower_Bound[0], Lower_Bound[2]]   
-        while ncf.cdf(F_Statistic, df1, df2, Lower_Bound[2]) > Upper_Limit: Lower_Bound = [Lower_Bound[0], Lower_Bound[2], Lower_Bound[2] + F_Statistic]     
-        while Lower_CI_Difference_Value > 0.0000001:
-            Lower_Bound = [Lower_Bound[0], (Lower_Bound[0] + Lower_Bound[1]) / 2, Lower_Bound[1]] if ncf.cdf(F_Statistic, df1, df2, Lower_Bound[1]) < Upper_Limit else [Lower_Bound[1], (Lower_Bound[1] + Lower_Bound[2]) / 2, Lower_Bound[2]]  
-            Lower_CI_Difference_Value = abs(ncf.cdf(F_Statistic, df1, df2, Lower_Bound[1]) - Upper_Limit)        
-        return [Lower_Bound[1]]
+    Parameters:
+    f_statistic (float): The F statistic value.
+    df1 (int): Degrees of freedom for the numerator.
+    df2 (int): Degrees of freedom for the denominator.
+    confidence_level (float): The confidence level for the interval.
+
+    Returns:
+    tuple: Lower and upper bounds of the confidence interval.
+    """
+    upper_limit = 1 - (1 - confidence_level) / 2
+    lower_limit = 1 - upper_limit
+    lower_ci_difference_value = 1
+
+    def LowerCi(f_statistic, df1, df2, upper_limit, lower_ci_difference_value):
+        lower_bound = [0.001, f_statistic / 2, f_statistic]       
+        while ncf.cdf(f_statistic, df1, df2, lower_bound[0]) < upper_limit:
+            return [0, ncf.cdf(f_statistic, df1, df2)] if ncf.cdf(f_statistic, df1, df2) < upper_limit else None
+        while ncf.cdf(f_statistic, df1, df2, lower_bound[2]) > upper_limit: lower_bound = [lower_bound[0], lower_bound[2], lower_bound[2] + f_statistic]
+        while lower_ci_difference_value > 0.0000001:
+            lower_bound = [lower_bound[0], (lower_bound[0] + lower_bound[1]) / 2, lower_bound[1]] if ncf.cdf(f_statistic, df1, df2, lower_bound[1]) < upper_limit else [lower_bound[1], (lower_bound[1] + lower_bound[2]) / 2, lower_bound[2]]  
+            lower_ci_difference_value = abs(ncf.cdf(f_statistic, df1, df2, lower_bound[1]) - upper_limit)        
+        return [lower_bound[1]]
     
-    def Upper_CI(F_Statistic, df1, df2, Lower_Limit, Lower_CI_Difference_Value):
-        Upper_Bound = [F_Statistic, 2 * F_Statistic, 3 * F_Statistic]
-        while ncf.cdf(F_Statistic, df1, df2, Upper_Bound[0]) < Lower_Limit:Upper_Bound = [Upper_Bound[0] / 4, Upper_Bound[0], Upper_Bound[2]]
-        while ncf.cdf(F_Statistic, df1, df2, Upper_Bound[2]) > Lower_Limit: Upper_Bound = [Upper_Bound[0], Upper_Bound[2], Upper_Bound[2] + F_Statistic]
-        while Lower_CI_Difference_Value > 0.00001: Upper_Bound = [Upper_Bound[0], (Upper_Bound[0] + Upper_Bound[1]) / 2, Upper_Bound[1]] if ncf.cdf(F_Statistic, df1, df2, Upper_Bound[1]) < Lower_Limit else [Upper_Bound[1], (Upper_Bound[1] + Upper_Bound[2]) / 2, Upper_Bound[2]]; Lower_CI_Difference_Value = abs(ncf.cdf(F_Statistic, df1, df2, Upper_Bound[1]) - Lower_Limit)
-        return [Upper_Bound[1]]
+    def UpperCi(f_statistic, df1, df2, lower_limit, lower_ci_difference_value):
+        upper_bound = [f_statistic, 2 * f_statistic, 3 * f_statistic]
+        while ncf.cdf(f_statistic, df1, df2, upper_bound[0]) < lower_limit:upper_bound = [upper_bound[0] / 4, upper_bound[0], upper_bound[2]]
+        while ncf.cdf(f_statistic, df1, df2, upper_bound[2]) > lower_limit: upper_bound = [upper_bound[0], upper_bound[2], upper_bound[2] + f_statistic]
+        while lower_ci_difference_value > 0.00001: upper_bound = [upper_bound[0], (upper_bound[0] + upper_bound[1]) / 2, upper_bound[1]] if ncf.cdf(f_statistic, df1, df2, upper_bound[1]) < lower_limit else [upper_bound[1], (upper_bound[1] + upper_bound[2]) / 2, upper_bound[2]]; lower_ci_difference_value = abs(ncf.cdf(f_statistic, df1, df2, upper_bound[1]) - lower_limit)
+        return [upper_bound[1]]
     
     # Calculate lower and upper bounds
-    Lower_NCF_CI_Final = Lower_CI(F_Statistic, df1, df2, Upper_Limit, Lower_CI_Difference_Value)[0]
-    Upper_NCF_CI_Final = Upper_CI(F_Statistic, df1, df2, Lower_Limit, Lower_CI_Difference_Value)[0]
+    Lower_NCF_CI_Final = LowerCi(f_statistic, df1, df2, upper_limit, lower_ci_difference_value)[0]
+    Upper_NCF_CI_Final = UpperCi(f_statistic, df1, df2, lower_limit, lower_ci_difference_value)[0]
 
     return Lower_NCF_CI_Final, Upper_NCF_CI_Final
 
 
 # 1. Main Function Pearson Correlation
 def pearson_correlation(x,y,confidence_level = 0.95):
+    """
+    Calculates the Pearson correlation coefficient and its confidence interval.
+
+    Parameters:
+    x (array-like): First variable.
+    y (array-like): Second variable.
+    confidence_level (float): The confidence level for the interval.
+
+    Returns:
+    str: A formatted string containing the results.
+    """
     Pearson_Correlation, Pearson_pvalue =  pearsonr(x,y)
 
     sample_size = len(x)
@@ -179,6 +209,17 @@ def pearson_correlation(x,y,confidence_level = 0.95):
 # 2. Different R_Square Estimators
 
 def Rsquare_Estimation(Rsquare, sample_size, Number_Of_Predictors):
+    """
+    Estimates different R-square values.
+
+    Parameters:
+    Rsquare (float): The R-square value.
+    sample_size (int): The sample size.
+    Number_Of_Predictors (int): The number of predictors.
+
+    Returns:
+    str: A formatted string containing the results.
+    """
     dftotal = sample_size-1
     df_residual = sample_size - Number_Of_Predictors - 1
     df = sample_size - Number_Of_Predictors
@@ -242,7 +283,17 @@ def Rsquare_Estimation(Rsquare, sample_size, Number_Of_Predictors):
 
 # 3. Alternative Robust Measures of Pearson Correlation (Including Skipped Correlation)
 def Robust_Measures_Interval(x,y, confidence_level = 0.95): 
-    
+    """
+    Calculates various robust measures of Pearson correlation.
+
+    Parameters:
+    x (array-like): First variable.
+    y (array-like): Second variable.
+    confidence_level (float): The confidence level for the interval.
+
+    Returns:
+    str: A formatted string containing the results.
+    """
     # A. Percentage Bend Correlation
     sample_size = len(x)
     Omega_Hat_X= sorted((abs(np.array(x) - np.median(x))))[math.floor((1 - 0.2**2) * sample_size) - 1]
@@ -417,6 +468,17 @@ def Robust_Measures_Interval(x,y, confidence_level = 0.95):
 
 
 def skipped_Correlation(x, y, confidence_level):
+    """
+    Calculates the skipped correlation.
+
+    Parameters:
+    x (array-like): First variable.
+    y (array-like): Second variable.
+    confidence_level (float): The confidence level for the interval.
+
+    Returns:
+    str: A formatted string containing the results.
+    """
     from pingouin.utils import _is_sklearn_installed
 
     _is_sklearn_installed(raise_error=True)
@@ -486,7 +548,15 @@ def skipped_Correlation(x, y, confidence_level):
 class Int_Ratio_Correlation():
     @staticmethod
     def IntervaRatio_from_Data(params: dict) -> dict:
-        
+        """
+        Calculates interval/ratio correlations from data.
+
+        Parameters:
+        params (dict): A dictionary containing the parameters.
+
+        Returns:
+        dict: A dictionary containing the results.
+        """
         # Set Params:
         Variable1 = params["Variable 1"]
         Variable2 = params["Variable 2"]

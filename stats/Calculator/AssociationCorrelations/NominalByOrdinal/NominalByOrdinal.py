@@ -53,10 +53,10 @@ def Rank_Biserial_Correlation(nominal_variable, ordinal_variable, confidence_lev
         Rank_Biserial_Corrlation = ((count_A_greater_than_B / Number_of_Comparisons) - (count_B_greater_than_A / Number_of_Comparisons)) / 2
         Standrd_Error_RBC = np.sqrt((Sample_Size_1+Sample_Size_2+1)/(3*Sample_Size_1+Sample_Size_2)) #see totser package formulae for paired data as well
         Z_Critical_Value = norm.ppf((1-confidence_level) + ((confidence_level) / 2))
-        Lower_CI_Rank_Biserial_Correlation = max(math.tanh(math.atanh(Rank_Biserial_Corrlation) - Z_Critical_Value * Standrd_Error_RBC),-1)
-        Upper_CI_Rank_Biserial_Correlation = min(math.tanh(math.atanh(Rank_Biserial_Corrlation) + Z_Critical_Value * Standrd_Error_RBC),1)
+        LowerCi_Rank_Biserial_Correlation = max(math.tanh(math.atanh(Rank_Biserial_Corrlation) - Z_Critical_Value * Standrd_Error_RBC),-1)
+        UpperCi_Rank_Biserial_Correlation = min(math.tanh(math.atanh(Rank_Biserial_Corrlation) + Z_Critical_Value * Standrd_Error_RBC),1)
  
-        return Rank_Biserial_Corrlation, Lower_CI_Rank_Biserial_Correlation, Upper_CI_Rank_Biserial_Correlation
+        return Rank_Biserial_Corrlation, LowerCi_Rank_Biserial_Correlation, UpperCi_Rank_Biserial_Correlation
 
 class Nominal_by_Ordinal():
 
@@ -92,8 +92,8 @@ class Nominal_by_Ordinal():
         Krushkal_Stats_Bootstrapping = [kruskal(data=df.sample(frac=1, replace=True), dv='Ordinal_Variable', between='Nominal_Variable').values[0,2] for _ in range(n_boots)]
         Upper_ci_Epsilon = np.percentile(Krushkal_Stats_Bootstrapping, 100 - ((100 - confidence_level_percentages) / 2))
         Lower_ci_Epsilon = np.percentile(Krushkal_Stats_Bootstrapping, ((100 - confidence_level_percentages) / 2))
-        Epsilon_Upper_CI = Upper_ci_Epsilon / (sample_size - 1)
-        Epsilon_Lower_CI = Lower_ci_Epsilon / (sample_size - 1)
+        Epsilon_UpperCi = Upper_ci_Epsilon / (sample_size - 1)
+        Epsilon_LowerCi = Lower_ci_Epsilon / (sample_size - 1)
 
         # 2. Freeman's Theta and Bootstrapping CI's
         FreemansTheta = Freemans_Theta(Contingency_Table)
@@ -104,35 +104,35 @@ class Nominal_by_Ordinal():
             contingency_table = pd.crosstab(bootstrap_sample['Nominal_Variable'], bootstrap_sample['Ordinal_Variable'])
             theta = Freemans_Theta(contingency_table)
             fremmans_theta_bootstrapp.append(theta)
-        Lower_CI_Freemans_Theta = np.percentile(fremmans_theta_bootstrapp, (100 - confidence_level_percentages) / 2) 
-        Upper_CI_Freemans_Theta = np.percentile(fremmans_theta_bootstrapp, 100 - ((100 - confidence_level_percentages) / 2) )
+        LowerCi_Freemans_Theta = np.percentile(fremmans_theta_bootstrapp, (100 - confidence_level_percentages) / 2) 
+        UpperCi_Freemans_Theta = np.percentile(fremmans_theta_bootstrapp, 100 - ((100 - confidence_level_percentages) / 2) )
 
         Upper_ci_Epsilon = np.percentile(Krushkal_Stats_Bootstrapping, 100 - ((100 - confidence_level_percentages) / 2))
         Lower_ci_Epsilon = np.percentile(Krushkal_Stats_Bootstrapping, ((100 - confidence_level_percentages) / 2))
-        Epsilon_Upper_CI = Upper_ci_Epsilon / (sample_size - 1)
-        Epsilon_Lower_CI = Lower_ci_Epsilon / (sample_size - 1)        
+        Epsilon_UpperCi = Upper_ci_Epsilon / (sample_size - 1)
+        Epsilon_LowerCi = Lower_ci_Epsilon / (sample_size - 1)        
         
         # 3. Rank Biserial Correlation
         if Number_of_Levels_Nominal == 2:
-           Rank_Biserial_Corrlation, Lower_CI_Rank_Biserial_Correlation, Upper_CI_Rank_Biserial_Correlation = Rank_Biserial_Correlation(df['Nominal_Variable'], df["Ordinal_Variable"], confidence_level)
+           Rank_Biserial_Corrlation, LowerCi_Rank_Biserial_Correlation, UpperCi_Rank_Biserial_Correlation = Rank_Biserial_Correlation(df['Nominal_Variable'], df["Ordinal_Variable"], confidence_level)
 
         results = {}
         results["H Statistic"] =  H_Statistic
         results["Degrees of Freedom of the Kruskal Wallis Test"] =  df_kruskal
         results["p-value of the Kruskal Wallis Test"] =  Kruskal_Wallis_p_Value
         results["Epsilon Square"] =  Epsilon_Sqaure
-        results["Lower Ci of Epsilon Square"] =  Epsilon_Lower_CI
-        results["Upper Ci of Epsilon Square"] =  Epsilon_Upper_CI
+        results["Lower Ci of Epsilon Square"] =  Epsilon_LowerCi
+        results["Upper Ci of Epsilon Square"] =  Epsilon_UpperCi
         results["Freeman's Theta"] =  FreemansTheta
-        results["Freeman's Theta Lower CI"] =  Lower_CI_Freemans_Theta
-        results["Freeman's Theta Upper Ci"] =  Upper_CI_Freemans_Theta
+        results["Freeman's Theta Lower CI"] =  LowerCi_Freemans_Theta
+        results["Freeman's Theta Upper Ci"] =  UpperCi_Freemans_Theta
         formatted_p_value_kruskal = "{:.3f}".format(Kruskal_Wallis_p_Value).lstrip('0') if Kruskal_Wallis_p_Value >= 0.001 else "\033[3mp\033[0m < .001"
-        results["Statistical Line Epsilon Square"] = " \033[3mH\033[0m({}) = {}, {}{}, \033[3m\u03B5\u00B2\033[0m = {}, {}% CI(bootsrapping) [{}, {}]".format(df_kruskal, ((int( round(H_Statistic,3)) if float(round(H_Statistic,3)).is_integer() else round(H_Statistic,3))), '\033[3mp = \033[0m' if Kruskal_Wallis_p_Value >= 0.001 else '', formatted_p_value_kruskal, (('-' if str(Epsilon_Sqaure).startswith('-') else '') + str(round(Epsilon_Sqaure,3)).lstrip('-').lstrip('0') or '0'), (confidence_level_percentages), (('-' if str(Epsilon_Lower_CI).startswith('-') else '') + str(round(Epsilon_Lower_CI,3)).lstrip('-').lstrip('0') or '0'), (('-' if str(Epsilon_Upper_CI).startswith('-') else '') + str(round(Epsilon_Upper_CI,3)).lstrip('-').lstrip('0') or '0'))
+        results["Statistical Line Epsilon Square"] = " \033[3mH\033[0m({}) = {}, {}{}, \033[3m\u03B5\u00B2\033[0m = {}, {}% CI(bootsrapping) [{}, {}]".format(df_kruskal, ((int( round(H_Statistic,3)) if float(round(H_Statistic,3)).is_integer() else round(H_Statistic,3))), '\033[3mp = \033[0m' if Kruskal_Wallis_p_Value >= 0.001 else '', formatted_p_value_kruskal, (('-' if str(Epsilon_Sqaure).startswith('-') else '') + str(round(Epsilon_Sqaure,3)).lstrip('-').lstrip('0') or '0'), (confidence_level_percentages), (('-' if str(Epsilon_LowerCi).startswith('-') else '') + str(round(Epsilon_LowerCi,3)).lstrip('-').lstrip('0') or '0'), (('-' if str(Epsilon_UpperCi).startswith('-') else '') + str(round(Epsilon_UpperCi,3)).lstrip('-').lstrip('0') or '0'))
 
         if Number_of_Levels_Nominal == 2:
             results["Rank Biserial Correlation"] =  Rank_Biserial_Corrlation
-            results["Lower CI Rank Biserial Correlation"] =  Lower_CI_Rank_Biserial_Correlation
-            results["Upper CI Rank Biserial Correlation"] =  Upper_CI_Rank_Biserial_Correlation
+            results["Lower CI Rank Biserial Correlation"] =  LowerCi_Rank_Biserial_Correlation
+            results["Upper CI Rank Biserial Correlation"] =  UpperCi_Rank_Biserial_Correlation
     
         return results
 
@@ -164,8 +164,8 @@ class Nominal_by_Ordinal():
         Krushkal_Stats_Bootstrapping = [kruskal(data=df.sample(frac=1, replace=True), dv='Ordinal_Variable', between='Nominal_Variable').values[0,2] for _ in range(n_boots)]
         Upper_ci_Epsilon = np.percentile(Krushkal_Stats_Bootstrapping, 100 - ((100 - confidence_level_percentages) / 2))
         Lower_ci_Epsilon = np.percentile(Krushkal_Stats_Bootstrapping, ((100 - confidence_level_percentages) / 2))
-        Epsilon_Upper_CI = Upper_ci_Epsilon / (sample_size - 1)
-        Epsilon_Lower_CI = Lower_ci_Epsilon / (sample_size - 1)
+        Epsilon_UpperCi = Upper_ci_Epsilon / (sample_size - 1)
+        Epsilon_LowerCi = Lower_ci_Epsilon / (sample_size - 1)
 
         # 2. Freeman's Theta and Bootstrapping CI's
         FreemansTheta = Freemans_Theta(Contingency_Table)
@@ -176,35 +176,35 @@ class Nominal_by_Ordinal():
             contingency_table = pd.crosstab(bootstrap_sample['Nominal_Variable'], bootstrap_sample['Ordinal_Variable'])
             theta = Freemans_Theta(contingency_table)
             fremmans_theta_bootstrapp.append(theta)
-        Lower_CI_Freemans_Theta = np.percentile(fremmans_theta_bootstrapp, (100 - confidence_level_percentages) / 2) 
-        Upper_CI_Freemans_Theta = np.percentile(fremmans_theta_bootstrapp, 100 - ((100 - confidence_level_percentages) / 2) )
+        LowerCi_Freemans_Theta = np.percentile(fremmans_theta_bootstrapp, (100 - confidence_level_percentages) / 2) 
+        UpperCi_Freemans_Theta = np.percentile(fremmans_theta_bootstrapp, 100 - ((100 - confidence_level_percentages) / 2) )
 
         Upper_ci_Epsilon = np.percentile(Krushkal_Stats_Bootstrapping, 100 - ((100 - confidence_level_percentages) / 2))
         Lower_ci_Epsilon = np.percentile(Krushkal_Stats_Bootstrapping, ((100 - confidence_level_percentages) / 2))
-        Epsilon_Upper_CI = Upper_ci_Epsilon / (sample_size - 1) 
-        Epsilon_Lower_CI = Lower_ci_Epsilon / (sample_size - 1)
+        Epsilon_UpperCi = Upper_ci_Epsilon / (sample_size - 1) 
+        Epsilon_LowerCi = Lower_ci_Epsilon / (sample_size - 1)
 
         # 3. Rank Biserial Correlation
         if Number_of_Levels == 2:
-           Rank_Biserial_Corrlation, Lower_CI_Rank_Biserial_Correlation, Upper_CI_Rank_Biserial_Correlation  = Rank_Biserial_Correlation(df['Nominal_Variable'], df["Ordinal_Variable"], confidence_level)
+           Rank_Biserial_Corrlation, LowerCi_Rank_Biserial_Correlation, UpperCi_Rank_Biserial_Correlation  = Rank_Biserial_Correlation(df['Nominal_Variable'], df["Ordinal_Variable"], confidence_level)
 
         results = {}
         results["H Statistic"] =  H_Statistic
         results["Degrees of Freedom of the Kruskal Wallis Test"] =  df_kruskal
         results["p-value of the Kruskal Wallis Test"] =  Kruskal_Wallis_p_Value
         results["Epsilon Square"] =  Epsilon_Sqaure
-        results["Lower Ci of Epsilon Square"] =  Epsilon_Lower_CI
-        results["Upper Ci of Epsilon Square"] =  Epsilon_Upper_CI
+        results["Lower Ci of Epsilon Square"] =  Epsilon_LowerCi
+        results["Upper Ci of Epsilon Square"] =  Epsilon_UpperCi
         results["Freeman's Theta"] =  FreemansTheta
-        results["Freeman's Theta Lower CI"] =  Lower_CI_Freemans_Theta
-        results["Freeman's Theta Upper Ci"] =  Upper_CI_Freemans_Theta
+        results["Freeman's Theta Lower CI"] =  LowerCi_Freemans_Theta
+        results["Freeman's Theta Upper Ci"] =  UpperCi_Freemans_Theta
         formatted_p_value_kruskal = "{:.3f}".format(Kruskal_Wallis_p_Value).lstrip('0') if Kruskal_Wallis_p_Value >= 0.001 else "\033[3mp\033[0m < .001"
-        results["Statistical Line Epsilon Square"] = " \033[3mH\033[0m({}) = {}, {}{}, \033[3m\u03B5\u00B2\033[0m = {}, {}% CI(bootsrapping) [{}, {}]".format(df_kruskal, ((int( round(H_Statistic,3)) if float(round(H_Statistic,3)).is_integer() else round(H_Statistic,3))), '\033[3mp = \033[0m' if Kruskal_Wallis_p_Value >= 0.001 else '', formatted_p_value_kruskal, (('-' if str(Epsilon_Sqaure).startswith('-') else '') + str(round(Epsilon_Sqaure,3)).lstrip('-').lstrip('0') or '0'), (confidence_level_percentages), (('-' if str(Epsilon_Lower_CI).startswith('-') else '') + str(round(Epsilon_Lower_CI,3)).lstrip('-').lstrip('0') or '0'), (('-' if str(Epsilon_Upper_CI).startswith('-') else '') + str(round(Epsilon_Upper_CI,3)).lstrip('-').lstrip('0') or '0'))
+        results["Statistical Line Epsilon Square"] = " \033[3mH\033[0m({}) = {}, {}{}, \033[3m\u03B5\u00B2\033[0m = {}, {}% CI(bootsrapping) [{}, {}]".format(df_kruskal, ((int( round(H_Statistic,3)) if float(round(H_Statistic,3)).is_integer() else round(H_Statistic,3))), '\033[3mp = \033[0m' if Kruskal_Wallis_p_Value >= 0.001 else '', formatted_p_value_kruskal, (('-' if str(Epsilon_Sqaure).startswith('-') else '') + str(round(Epsilon_Sqaure,3)).lstrip('-').lstrip('0') or '0'), (confidence_level_percentages), (('-' if str(Epsilon_LowerCi).startswith('-') else '') + str(round(Epsilon_LowerCi,3)).lstrip('-').lstrip('0') or '0'), (('-' if str(Epsilon_UpperCi).startswith('-') else '') + str(round(Epsilon_UpperCi,3)).lstrip('-').lstrip('0') or '0'))
 
         if Number_of_Levels == 2:
             results["Rank Biserial Correlation"] =  Rank_Biserial_Corrlation
-            results["Lower CI Rank Biserial Correlation"] =  Lower_CI_Rank_Biserial_Correlation
-            results["Upper CI Rank Biserial Correlation"] =  Upper_CI_Rank_Biserial_Correlation
+            results["Lower CI Rank Biserial Correlation"] =  LowerCi_Rank_Biserial_Correlation
+            results["Upper CI Rank Biserial Correlation"] =  UpperCi_Rank_Biserial_Correlation
     
 
         return results

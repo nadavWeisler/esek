@@ -39,32 +39,32 @@ def ncp_ci(chival, df, conf):
     return low_ncp[0], high_ncp
 
 # Non Central F CI Function
-def Non_Central_CI_F(F_Statistic, df1, df2, confidence_level):
-    Upper_Limit = 1 - (1 - confidence_level) / 2
-    Lower_Limit = 1 - Upper_Limit
-    Lower_CI_Difference_Value = 1
+def NonCentralCiF(f_statistic, df1, df2, confidence_level):
+    upper_limit = 1 - (1 - confidence_level) / 2
+    lower_limit = 1 - upper_limit
+    lower_ci_difference_value = 1
 
-    def Lower_CI(F_Statistic, df1, df2, Upper_Limit, Lower_CI_Difference_Value):
-        Lower_Bound = [0.001, F_Statistic / 2, F_Statistic]       
-        while ncf.cdf(F_Statistic, df1, df2, Lower_Bound[0]) < Upper_Limit:
-            return [0, ncf.cdf(F_Statistic, df1, df2)] if ncf.cdf(F_Statistic, df1, df2) < Upper_Limit else None
-            Lower_Bound = [Lower_Bound[0] / 4, Lower_Bound[0], Lower_Bound[2]]   
-        while ncf.cdf(F_Statistic, df1, df2, Lower_Bound[2]) > Upper_Limit: Lower_Bound = [Lower_Bound[0], Lower_Bound[2], Lower_Bound[2] + F_Statistic]     
-        while Lower_CI_Difference_Value > 0.0000001:
-            Lower_Bound = [Lower_Bound[0], (Lower_Bound[0] + Lower_Bound[1]) / 2, Lower_Bound[1]] if ncf.cdf(F_Statistic, df1, df2, Lower_Bound[1]) < Upper_Limit else [Lower_Bound[1], (Lower_Bound[1] + Lower_Bound[2]) / 2, Lower_Bound[2]]  
-            Lower_CI_Difference_Value = abs(ncf.cdf(F_Statistic, df1, df2, Lower_Bound[1]) - Upper_Limit)        
-        return [Lower_Bound[1]]
+    def LowerCi(f_statistic, df1, df2, upper_limit, lower_ci_difference_value):
+        lower_bound = [0.001, f_statistic / 2, f_statistic]       
+        while ncf.cdf(f_statistic, df1, df2, lower_bound[0]) < upper_limit:
+            return [0, ncf.cdf(f_statistic, df1, df2)] if ncf.cdf(f_statistic, df1, df2) < upper_limit else None
+            lower_bound = [lower_bound[0] / 4, lower_bound[0], lower_bound[2]]   
+        while ncf.cdf(f_statistic, df1, df2, lower_bound[2]) > upper_limit: lower_bound = [lower_bound[0], lower_bound[2], lower_bound[2] + f_statistic]     
+        while lower_ci_difference_value > 0.0000001:
+            lower_bound = [lower_bound[0], (lower_bound[0] + lower_bound[1]) / 2, lower_bound[1]] if ncf.cdf(f_statistic, df1, df2, lower_bound[1]) < upper_limit else [lower_bound[1], (lower_bound[1] + lower_bound[2]) / 2, lower_bound[2]]  
+            lower_ci_difference_value = abs(ncf.cdf(f_statistic, df1, df2, lower_bound[1]) - upper_limit)        
+        return [lower_bound[1]]
     
-    def Upper_CI(F_Statistic, df1, df2, Lower_Limit, Lower_CI_Difference_Value):
-        Upper_Bound = [F_Statistic, 2 * F_Statistic, 3 * F_Statistic]
-        while ncf.cdf(F_Statistic, df1, df2, Upper_Bound[0]) < Lower_Limit:Upper_Bound = [Upper_Bound[0] / 4, Upper_Bound[0], Upper_Bound[2]]
-        while ncf.cdf(F_Statistic, df1, df2, Upper_Bound[2]) > Lower_Limit: Upper_Bound = [Upper_Bound[0], Upper_Bound[2], Upper_Bound[2] + F_Statistic]
-        while Lower_CI_Difference_Value > 0.00001: Upper_Bound = [Upper_Bound[0], (Upper_Bound[0] + Upper_Bound[1]) / 2, Upper_Bound[1]] if ncf.cdf(F_Statistic, df1, df2, Upper_Bound[1]) < Lower_Limit else [Upper_Bound[1], (Upper_Bound[1] + Upper_Bound[2]) / 2, Upper_Bound[2]]; Lower_CI_Difference_Value = abs(ncf.cdf(F_Statistic, df1, df2, Upper_Bound[1]) - Lower_Limit)
-        return [Upper_Bound[1]]
+    def UpperCi(f_statistic, df1, df2, lower_limit, lower_ci_difference_value):
+        upper_bound = [f_statistic, 2 * f_statistic, 3 * f_statistic]
+        while ncf.cdf(f_statistic, df1, df2, upper_bound[0]) < lower_limit:upper_bound = [upper_bound[0] / 4, upper_bound[0], upper_bound[2]]
+        while ncf.cdf(f_statistic, df1, df2, upper_bound[2]) > lower_limit: upper_bound = [upper_bound[0], upper_bound[2], upper_bound[2] + f_statistic]
+        while lower_ci_difference_value > 0.00001: upper_bound = [upper_bound[0], (upper_bound[0] + upper_bound[1]) / 2, upper_bound[1]] if ncf.cdf(f_statistic, df1, df2, upper_bound[1]) < lower_limit else [upper_bound[1], (upper_bound[1] + upper_bound[2]) / 2, upper_bound[2]]; lower_ci_difference_value = abs(ncf.cdf(f_statistic, df1, df2, upper_bound[1]) - lower_limit)
+        return [upper_bound[1]]
     
     # Calculate lower and upper bounds
-    Lower_NCF_CI_Final = Lower_CI(F_Statistic, df1, df2, Upper_Limit, Lower_CI_Difference_Value)[0]
-    Upper_NCF_CI_Final = Upper_CI(F_Statistic, df1, df2, Lower_Limit, Lower_CI_Difference_Value)[0]
+    Lower_NCF_CI_Final = LowerCi(f_statistic, df1, df2, upper_limit, lower_ci_difference_value)[0]
+    Upper_NCF_CI_Final = UpperCi(f_statistic, df1, df2, lower_limit, lower_ci_difference_value)[0]
 
     return Lower_NCF_CI_Final, Upper_NCF_CI_Final
 
@@ -84,11 +84,11 @@ class CI_Constructor_Association():
 
         Chi_Score = Cramer_V**2 * Sample_Size * Degrees_of_Freedom
         lower_ncp, upper_ncp = ncp_ci(Chi_Score, Degrees_of_Freedom, confidence_level)
-        Lower_CI_Cramer = np.sqrt(lower_ncp / Sample_Size / Degrees_of_Freedom)
-        Upper_CI_Cramer = np.sqrt(upper_ncp / Sample_Size / Degrees_of_Freedom)
+        LowerCi_Cramer = np.sqrt(lower_ncp / Sample_Size / Degrees_of_Freedom)
+        UpperCi_Cramer = np.sqrt(upper_ncp / Sample_Size / Degrees_of_Freedom)
 
         results = {}
-        results["Confidence Intervals Cramer's V"] = np.array([round(Lower_CI_Cramer, 4), round(Upper_CI_Cramer, 4)])
+        results["Confidence Intervals Cramer's V"] = np.array([round(LowerCi_Cramer, 4), round(UpperCi_Cramer, 4)])
 
         return results
 
@@ -106,12 +106,12 @@ class CI_Constructor_Association():
 
         Cramer_V = np.sqrt(Chi_Score / (Sample_Size*Degrees_of_Freedom))
         lower_ncp, upper_ncp = ncp_ci(Chi_Score, Degrees_of_Freedom, confidence_level)
-        Lower_CI_Cramer = np.sqrt(lower_ncp / Sample_Size / Degrees_of_Freedom)
-        Upper_CI_Cramer = np.sqrt(upper_ncp / Sample_Size / Degrees_of_Freedom)
+        LowerCi_Cramer = np.sqrt(lower_ncp / Sample_Size / Degrees_of_Freedom)
+        UpperCi_Cramer = np.sqrt(upper_ncp / Sample_Size / Degrees_of_Freedom)
 
         results = {}
         results["Cramer's V"] = Cramer_V
-        results["Confidence Intervals Cramer's V"] = np.array([round(Lower_CI_Cramer, 4), round(Upper_CI_Cramer, 4)])
+        results["Confidence Intervals Cramer's V"] = np.array([round(LowerCi_Cramer, 4), round(UpperCi_Cramer, 4)])
 
         return results
 
@@ -128,11 +128,11 @@ class CI_Constructor_Association():
 
         Chi_Score = np.sqrt(Cohens_w * Sample_Size)
         lower_ncp, upper_ncp = ncp_ci(Chi_Score, Degrees_of_Freedom, confidence_level)
-        Lower_CI_Cramer = np.sqrt(lower_ncp / Sample_Size / Degrees_of_Freedom)
-        Upper_CI_Cramer = np.sqrt(upper_ncp / Sample_Size / Degrees_of_Freedom)
+        LowerCi_Cramer = np.sqrt(lower_ncp / Sample_Size / Degrees_of_Freedom)
+        UpperCi_Cramer = np.sqrt(upper_ncp / Sample_Size / Degrees_of_Freedom)
 
         results = {}
-        results["Confidence Intervals for Cohen's w (Phi)"] = np.array([round(Lower_CI_Cramer, 4), round(Upper_CI_Cramer, 4)])
+        results["Confidence Intervals for Cohen's w (Phi)"] = np.array([round(LowerCi_Cramer, 4), round(UpperCi_Cramer, 4)])
 
         return results
 
@@ -149,11 +149,11 @@ class CI_Constructor_Association():
 
         Chi_Score = (CC**2 * Sample_Size) / (CC**2 - 1)
         lower_ncp, upper_ncp = ncp_ci(Chi_Score, Degrees_of_Freedom, confidence_level)
-        Lower_CI_Cramer = np.sqrt(lower_ncp / Sample_Size / Degrees_of_Freedom)
-        Upper_CI_Cramer = np.sqrt(upper_ncp / Sample_Size / Degrees_of_Freedom)
+        LowerCi_Cramer = np.sqrt(lower_ncp / Sample_Size / Degrees_of_Freedom)
+        UpperCi_Cramer = np.sqrt(upper_ncp / Sample_Size / Degrees_of_Freedom)
 
         results = {}
-        results["Confidence Intervals for Contingency Coefficient"] = np.array([round(Lower_CI_Cramer, 4), round(Upper_CI_Cramer, 4)])
+        results["Confidence Intervals for Contingency Coefficient"] = np.array([round(LowerCi_Cramer, 4), round(UpperCi_Cramer, 4)])
 
         return results
 
@@ -170,12 +170,12 @@ class CI_Constructor_Association():
 
         CC = np.sqrt(Chi_Score / (Chi_Score + Sample_Size))
         lower_ncp, upper_ncp = ncp_ci(Chi_Score, Degrees_of_Freedom, confidence_level)
-        Lower_CI_Cramer = np.sqrt(lower_ncp / Sample_Size / Degrees_of_Freedom)
-        Upper_CI_Cramer = np.sqrt(upper_ncp / Sample_Size / Degrees_of_Freedom)
+        LowerCi_Cramer = np.sqrt(lower_ncp / Sample_Size / Degrees_of_Freedom)
+        UpperCi_Cramer = np.sqrt(upper_ncp / Sample_Size / Degrees_of_Freedom)
 
         results = {}
         results["Contingency Coefficient"] = CC       
-        results["Confidence Intervals for Contingency Coefficient"] = np.array([round(Lower_CI_Cramer, 4), round(Upper_CI_Cramer, 4)])
+        results["Confidence Intervals for Contingency Coefficient"] = np.array([round(LowerCi_Cramer, 4), round(UpperCi_Cramer, 4)])
 
         return results
 
@@ -274,7 +274,7 @@ class CI_Constructor_Association():
 
         # 4. Non-Central CI's based on F distribtion
         F_Score = (Rsquare / Number_of_Predictors) / ((1-Rsquare) / (sample_size - Number_of_Predictors - 1))
-        Lowerc_NCF_CI, Upper_NCF_CI = Non_Central_CI_F(F_Score, Number_of_Predictors, sample_size-Number_of_Predictors-1, confidence_level)
+        Lowerc_NCF_CI, Upper_NCF_CI = NonCentralCiF(F_Score, Number_of_Predictors, sample_size-Number_of_Predictors-1, confidence_level)
         R2_non_central_CI_lower = np.sqrt(Lowerc_NCF_CI / (Lowerc_NCF_CI + (Number_of_Predictors + (sample_size-Number_of_Predictors-1) + 1)))
         R2_non_central_CI_upper = np.sqrt(Upper_NCF_CI / (Upper_NCF_CI +(Number_of_Predictors + (sample_size-Number_of_Predictors-1) + 1)))
 

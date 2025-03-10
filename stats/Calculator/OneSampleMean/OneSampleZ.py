@@ -56,6 +56,30 @@ def calculate_central_ci_from_cohens_d_one_sample(
     )
     return ci_lower, ci_upper, standard_error_es
 
+class OneSampleZResults:
+    """
+    A class to store results from one-sample Z statistical tests.
+
+    This class contains attributes to store various statistical measures including:
+    - Effect size (Cohen's d)
+    - Z-score and p-value
+    - Standard error of the mean
+    - Confidence intervals for Cohen's d
+    - Standard error of the effect size
+    """
+    def __init__(self) -> None:
+        self.cohens_d: float | None = None
+        self.z_score: float | None = None 
+        self.p_value: float | None = None
+        self.standard_error_of_the_mean: float | None = None
+        self.cohens_d_ci_lower: float | None = None
+        self.cohens_d_ci_upper: float | None = None
+        self.standard_error_of_the_effect_size: float | None = None
+        self.sample_mean: float | None = None
+        self.sample_sd: float | None = None
+        self.difference_between_means: float | None = None
+        self.sample_size: float | None = None
+
 
 class OneSampleZ:
     """
@@ -112,27 +136,14 @@ class OneSampleZ:
             )
         )
 
-        # Set results
-        results = {}
-        results["Cohen's d"] = round(cohens_d, 4)
-        results["Z-score"] = round(z_score, 4)
-        results["p-value"] = round(p_value, 4)
-        results["Cohen's d CI Lower"] = round(ci_lower, 4)
-        results["Cohen's d CI Upper"] = round(ci_upper, 4)
-        results["Standard Error of the Effect Size"] = round(standard_error_es, 4)
-        results["Statistical Line"] = (
-            f" \033[3mz\033[0m = {z_score:.3f}, \033[3mp\033[0m {'= {:.3f}'.format(p_value) if p_value >= 0.001 else '< .001'}, Cohen's d = {cohens_d:.3f}, {confidence_level_percentages}% CI [{ci_lower:.3f},{ci_upper:.3f}]"
-        )
-        results["Statistical Line"] = (
-            results["Statistical Line"]
-            .replace(
-                f"\033[3mp\033[0m {'= {:.3f}'.format(p_value)}",
-                f"\033[3mp\033[0m {'= {:.3f}'.format(p_value) if p_value >= 0.001 else '< .001'}",
-            )
-            .replace(".000", ".")
-            .replace("= 0.", "= .")
-            .replace("< 0.", "< .")
-        )
+        results = OneSampleZResults()
+        results.cohens_d = round(cohens_d, 4)
+        results.z_score = round(z_score, 4)
+        results.p_value = round(p_value, 4)
+        results.cohens_d_ci_lower = round(ci_lower, 4)
+        results.cohens_d_ci_upper = round(ci_upper, 4)
+        results.standard_error_of_the_effect_size = round(standard_error_es, 4)
+
         return results
 
     @staticmethod
@@ -184,28 +195,16 @@ class OneSampleZ:
             )
         )
 
-        # Set Results
-        results = {}
-        results["Cohen's d"] = round(cohens_d, 4)
-        results["Z-score"] = round(z_score, 4)
-        results["p-value"] = round(p_value, 4)
-        results["Standard Error of the Mean"] = round(mean_standard_error, 4)
-        results["Cohen's d CI Lower"] = round(ci_lower, 4)
-        results["Cohen's d CI Upper"] = round(ci_upper, 4)
-        results["Standard Error of the Effect Size"] = round(standard_error_es, 4)
-        results["Statistical Line"] = (
-            f" \033[3mz\033[0m = {z_score:.3f}, \033[3mp\033[0m {'= {:.3f}'.format(p_value) if p_value >= 0.001 else '< .001'}, Cohen's d = {cohens_d:.3f}, {confidence_level_percentages}% CI [{ci_lower:.3f},{ci_upper:.3f}]"
-        )
-        results["Statistical Line"] = (
-            results["Statistical Line"]
-            .replace(
-                f"\033[3mp\033[0m {'= {:.3f}'.format(p_value)}",
-                f"\033[3mp\033[0m {'= {:.3f}'.format(p_value) if p_value >= 0.001 else '< .001'}",
-            )
-            .replace(".000", ".")
-            .replace("= 0.", "= .")
-            .replace("< 0.", "< .")
-        )
+
+        # Create results object
+        results = OneSampleZResults()
+        results.cohens_d = round(cohens_d, 4)
+        results.z_score = round(z_score, 4)
+        results.p_value = round(p_value, 4)
+        results.standard_error_of_the_mean = round(mean_standard_error, 4)
+        results.cohens_d_ci_lower = round(ci_lower, 4)
+        results.cohens_d_ci_upper = round(ci_upper, 4)
+        results.standard_error_of_the_effect_size = round(standard_error_es, 4)
         return results
 
     @staticmethod
@@ -224,21 +223,20 @@ class OneSampleZ:
 
         Returns
         -------
-        dict
-            A dictionary containing the calculated results:
-            - "Cohen's d" (float): The calculated Cohen's d effect size
-            - "Z-score" (float): The Z-score value
-            - "p-value" (float): The p-value
-            - "Standard Error of the Mean" (float): The standard error of the mean
-            - "Cohen's d CI Lower" (float): Lower bound of the confidence interval for Cohen's d
-            - "Cohen's d CI Upper" (float): Upper bound of the confidence interval for Cohen's d
-            - "Standard Error of the Effect Size" (float): Standard error of the effect size
-            - "Sample's Mean" (float): The mean of the sample
-            - "Sample's Standard Deviation" (float): The standard deviation of the sample
-            - "Difference Between Means" (float): The difference between the population mean and the
-            sample mean
-            - "Sample Size" (int): The size of the sample
-            - "Statistical Line" (str): A formatted string with the statistical results
+        OneSampleZResults
+            An object containing the calculated results:
+            - cohens_d (float): The calculated Cohen's d effect size
+            - z_score (float): The Z-score value 
+            - p_value (float): The p-value
+            - standard_error_of_the_mean (float): The standard error of the mean
+            - cohens_d_ci_lower (float): Lower bound of the confidence interval for Cohen's d
+            - cohens_d_ci_upper (float): Upper bound of the confidence interval for Cohen's d
+            - standard_error_of_the_effect_size (float): Standard error of the effect size
+            - sample_mean (float): The mean of the sample
+            - sample_sd (float): The standard deviation of the sample
+            - difference_between_means (float): The difference between the population mean and the
+              sample mean
+            - sample_size (int): The size of the sample
         """
 
         # Set params
@@ -263,30 +261,19 @@ class OneSampleZ:
             )
         )
 
-        results = {}
-        results["Cohen's d"] = round(cohens_d, 4)
-        results["Z-score"] = round(z_score, 4)
-        results["p-value"] = round(p_value, 20)
-        results["Standard Error of the Mean"] = round(standard_error, 4)
-        results["Cohen's d CI Lower"] = round(ci_lower, 4)
-        results["Cohen's d CI Upper"] = round(ci_upper, 4)
-        results["Standard Error of the Effect Size"] = round(standard_error_es, 4)
-        results["Sample's Mean"] = round(sample_mean, 4)
-        results["Sample's Standard Deviation"] = round(sample_sd, 4)
-        results["Difference Between Means"] = round(diff_mean, 4)
-        results["Sample Size"] = round(sample_size, 4)
-        results["Statistical Line"] = (
-            f" \033[3mz\033[0m = {z_score:.3f}, \033[3mp\033[0m {'= {:.3f}'.format(p_value) if p_value >= 0.001 else '< .001'}, Cohen's d = {cohens_d:.3f}, {confidence_level_percentages}% CI [{ci_lower:.3f},{ci_upper:.3f}]"
-        )
-        results["Statistical Line"] = (
-            results["Statistical Line"]
-            .replace(
-                f"\033[3mp\033[0m {'= {:.3f}'.format(p_value)}",
-                f"\033[3mp\033[0m {'= {:.3f}'.format(p_value) if p_value >= 0.001 else '< .001'}",
-            )
-            .replace(".000", ".")
-            .replace("= 0.", "= .")
-            .replace("< 0.", "< .")
-        )
+        # Create results object
+        results = OneSampleZResults()
+        results.cohens_d = round(cohens_d, 4)
+        results.z_score = round(z_score, 4)
+        results.p_value = round(p_value, 4)
+        results.standard_error_of_the_mean = round(standard_error, 4)
+        results.cohens_d_ci_lower = round(ci_lower, 4)
+        results.cohens_d_ci_upper = round(ci_upper, 4)
+        results.standard_error_of_the_effect_size = round(standard_error_es, 4)
+        results.sample_mean = round(sample_mean, 4)
+        results.sample_sd = round(sample_sd, 4)
+        results.difference_between_means = round(diff_mean, 4)
+        results.sample_size = round(sample_size, 4)
+
         return results
 

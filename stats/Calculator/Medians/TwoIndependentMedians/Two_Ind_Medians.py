@@ -165,8 +165,8 @@ class TwoPairedMedians():
         Variance_Sample_2 = ((Y1 - Y2) / (2 * Z2))**2
 
         Standard_Error_Indpednent_Differnece_Price_Bonett = np.sqrt(Variance_Sample_1 + Variance_Sample_2)
-        Lower_CI_Price_Bonett_between_difference = (Median_sample_1 - Median_sample_2) - zcrit * Standard_Error_Indpednent_Differnece_Price_Bonett
-        Upper_CI_Price_Bonett_between_difference = (Median_sample_1 - Median_sample_2) + zcrit * Standard_Error_Indpednent_Differnece_Price_Bonett
+        LowerCi_Price_Bonett_between_difference = (Median_sample_1 - Median_sample_2) - zcrit * Standard_Error_Indpednent_Differnece_Price_Bonett
+        UpperCi_Price_Bonett_between_difference = (Median_sample_1 - Median_sample_2) + zcrit * Standard_Error_Indpednent_Differnece_Price_Bonett
 
 
         # Ratio of Medians
@@ -180,8 +180,8 @@ class TwoPairedMedians():
         log_Variance_Sample_2 = ((log_Y1 - log_Y2) / (2 * log_Z2))**2
         ratio_of_medians = Median_sample_1 / Median_sample_2
         log_Standard_Error_Indpednent_Differnece_Price_Bonett = np.sqrt(log_Variance_Sample_1+log_Variance_Sample_2)
-        Lower_CI_Price_Bonett_between_ratio = ratio_of_medians * math.exp(-zcrit * log_Standard_Error_Indpednent_Differnece_Price_Bonett)
-        Upper_CI_Price_Bonett_between_ratio = ratio_of_medians * math.exp(zcrit * log_Standard_Error_Indpednent_Differnece_Price_Bonett)
+        LowerCi_Price_Bonett_between_ratio = ratio_of_medians * math.exp(-zcrit * log_Standard_Error_Indpednent_Differnece_Price_Bonett)
+        UpperCi_Price_Bonett_between_ratio = ratio_of_medians * math.exp(zcrit * log_Standard_Error_Indpednent_Differnece_Price_Bonett)
 
 
 
@@ -229,18 +229,18 @@ class TwoPairedMedians():
 
         # Mean Difference and Confidence Intervals
         results["Difference Between Medians"] = round(Difference_Between_Medians, 4)
-        results["Lower CI"] = round(Lower_CI_difference, 4)
-        results["Upper CI"] = round(Upper_CI_difference, 4)
-        results["Lower CI (Price-Bonett)"] = round(Lower_CI_Price_Bonett_between_difference, 4)
-        results["Upper CI (Price-Bonett)"] = round(Upper_CI_Price_Bonett_between_difference, 4)
+        results["Lower CI"] = round(LowerCi_difference, 4)
+        results["Upper CI"] = round(UpperCi_difference, 4)
+        results["Lower CI (Price-Bonett)"] = round(LowerCi_Price_Bonett_between_difference, 4)
+        results["Upper CI (Price-Bonett)"] = round(UpperCi_Price_Bonett_between_difference, 4)
 
         results["                                                                                                                                    "] = ""
 
 
         # Ratio of Medians and Confidecne Intervals 
         results["Ratio of Medians"] = round(ratio_of_medians, 4)
-        results["Lower CI Ratio of Medians"] = round(Lower_CI_Price_Bonett_between_ratio, 4)
-        results["Upper CI Ratio of Medians"] = round(Upper_CI_Price_Bonett_between_ratio, 4)
+        results["Lower CI Ratio of Medians"] = round(LowerCi_Price_Bonett_between_ratio, 4)
+        results["Upper CI Ratio of Medians"] = round(UpperCi_Price_Bonett_between_ratio, 4)
 
 
 

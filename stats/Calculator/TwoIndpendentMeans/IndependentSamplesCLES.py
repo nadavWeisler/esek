@@ -777,8 +777,8 @@ class Two_Independent_samples_Common_Language_Effect_Sizes():
         Standard_Error_Brunner_Munzel = np.sqrt(sample_size) * np.sqrt(sample_size * (sig1 / sample_size_1 + sig2 / sample_size_2))       
         Degrees_of_Freedom = (S1sq / sample_size_2 + S2sq / sample_size_1)**2 / ((S1sq / sample_size_2)**2 / (sample_size_1 - 1) + (S2sq / sample_size_1)**2 / (sample_size_2 - 1))
         Critical_Value_Brunner_Munzel = t.ppf(1 - (1-confidence_level) / 2, Degrees_of_Freedom)
-        Lower_CI_GK_Brunner_Munzel = POS_Grissom_Kim - Critical_Value_Brunner_Munzel * Standard_Error_Brunner_Munzel / sample_size
-        Upper_CI_GK_Brunner_Munzel = POS_Grissom_Kim + Critical_Value_Brunner_Munzel * Standard_Error_Brunner_Munzel / sample_size
+        LowerCi_GK_Brunner_Munzel = POS_Grissom_Kim - Critical_Value_Brunner_Munzel * Standard_Error_Brunner_Munzel / sample_size
+        UpperCi_GK_Brunner_Munzel = POS_Grissom_Kim + Critical_Value_Brunner_Munzel * Standard_Error_Brunner_Munzel / sample_size
 
         
         # 2. Probability of Superiority with ties CI (Vargha-Delaney)       
@@ -793,8 +793,8 @@ class Two_Independent_samples_Common_Language_Effect_Sizes():
         lower_ci_VDA_cliff = 1 - (1 - Lower_VDA_Cliff) / 2
 
         # C. Brunner-Munzel Method                
-        Lower_CI_VD_Brunner_Munzel = POS_Vargha_Delaney - Critical_Value_Brunner_Munzel * Standard_Error_Brunner_Munzel / sample_size
-        Upper_CI_VD_Brunner_Munzel = POS_Vargha_Delaney + Critical_Value_Brunner_Munzel * Standard_Error_Brunner_Munzel / sample_size
+        LowerCi_VD_Brunner_Munzel = POS_Vargha_Delaney - Critical_Value_Brunner_Munzel * Standard_Error_Brunner_Munzel / sample_size
+        UpperCi_VD_Brunner_Munzel = POS_Vargha_Delaney + Critical_Value_Brunner_Munzel * Standard_Error_Brunner_Munzel / sample_size
 
         # D + E. Hanley & McNaeil Method
         merged_values = np.unique(np.concatenate((column_1, column_2)))
@@ -1142,7 +1142,7 @@ class Two_Independent_samples_Common_Language_Effect_Sizes():
 
         results["Proabability of Superiority Considering Ties (Vargha & Delaney)"] = round(POS_Vargha_Delaney, 4)
         results["Proabability of Superiority With Ties CI (Cliff)"] = [round(max(0, lower_ci_VDA_cliff), 4), round(min(1, upper_ci_VDA_cliff), 4)]
-        results["Proabability of Superiority With Ties CI (Brunner-Munzel)"] = [round(max(0, Lower_CI_VD_Brunner_Munzel), 4), round(min(1, Upper_CI_VD_Brunner_Munzel), 4)]
+        results["Proabability of Superiority With Ties CI (Brunner-Munzel)"] = [round(max(0, LowerCi_VD_Brunner_Munzel), 4), round(min(1, UpperCi_VD_Brunner_Munzel), 4)]
         results["Proabability of Superiority With Ties CI (Traditional)"] = [round(max(0, ci_lower_Vargha_Delaney_Ruscio), 4), round(min(1, ci_upper_Vargha_Delaney_Ruscio), 4)]
         results["Proabability of Superiority With Ties CI (Hanley & McNeil 1)"] = [round(max(0, CI_VDA_Hanely_Mcneil_1_lower), 4), round(min(1, CI_VDA_Hanely_Mcneil_1_upper), 4)]
         results["Proabability of Superiority With Ties CI (Hanley & McNeil 2)"] = [round(max(0, CI_VDA_Hanely_Mcneil_2_lower), 4), round(min(1, CI_VDA_Hanely_Mcneil_2_upper), 4)]
@@ -1160,7 +1160,7 @@ class Two_Independent_samples_Common_Language_Effect_Sizes():
         results["Cliff's Delta"] = round(Cliffs_Delta, 4)
         results["Cliff's Delta Standard Error"] = round(np.sqrt(Cliffs_Variance), 4)
         results["Cliff's Delta CI (Cliff)"] = [round(max(2*(lower_ci_VDA_cliff-0.5), -1), 4), round(min(2*(upper_ci_VDA_cliff-0.5), 1), 4)]
-        results["Cliff's Delta CI (Brunner-Munzel)"] = [round(max(2*(Lower_CI_VD_Brunner_Munzel-0.5), -1), 4), round(min(2*(Upper_CI_VD_Brunner_Munzel-0.5), 1), 4)]
+        results["Cliff's Delta CI (Brunner-Munzel)"] = [round(max(2*(LowerCi_VD_Brunner_Munzel-0.5), -1), 4), round(min(2*(UpperCi_VD_Brunner_Munzel-0.5), 1), 4)]
         results["Cliff's Delta CI (Traditional)"] = [round(max(2*(ci_lower_Vargha_Delaney_Ruscio-0.5), -1), 4), round(min(2*(ci_upper_Vargha_Delaney_Ruscio-0.5), 1), 4)]
         results["Cliff's Delta CI (Hanley & McNeil 1)"] = [round(max(2*(CI_VDA_Hanely_Mcneil_1_lower-0.5), -1), 4), round(min(2*(CI_VDA_Hanely_Mcneil_1_upper-0.5), 1), 4)]
         results["Cliff's Delta CI (Hanley & McNeil 2)"] = [round(max(2*(CI_VDA_Hanely_Mcneil_2_lower-0.5), -1), 4), round(min(2*(CI_VDA_Hanely_Mcneil_2_upper-0.5), 1), 4)]

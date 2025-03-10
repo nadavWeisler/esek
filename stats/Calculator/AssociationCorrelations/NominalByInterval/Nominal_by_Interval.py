@@ -9,34 +9,34 @@ y = np.array([5,6,7,8,8,8,12,13,14,11,15,16])
 confidence_level = 0.95
 
 # Relevant Functions
-def Non_Central_CI_F(F_Statistic, df1, df2, confidence_level):
-    Upper_Limit = 1 - (1 - confidence_level) / 2
-    Lower_Limit = 1 - Upper_Limit
-    Lower_CI_Difference_Value = 1
+def NonCentralCiF(f_statistic, df1, df2, confidence_level):
+    upper_limit = 1 - (1 - confidence_level) / 2
+    lower_limit = 1 - upper_limit
+    lower_ci_difference_value = 1
 
-    def Lower_CI(F_Statistic, df1, df2, Upper_Limit, Lower_CI_Difference_Value):
-        Lower_Bound = [0.001, F_Statistic / 2, F_Statistic]       
-        while ncf.cdf(F_Statistic, df1, df2, Lower_Bound[0]) < Upper_Limit:
-            return [0, f.cdf(F_Statistic, df1, df2)] if f.cdf(F_Statistic, df1, df2) < Upper_Limit else None
-            Lower_Bound = [Lower_Bound[0] / 4, Lower_Bound[0], Lower_Bound[2]]   
-        while ncf.cdf(F_Statistic, df1, df2, Lower_Bound[2]) > Upper_Limit: Lower_Bound = [Lower_Bound[0], Lower_Bound[2], Lower_Bound[2] + F_Statistic]     
-        while Lower_CI_Difference_Value > 0.0000001:
-            Lower_Bound = [Lower_Bound[0], (Lower_Bound[0] + Lower_Bound[1]) / 2, Lower_Bound[1]] if ncf.cdf(F_Statistic, df1, df2, Lower_Bound[1]) < Upper_Limit else [Lower_Bound[1], (Lower_Bound[1] + Lower_Bound[2]) / 2, Lower_Bound[2]]  
-            Lower_CI_Difference_Value = abs(ncf.cdf(F_Statistic, df1, df2, Lower_Bound[1]) - Upper_Limit)        
-        return [Lower_Bound[1]]
+    def LowerCi(f_statistic, df1, df2, upper_limit, lower_ci_difference_value):
+        lower_bound = [0.001, f_statistic / 2, f_statistic]       
+        while ncf.cdf(f_statistic, df1, df2, lower_bound[0]) < upper_limit:
+            return [0, f.cdf(f_statistic, df1, df2)] if f.cdf(f_statistic, df1, df2) < upper_limit else None
+            lower_bound = [lower_bound[0] / 4, lower_bound[0], lower_bound[2]]   
+        while ncf.cdf(f_statistic, df1, df2, lower_bound[2]) > upper_limit: lower_bound = [lower_bound[0], lower_bound[2], lower_bound[2] + f_statistic]     
+        while lower_ci_difference_value > 0.0000001:
+            lower_bound = [lower_bound[0], (lower_bound[0] + lower_bound[1]) / 2, lower_bound[1]] if ncf.cdf(f_statistic, df1, df2, lower_bound[1]) < upper_limit else [lower_bound[1], (lower_bound[1] + lower_bound[2]) / 2, lower_bound[2]]  
+            lower_ci_difference_value = abs(ncf.cdf(f_statistic, df1, df2, lower_bound[1]) - upper_limit)        
+        return [lower_bound[1]]
     
-    def Upper_CI(F_Statistic, df1, df2, Lower_Limit, Lower_CI_Difference_Value):
-        Upper_Bound = [F_Statistic, 2 * F_Statistic, 3 * F_Statistic]
-        while ncf.cdf(F_Statistic, df1, df2, Upper_Bound[0]) < Lower_Limit:Upper_Bound = [Upper_Bound[0] / 4, Upper_Bound[0], Upper_Bound[2]]
-        while ncf.cdf(F_Statistic, df1, df2, Upper_Bound[2]) > Lower_Limit: Upper_Bound = [Upper_Bound[0], Upper_Bound[2], Upper_Bound[2] + F_Statistic]
-        while Lower_CI_Difference_Value > 0.00001: Upper_Bound = [Upper_Bound[0], (Upper_Bound[0] + Upper_Bound[1]) / 2, Upper_Bound[1]] if ncf.cdf(F_Statistic, df1, df2, Upper_Bound[1]) < Lower_Limit else [Upper_Bound[1], (Upper_Bound[1] + Upper_Bound[2]) / 2, Upper_Bound[2]]; Lower_CI_Difference_Value = abs(ncf.cdf(F_Statistic, df1, df2, Upper_Bound[1]) - Lower_Limit)
-        return [Upper_Bound[1]]
+    def UpperCi(f_statistic, df1, df2, lower_limit, lower_ci_difference_value):
+        upper_bound = [f_statistic, 2 * f_statistic, 3 * f_statistic]
+        while ncf.cdf(f_statistic, df1, df2, upper_bound[0]) < lower_limit:upper_bound = [upper_bound[0] / 4, upper_bound[0], upper_bound[2]]
+        while ncf.cdf(f_statistic, df1, df2, upper_bound[2]) > lower_limit: upper_bound = [upper_bound[0], upper_bound[2], upper_bound[2] + f_statistic]
+        while lower_ci_difference_value > 0.00001: upper_bound = [upper_bound[0], (upper_bound[0] + upper_bound[1]) / 2, upper_bound[1]] if ncf.cdf(f_statistic, df1, df2, upper_bound[1]) < lower_limit else [upper_bound[1], (upper_bound[1] + upper_bound[2]) / 2, upper_bound[2]]; lower_ci_difference_value = abs(ncf.cdf(f_statistic, df1, df2, upper_bound[1]) - lower_limit)
+        return [upper_bound[1]]
     
     # Calculate lower and upper bounds
-    Lower_CI_Final = Lower_CI(F_Statistic, df1, df2, Upper_Limit, Lower_CI_Difference_Value)[0]
-    Upper_CI_Final = Upper_CI(F_Statistic, df1, df2, Lower_Limit, Lower_CI_Difference_Value)[0]
+    LowerCi_Final = LowerCi(f_statistic, df1, df2, upper_limit, lower_ci_difference_value)[0]
+    UpperCi_Final = UpperCi(f_statistic, df1, df2, lower_limit, lower_ci_difference_value)[0]
 
-    return Lower_CI_Final, Upper_CI_Final
+    return LowerCi_Final, UpperCi_Final
 
 def point_biserial_correlation(x,y,confidence_level):
     Pearson_Correlation_Test = pearsonr(x,y)
@@ -106,10 +106,10 @@ def Eta_Correlation_Ratio(x,y,confidence_level):
     F_eta_corrected_x_independent = ((-Attenuated_Corrected_Eta_X_Independent**2 * df2) / (df1*(Attenuated_Corrected_Eta_X_Independent**2-1)))
     F_eta_corrected_y_independent = ((-Attenuated_Corrected_Eta_Y_Independent**2 * df2) / (df1*(Attenuated_Corrected_Eta_Y_Independent**2-1)))
 
-    NCP_F_eta_x_independent_lower, NCP_F_eta_x_independent_upper = Non_Central_CI_F(F_eta_x_independent, df1, df2, confidence_level)
-    NCP_F_eta_y_independent_lower, NCP_F_eta_y_independent_upper = Non_Central_CI_F(F_eta_y_independent, df1, df2, confidence_level)
-    NCP_F_eta_corrected_x_independent_lower, NCP_F_eta_corrected_x_independent_upper = Non_Central_CI_F(F_eta_corrected_x_independent, df1, df2, confidence_level)
-    NCP_F_eta_corrected_y_independent_lower, NCP_F_eta_corrected_y_independent_upper = Non_Central_CI_F(F_eta_corrected_y_independent, df1, df2, confidence_level)
+    NCP_F_eta_x_independent_lower, NCP_F_eta_x_independent_upper = NonCentralCiF(F_eta_x_independent, df1, df2, confidence_level)
+    NCP_F_eta_y_independent_lower, NCP_F_eta_y_independent_upper = NonCentralCiF(F_eta_y_independent, df1, df2, confidence_level)
+    NCP_F_eta_corrected_x_independent_lower, NCP_F_eta_corrected_x_independent_upper = NonCentralCiF(F_eta_corrected_x_independent, df1, df2, confidence_level)
+    NCP_F_eta_corrected_y_independent_lower, NCP_F_eta_corrected_y_independent_upper = NonCentralCiF(F_eta_corrected_y_independent, df1, df2, confidence_level)
 
     Lower_Ci_eta_x_independent = np.sqrt(NCP_F_eta_x_independent_lower / (NCP_F_eta_x_independent_lower + df2))
     Upper_Ci_eta_x_independent = np.sqrt(NCP_F_eta_x_independent_upper / (NCP_F_eta_x_independent_upper + df2)) 

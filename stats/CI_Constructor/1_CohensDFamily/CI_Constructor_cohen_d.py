@@ -170,9 +170,9 @@ def CI_adjusted_lambda_prime_Paired_Samples(Effect_Size, Standard_Devisation_1, 
     correction1 = math.exp(math.lgamma(df/2) - math.log(math.sqrt(df/2)) - math.lgamma((df-1)/2))
     correction2 = math.exp(math.lgamma(df_corrected/2) - math.log(math.sqrt(df_corrected/2)) - math.lgamma((df_corrected-1)/2))
     Lambda = float(Effect_Size  * correction1 *np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))) 
-    Lower_CI_adjusted_lambda = qlambdap(1/2 - confidence_level / 2, df= (2/(1+correlation**2)*(sample_size-1)), t=Lambda) / (2 * (1 - Corrected_Correlation)) / correction2 # type: ignore
-    Upper_CI_adjusted_lambda = qlambdap(1/2 + confidence_level / 2, df= (2/(1+correlation**2)*(sample_size-1)), t=Lambda) / (2 * (1 - Corrected_Correlation)) / correction2 # type: ignore
-    return Lower_CI_adjusted_lambda, Upper_CI_adjusted_lambda
+    LowerCi_adjusted_lambda = qlambdap(1/2 - confidence_level / 2, df= (2/(1+correlation**2)*(sample_size-1)), t=Lambda) / (2 * (1 - Corrected_Correlation)) / correction2 # type: ignore
+    UpperCi_adjusted_lambda = qlambdap(1/2 + confidence_level / 2, df= (2/(1+correlation**2)*(sample_size-1)), t=Lambda) / (2 * (1 - Corrected_Correlation)) / correction2 # type: ignore
+    return LowerCi_adjusted_lambda, UpperCi_adjusted_lambda
 
 # 2.4.2. MAG CI's (Combination of Morris (2000), Algina and Kesselman 2003), and Goulet-Pelletier & Cousineau (2018))
 def CI_MAG_Paired_Samples(Effect_Size, Standard_Devisation_1, Standard_Deviation_2, sample_size, correlation,  confidence_level):
@@ -180,9 +180,9 @@ def CI_MAG_Paired_Samples(Effect_Size, Standard_Devisation_1, Standard_Deviation
     df = sample_size - 1
     correction = math.exp(math.lgamma(df/2) - math.log(math.sqrt(df/2)) - math.lgamma((df-1)/2))
     Lambda = float(Effect_Size  * correction**2 *np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))) 
-    Lower_CI_adjusted_MAG = nct.ppf(1/2 - confidence_level / 2, df= df, nc=Lambda) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))
-    Upper_CI_adjusted_MAG = nct.ppf(1/2 + confidence_level / 2, df= df, nc=Lambda) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))
-    return Lower_CI_adjusted_MAG, Upper_CI_adjusted_MAG
+    LowerCi_adjusted_MAG = nct.ppf(1/2 - confidence_level / 2, df= df, nc=Lambda) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))
+    UpperCi_adjusted_MAG = nct.ppf(1/2 + confidence_level / 2, df= df, nc=Lambda) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))
+    return LowerCi_adjusted_MAG, UpperCi_adjusted_MAG
 
 # 2.4.3 Morris (2000)
 def CI_Morris_Paired_Samples(Effect_Size, sample_size, correlation,  confidence_level):
@@ -200,9 +200,9 @@ def CI_t_prime_Paired_Samples(Effect_Size, Standard_Devisation_1, Standard_Devia
     df_corrected =  2 / (1+correlation**2) * df
     correction = math.exp(math.lgamma(df_corrected/2) - math.log(math.sqrt(df_corrected/2)) - math.lgamma((df_corrected-1)/2))
     Lambda = float(Effect_Size  * correction *np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))) 
-    Lower_CI_adjusted_lambda = qlambdap(1/2 - confidence_level / 2, df= (2/(1+correlation**2)*(sample_size-1)), t=Lambda) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation))) # type: ignore
-    Upper_CI_adjusted_lambda = qlambdap(1/2 + confidence_level / 2, df= (2/(1+correlation**2)*(sample_size-1)), t=Lambda) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation))) # type: ignore
-    return Lower_CI_adjusted_lambda, Upper_CI_adjusted_lambda
+    LowerCi_adjusted_lambda = qlambdap(1/2 - confidence_level / 2, df= (2/(1+correlation**2)*(sample_size-1)), t=Lambda) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation))) # type: ignore
+    UpperCi_adjusted_lambda = qlambdap(1/2 + confidence_level / 2, df= (2/(1+correlation**2)*(sample_size-1)), t=Lambda) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation))) # type: ignore
+    return LowerCi_adjusted_lambda, UpperCi_adjusted_lambda
 
 # 2.4.5 Algina & Kesselman, 2003
 def CI_t_Algina_Keselman(Effect_Size, Standard_Devisation_1, Standard_Deviation_2, sample_size, correlation,  confidence_level):

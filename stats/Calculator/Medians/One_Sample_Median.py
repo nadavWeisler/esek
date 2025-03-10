@@ -148,8 +148,8 @@ class One_Sample_median():
 
         # 4E. MAD based Confidence Intervals (see Cousineau)
         t_critical_value = t.ppf(confidence_level + ((1 - confidence_level) / 2), sample_size-1)
-        Lower_CI_MAD = median_sample - Standard_Error_median * t_critical_value
-        Upper_CI_MAD = median_sample + Standard_Error_median * t_critical_value
+        LowerCi_MAD = median_sample - Standard_Error_median * t_critical_value
+        UpperCi_MAD = median_sample + Standard_Error_median * t_critical_value
 
 
         ####################################################################################
@@ -219,7 +219,7 @@ class One_Sample_median():
         results["Median Confidence Intervals Nonparametric Based on Exact Wilcox Test"] = Nonparametric_Exact_Wilcox_Based_CIs[0]
         results["Median Confidence Intervals Nonparametric Based on Non-Parametric Approximated Wilcox Test"] =  Nonparametric_Wilcox_Based_CIs[0]
         results["Median Confidence Intervals Nonparametric Based on Non-Parametric Approximated Corrected Wilcox Test "] =  Nonparametric_Wilcox_Corrected_Based_CIs[0]
-        results["Median Confidence Intervals MAD based "] =  round(Lower_CI_MAD,4), round(Upper_CI_MAD,4)
+        results["Median Confidence Intervals MAD based "] =  round(LowerCi_MAD,4), round(UpperCi_MAD,4)
 
         # Effect Sizes
         results["Effect Size ΔIQR "] = round(MDiqr, 4)

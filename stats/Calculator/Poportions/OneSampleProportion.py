@@ -67,8 +67,8 @@ def main_one_sample_proportion (proportion_sample, sample_size, population_propo
         wilson_CI = proportion_confint(Number_of_Succeses_sample, sample_size, (1-confidence_level), method = "wilson")
         
         # 5. Wilson Corrected
-        Lower_CI_Wilson_Corrected=(2*Number_of_Succeses_sample + z_critical_value**2-1-z_critical_value*np.sqrt(z_critical_value**2-2-1/sample_size + 4*(Number_of_Succeses_sample/sample_size)*(sample_size*(1-Number_of_Succeses_sample/sample_size)+1)))/(2*(sample_size + z_critical_value**2)) 
-        Upper_CI_Wilson_Corrected=min((2*Number_of_Succeses_sample + z_critical_value**2+1+z_critical_value*np.sqrt(z_critical_value**2+2-1/sample_size + 4*(Number_of_Succeses_sample/sample_size)*(sample_size*(1-Number_of_Succeses_sample/sample_size)-1)))/(2*(sample_size + z_critical_value**2)),1)
+        LowerCi_Wilson_Corrected=(2*Number_of_Succeses_sample + z_critical_value**2-1-z_critical_value*np.sqrt(z_critical_value**2-2-1/sample_size + 4*(Number_of_Succeses_sample/sample_size)*(sample_size*(1-Number_of_Succeses_sample/sample_size)+1)))/(2*(sample_size + z_critical_value**2)) 
+        UpperCi_Wilson_Corrected=min((2*Number_of_Succeses_sample + z_critical_value**2+1+z_critical_value*np.sqrt(z_critical_value**2+2-1/sample_size + 4*(Number_of_Succeses_sample/sample_size)*(sample_size*(1-Number_of_Succeses_sample/sample_size)-1)))/(2*(sample_size + z_critical_value**2)),1)
         
 
         # 6. Logit
@@ -176,7 +176,7 @@ def main_one_sample_proportion (proportion_sample, sample_size, population_propo
         results["Wald CI"] = np.round(np.array(Wald_CI),4)
         results["Wald CI Corrected"] = np.around(Wald_Corrected,4)
         results["Wilson"] = np.around(np.array(wilson_CI),4)
-        results["Wilson Corrected"] = np.around(np.array([Lower_CI_Wilson_Corrected,Upper_CI_Wilson_Corrected]),4)
+        results["Wilson Corrected"] = np.around(np.array([LowerCi_Wilson_Corrected,UpperCi_Wilson_Corrected]),4)
         results["logit"] = np.around(np.array([logitlower,logitupper]),4)
         results["Jeffereys"] = np.around(np.array([lowerjeffreys, upperjeffreys]),4)
         results["Clopper-Pearson"] = np.around(np.array([lowerCP, upperCP]),4)

@@ -201,8 +201,8 @@ class TwoPairedMedians():
         Covariance = (4*Median_Probability - 1)*np.sqrt(Variance_Sample_1)*np.sqrt(Variance_Sample_2)
         Standrd_Error_Within_Difference = np.sqrt(Variance_Sample_1 + Variance_Sample_2 - 2*Covariance)
 
-        Lower_CI_Price_Bonett_within_difference = (Median_sample_1 - Median_Sample_2) - zcrit * Standrd_Error_Within_Difference
-        Upper_CI_Price_Bonett_within_difference = (Median_sample_1 - Median_Sample_2) + zcrit * Standrd_Error_Within_Difference
+        LowerCi_Price_Bonett_within_difference = (Median_sample_1 - Median_Sample_2) - zcrit * Standrd_Error_Within_Difference
+        UpperCi_Price_Bonett_within_difference = (Median_sample_1 - Median_Sample_2) + zcrit * Standrd_Error_Within_Difference
 
         # 4B. Hodges Lehmann Confidence Intervals
         Hodges_Lehmann = desctools.MedianCI(ro.FloatVector(Difference_Between_Samples), conf_level = confidence_level)
@@ -273,8 +273,8 @@ class TwoPairedMedians():
         log_Variance_Sample_2 = ((log_Y1 - log_Y2) / (2 * log_Z2))**2
         Covariance_log = (4*Median_Probability - 1)*np.sqrt(log_Variance_Sample_1)*np.sqrt(log_Variance_Sample_2)
         Log_Standard_Error_Within_Ratio = np.sqrt(log_Variance_Sample_1 + log_Variance_Sample_2 - 2*Covariance_log)    
-        Lower_CI_Price_Bonett_within_ratio = ratio_of_medians * math.exp(-zcrit * Log_Standard_Error_Within_Ratio)
-        Upper_CI_Price_Bonett_within_ratio = ratio_of_medians * math.exp(zcrit * Log_Standard_Error_Within_Ratio)
+        LowerCi_Price_Bonett_within_ratio = ratio_of_medians * math.exp(-zcrit * Log_Standard_Error_Within_Ratio)
+        UpperCi_Price_Bonett_within_ratio = ratio_of_medians * math.exp(zcrit * Log_Standard_Error_Within_Ratio)
 
         results = {}
 
@@ -348,7 +348,7 @@ class TwoPairedMedians():
         results["                                                                                                                                  "] = ""
 
         # Mean Difference and Confidence Intervals
-        results["Price-Bonett CI's"] = np.array([Lower_CI_Price_Bonett_within_difference, Upper_CI_Price_Bonett_within_difference])
+        results["Price-Bonett CI's"] = np.array([LowerCi_Price_Bonett_within_difference, UpperCi_Price_Bonett_within_difference])
         results["Median Confidence Intervals Basic Bootstrapping"] = ci_basic[0,0], ci_basic[1,0]
         results["Median Confidence Intervals Percentile Bootstrapping"] = ci_percentile[0,0], ci_percentile[1,0]
         results["Median Confidence Intervals Bias Corrected Bootstrapping"] = ci_bc[0,0], ci_bc[1,0]
@@ -396,8 +396,8 @@ class TwoPairedMedians():
         # Ratio of Medians and Confidecne Intervals 
         results["Ratio of Medians"] = round(ratio_of_medians, 4)
         results["Standard Error Ratio of Medians "] = round(math.exp(Log_Standard_Error_Within_Ratio), 4)
-        results["Lower CI Ratio of Medians"] = round(Lower_CI_Price_Bonett_within_ratio, 4)
-        results["Upper CI Ratio of Medians"] = round(Upper_CI_Price_Bonett_within_ratio, 4)
+        results["Lower CI Ratio of Medians"] = round(LowerCi_Price_Bonett_within_ratio, 4)
+        results["Upper CI Ratio of Medians"] = round(UpperCi_Price_Bonett_within_ratio, 4)
 
         return results
 

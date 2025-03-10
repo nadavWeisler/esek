@@ -35,15 +35,15 @@ class CI_Constructor_Dispersion_Measures():
         # Confidence Intervals
         Z_Critical = norm.ppf( 1 - (1 - confidence_level) / 2 )
         SE_MAD = np.sqrt((((Mean - Median) / MAD) ** 2 + ((Standard_Deviation / MAD) ** 2) - 1) / Sample_Size)
-        Lower_CI_MAD = np.exp(np.log(MAD_corrected) - Z_Critical * SE_MAD)
-        Upper_CI_MAD = np.exp(np.log(MAD_corrected) + Z_Critical * SE_MAD)
+        LowerCi_MAD = np.exp(np.log(MAD_corrected) - Z_Critical * SE_MAD)
+        UpperCi_MAD = np.exp(np.log(MAD_corrected) + Z_Critical * SE_MAD)
 
         results = {}
 
         # Confidence Intervals for One Sample Proportion
         results["Mean Abosolute Deviation"] = np.round(np.array(MAD),4)
         results["Mean Abosolute Deviation Corrected"] = np.round(np.array(MAD_corrected),4)
-        results["Confidence Intervals for the Mean Abosolute Deviation Corrected"] = np.round(np.array([Lower_CI_MAD, Upper_CI_MAD]),4)
+        results["Confidence Intervals for the Mean Abosolute Deviation Corrected"] = np.round(np.array([LowerCi_MAD, UpperCi_MAD]),4)
 
         return results
 
@@ -70,15 +70,15 @@ class CI_Constructor_Dispersion_Measures():
         # Confidence Intervals
         Z_Critical = norm.ppf( 1 - (1 - confidence_level) / 2 )
         SE_MAD = np.sqrt((((Mean - Median) / MAD) ** 2 + ((Standard_Deviation / MAD) ** 2) - 1) / Sample_Size)
-        Lower_CI_MAD = np.exp(np.log(MAD_corrected) - Z_Critical * SE_MAD)
-        Upper_CI_MAD = np.exp(np.log(MAD_corrected) + Z_Critical * SE_MAD)
+        LowerCi_MAD = np.exp(np.log(MAD_corrected) - Z_Critical * SE_MAD)
+        UpperCi_MAD = np.exp(np.log(MAD_corrected) + Z_Critical * SE_MAD)
 
         results = {}
 
         # Confidence Intervals for One Sample Proportion
         results["Mean Abosolute Deviation"] = np.round(np.array(MAD),4)
         results["Mean Abosolute Deviation Corrected"] = np.round(np.array(MAD_corrected),4)
-        results["Confidence Intervals for the Mean Abosolute Deviation Corrected"] = np.round(np.array([Lower_CI_MAD, Upper_CI_MAD]),4)
+        results["Confidence Intervals for the Mean Abosolute Deviation Corrected"] = np.round(np.array([LowerCi_MAD, UpperCi_MAD]),4)
 
         return results
     
@@ -102,15 +102,15 @@ class CI_Constructor_Dispersion_Measures():
         # Confidence Intervals
         Z_Critical = norm.ppf( 1 - (1 - confidence_level) / 2 )
         SE_MAD = np.sqrt((((Mean - Median) / MAD) ** 2 + ((Standard_Deviation / MAD) ** 2) - 1) / Sample_Size)
-        Lower_CI_MAD = np.exp(np.log(MAD_corrected) - Z_Critical * SE_MAD)
-        Upper_CI_MAD = np.exp(np.log(MAD_corrected) + Z_Critical * SE_MAD)
+        LowerCi_MAD = np.exp(np.log(MAD_corrected) - Z_Critical * SE_MAD)
+        UpperCi_MAD = np.exp(np.log(MAD_corrected) + Z_Critical * SE_MAD)
 
         results = {}
 
         # Confidence Intervals for One Sample Proportion
         results["Mean Abosolute Deviation"] = np.round(np.array(MAD),4)
         results["Mean Abosolute Deviation Corrected"] = np.round(np.array(MAD_corrected),4)
-        results["Confidence Intervals for the Mean Abosolute Deviation Corrected"] = np.round(np.array([Lower_CI_MAD, Upper_CI_MAD]),4)
+        results["Confidence Intervals for the Mean Abosolute Deviation Corrected"] = np.round(np.array([LowerCi_MAD, UpperCi_MAD]),4)
 
         return results
 
@@ -134,14 +134,14 @@ class CI_Constructor_Dispersion_Measures():
         # Confidence Intervals
         Z_Critical = norm.ppf( 1 - (1 - confidence_level) / 2 )
         SE_MAD = np.sqrt((((Mean - Median) / MAD) ** 2 + ((Standard_Deviation / MAD) ** 2) - 1) / Sample_Size)
-        Lower_CI_MAD = np.exp(np.log(MAD_corrected) - Z_Critical * SE_MAD)
-        Upper_CI_MAD = np.exp(np.log(MAD_corrected) + Z_Critical * SE_MAD)
+        LowerCi_MAD = np.exp(np.log(MAD_corrected) - Z_Critical * SE_MAD)
+        UpperCi_MAD = np.exp(np.log(MAD_corrected) + Z_Critical * SE_MAD)
 
         results = {}
 
         # Confidence Intervals for One Sample Proportion
         results["Mean Abosolute Deviation"] = np.round(np.array(MAD),4)
         results["Mean Abosolute Deviation Corrected"] = np.round(np.array(MAD_corrected),4)
-        results["Confidence Intervals for the Mean Abosolute Deviation Corrected"] = np.round(np.array([Lower_CI_MAD, Upper_CI_MAD]),4)
+        results["Confidence Intervals for the Mean Abosolute Deviation Corrected"] = np.round(np.array([LowerCi_MAD, UpperCi_MAD]),4)
 
         return results

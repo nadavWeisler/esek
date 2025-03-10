@@ -103,14 +103,14 @@ class Contingency_2X2():
 
 
         # Wallis Swing D CI's
-        Lower_CI_swing_d_Wallis = Wallis_Swing_d_coloumns_indpendnt - Standard_Error_coloumns_independent*z_crit
-        Upper_CI_swing_d_Wallis = Wallis_Swing_d_coloumns_indpendnt + Standard_Error_coloumns_independent*z_crit
-        Lower_CI_Percentage_swing_d_Wallis = Lower_CI_swing_d_Wallis / (a/(a+b))
-        Upper_CI_Percentage_swing_d_Wallis = Upper_CI_swing_d_Wallis / (a/(a+b))
-        Lower_CI_swing_d_Wallis_rows = Wallis_Swing_d_coloumns_indpendnt - Standard_Error_coloumns_independent*z_crit
-        Upper_CI_swing_d_Wallis_rows = Wallis_Swing_d_coloumns_indpendnt + Standard_Error_coloumns_independent*z_crit
-        Lower_CI_Percentage_swing_rows_d_Wallis = Lower_CI_swing_d_Wallis_rows / (a/(a+c))
-        Upper_CI_Percentage_swing_rows_d_Wallis = Upper_CI_swing_d_Wallis_rows / (a/(a+c))
+        LowerCi_swing_d_Wallis = Wallis_Swing_d_coloumns_indpendnt - Standard_Error_coloumns_independent*z_crit
+        UpperCi_swing_d_Wallis = Wallis_Swing_d_coloumns_indpendnt + Standard_Error_coloumns_independent*z_crit
+        LowerCi_Percentage_swing_d_Wallis = LowerCi_swing_d_Wallis / (a/(a+b))
+        UpperCi_Percentage_swing_d_Wallis = UpperCi_swing_d_Wallis / (a/(a+b))
+        LowerCi_swing_d_Wallis_rows = Wallis_Swing_d_coloumns_indpendnt - Standard_Error_coloumns_independent*z_crit
+        UpperCi_swing_d_Wallis_rows = Wallis_Swing_d_coloumns_indpendnt + Standard_Error_coloumns_independent*z_crit
+        LowerCi_Percentage_swing_rows_d_Wallis = LowerCi_swing_d_Wallis_rows / (a/(a+c))
+        UpperCi_Percentage_swing_rows_d_Wallis = UpperCi_swing_d_Wallis_rows / (a/(a+c))
 
 
 
@@ -145,14 +145,14 @@ class Contingency_2X2():
         results["Wallis Swing D (coloumns independent)"] = round(Wallis_Swing_d_coloumns_indpendnt, 4)
         results["Wallis Swing D Standard Error"] = round(Standard_Error_coloumns_independent, 5)
         results["Wallis Percentage Swing (coloumns independent)"] = round(Wallis_Perecentage_Swing_coloumns_independent, 4)
-        results["CI_swing_d_Wallis"] = f"({round(Lower_CI_swing_d_Wallis, 4)}, {round(Upper_CI_swing_d_Wallis, 4)})"
-        results["CI_Percentage_swing_d_Wallis"] = f"({round(Lower_CI_Percentage_swing_d_Wallis, 4)}, {round(Upper_CI_Percentage_swing_d_Wallis, 4)})"
+        results["CI_swing_d_Wallis"] = f"({round(LowerCi_swing_d_Wallis, 4)}, {round(UpperCi_swing_d_Wallis, 4)})"
+        results["CI_Percentage_swing_d_Wallis"] = f"({round(LowerCi_Percentage_swing_d_Wallis, 4)}, {round(UpperCi_Percentage_swing_d_Wallis, 4)})"
 
         results["Wallis Swing D (rows independent)"] = round(Wallis_Swing_d_rows_indpendnt, 4)
         results["Wallis Swing D Standard Error (rows)"] = round(Standard_Error_rows_independent, 5)
         results["Wallis Percentage Swing (rows independent)"] = round(Wallis_Perecentage_Swing_rows_independent, 4)
-        results["CI_swing_d_Wallis (rows)"] = f"({round(Lower_CI_swing_d_Wallis_rows, 4)}, {round(Upper_CI_swing_d_Wallis_rows, 4)})"
-        results["CI_Percentage_swing_d_Wallis (rows)"] = f"({round(Lower_CI_Percentage_swing_rows_d_Wallis, 4)}, {round(Upper_CI_Percentage_swing_rows_d_Wallis, 4)})"
+        results["CI_swing_d_Wallis (rows)"] = f"({round(LowerCi_swing_d_Wallis_rows, 4)}, {round(UpperCi_swing_d_Wallis_rows, 4)})"
+        results["CI_Percentage_swing_d_Wallis (rows)"] = f"({round(LowerCi_Percentage_swing_rows_d_Wallis, 4)}, {round(UpperCi_Percentage_swing_rows_d_Wallis, 4)})"
 
         #result_str = "\n".join([f"{key}: {value}" for key, value in results.items()])
         #return result_str

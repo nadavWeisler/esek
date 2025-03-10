@@ -48,8 +48,8 @@ class CI_Constructor_Proportions():
         wilson_CI = proportion_confint(Number_of_Succeses_sample, sample_size, (1-confidence_level), method = "wilson")
         
         # 5. Wilson Corrected
-        Lower_CI_Wilson_Corrected=(2*Number_of_Succeses_sample + z_critical_value**2-1-z_critical_value*np.sqrt(z_critical_value**2-2-1/sample_size + 4*(Number_of_Succeses_sample/sample_size)*(sample_size*(1-Number_of_Succeses_sample/sample_size)+1)))/(2*(sample_size + z_critical_value**2)) 
-        Upper_CI_Wilson_Corrected=min((2*Number_of_Succeses_sample + z_critical_value**2+1+z_critical_value*np.sqrt(z_critical_value**2+2-1/sample_size + 4*(Number_of_Succeses_sample/sample_size)*(sample_size*(1-Number_of_Succeses_sample/sample_size)-1)))/(2*(sample_size + z_critical_value**2)),1)
+        LowerCi_Wilson_Corrected=(2*Number_of_Succeses_sample + z_critical_value**2-1-z_critical_value*np.sqrt(z_critical_value**2-2-1/sample_size + 4*(Number_of_Succeses_sample/sample_size)*(sample_size*(1-Number_of_Succeses_sample/sample_size)+1)))/(2*(sample_size + z_critical_value**2)) 
+        UpperCi_Wilson_Corrected=min((2*Number_of_Succeses_sample + z_critical_value**2+1+z_critical_value*np.sqrt(z_critical_value**2+2-1/sample_size + 4*(Number_of_Succeses_sample/sample_size)*(sample_size*(1-Number_of_Succeses_sample/sample_size)-1)))/(2*(sample_size + z_critical_value**2)),1)
 
         # 6. Logit
         lambdahat = math.log(Number_of_Succeses_sample/(sample_size-Number_of_Succeses_sample))
@@ -130,7 +130,7 @@ class CI_Constructor_Proportions():
         results["Wald CI"] = np.round(np.array(Wald_CI),4)
         results["Wald CI Corrected"] = np.around(Wald_Corrected,4)
         results["Wilson"] = np.around(np.array(wilson_CI),4)
-        results["Wilson Corrected"] = np.around(np.array([Lower_CI_Wilson_Corrected,Upper_CI_Wilson_Corrected]),4)
+        results["Wilson Corrected"] = np.around(np.array([LowerCi_Wilson_Corrected,UpperCi_Wilson_Corrected]),4)
         results["logit"] = np.around(np.array([logitlower,logitupper]),4)
         results["Jeffereys"] = np.around(np.array([lowerjeffreys, upperjeffreys]),4)
         results["Clopper-Pearson"] = np.around(np.array([lowerCP, upperCP]),4)
@@ -187,30 +187,30 @@ class CI_Constructor_Proportions():
 
         # 1. Wald CI's
         Standard_Error_Wald = np.sqrt((yes_no + no_yes) - ((yes_no - no_yes)**2) / sample_size) / sample_size
-        Lower_CI_WALD = max(difference_between_proportions - z_critical_value *Standard_Error_Wald,-1 )
-        Upper_CI_WALD = min(difference_between_proportions + z_critical_value *Standard_Error_Wald,1 )
+        LowerCi_WALD = max(difference_between_proportions - z_critical_value *Standard_Error_Wald,-1 )
+        UpperCi_WALD = min(difference_between_proportions + z_critical_value *Standard_Error_Wald,1 )
 
         # 2. Wald with CC correction (Fleiss et al., 2003)
         Standard_Error_Wald_Corrected = np.sqrt((yes_no + no_yes) - ((yes_no - no_yes)**2) / sample_size) / sample_size
-        Lower_CI_WALD_Corrected = max(difference_between_proportions - z_critical_value *Standard_Error_Wald_Corrected - (1/sample_size),-1 )
-        Upper_CI_WALD_Corrected = min(difference_between_proportions + z_critical_value *Standard_Error_Wald_Corrected + (1/sample_size),1 )
+        LowerCi_WALD_Corrected = max(difference_between_proportions - z_critical_value *Standard_Error_Wald_Corrected - (1/sample_size),-1 )
+        UpperCi_WALD_Corrected = min(difference_between_proportions + z_critical_value *Standard_Error_Wald_Corrected + (1/sample_size),1 )
         
         # 3. Wald with Yates correction
         Standard_Error_Wald_Corrected_yates = np.sqrt((yes_no + no_yes) - ((yes_no - no_yes - 1)**2) / sample_size) / sample_size
-        Lower_CI_WALD_Corrected_Yates = max(difference_between_proportions - z_critical_value *Standard_Error_Wald_Corrected_yates,-1 )
-        Upper_CI_WALD_Corrected_Yates = min(difference_between_proportions + z_critical_value *Standard_Error_Wald_Corrected_yates,1 )
+        LowerCi_WALD_Corrected_Yates = max(difference_between_proportions - z_critical_value *Standard_Error_Wald_Corrected_yates,-1 )
+        UpperCi_WALD_Corrected_Yates = min(difference_between_proportions + z_critical_value *Standard_Error_Wald_Corrected_yates,1 )
         
         # 4. Agresti & Min (2005)
         Standard_Error_AM =np.sqrt(((yes_no+0.5) + (no_yes+0.5)) - (((yes_no+0.5) - (no_yes+0.5))**2) / (sample_size+2)) / (sample_size+2)
-        Lower_CI_AM = max(((yes_no+0.5) - (no_yes+0.5)) /  (sample_size + 2) - z_critical_value * Standard_Error_AM,-1 )
-        Upper_CI_AM = min(((yes_no+0.5) - (no_yes+0.5)) /  (sample_size + 2) + z_critical_value * Standard_Error_AM, 1 )
+        LowerCi_AM = max(((yes_no+0.5) - (no_yes+0.5)) /  (sample_size + 2) - z_critical_value * Standard_Error_AM,-1 )
+        UpperCi_AM = min(((yes_no+0.5) - (no_yes+0.5)) /  (sample_size + 2) + z_critical_value * Standard_Error_AM, 1 )
 
         # 5. Bonett & Price (2005)
         p1_adjusted = (yes_no + 1) / (sample_size + 2)
         p2_adjusted = (no_yes + 1) / (sample_size + 2)
         Standard_Error_BP = np.sqrt((p1_adjusted+p2_adjusted-(p2_adjusted-p1_adjusted)**2)/(sample_size+2))
-        Lower_CI_BP = max(p1_adjusted - p2_adjusted - z_critical_value * Standard_Error_BP,-1 )
-        Upper_CI_BP = min(p1_adjusted - p2_adjusted + z_critical_value * Standard_Error_BP,1 )
+        LowerCi_BP = max(p1_adjusted - p2_adjusted - z_critical_value * Standard_Error_BP,-1 )
+        UpperCi_BP = min(p1_adjusted - p2_adjusted + z_critical_value * Standard_Error_BP,1 )
 
         # 6. Newcomb, Square and Add
         
@@ -235,18 +235,18 @@ class CI_Constructor_Proportions():
             else:
                 products_correction = cells_product / np.sqrt(marginals_product)
 
-        Lower_CI_newcomb = difference_between_proportions - np.sqrt((Proportion_Sample_1 - lower_p1)**2 + (upper_p2 - Proportion_Sample_2)**2 - 2 * products_correction * (Proportion_Sample_1 - lower_p1) * (upper_p2 - Proportion_Sample_2))
-        Upper_CI_newcomb = difference_between_proportions + np.sqrt((Proportion_Sample_2 - lower_p2)**2 + (upper_p1 - Proportion_Sample_1)**2 - 2 * products_correction * (Proportion_Sample_2 - lower_p2) * (upper_p1 - Proportion_Sample_1))
+        LowerCi_newcomb = difference_between_proportions - np.sqrt((Proportion_Sample_1 - lower_p1)**2 + (upper_p2 - Proportion_Sample_2)**2 - 2 * products_correction * (Proportion_Sample_1 - lower_p1) * (upper_p2 - Proportion_Sample_2))
+        UpperCi_newcomb = difference_between_proportions + np.sqrt((Proportion_Sample_2 - lower_p2)**2 + (upper_p1 - Proportion_Sample_1)**2 - 2 * products_correction * (Proportion_Sample_2 - lower_p2) * (upper_p1 - Proportion_Sample_1))
         
         results = {}
 
         results["Difference Between Proportions"] = round(difference_between_proportions, 7)
-        results["Confidence Intervals Wald"] = f"({round(Lower_CI_WALD, 4)}, {round(Upper_CI_WALD, 4)})"
-        results["Confidence Intervals Wald Corrected (Edwards)"] = f"({round(Lower_CI_WALD_Corrected, 4)}, {round(Upper_CI_WALD_Corrected, 4)})"
-        results["Confidence Intervals Wald Corrected (Yates)"] = f"({round(Lower_CI_WALD_Corrected_Yates, 4)}, {round(Upper_CI_WALD_Corrected_Yates, 4)})"
-        results["Confidence Intervals adjusted (Agresti & Min, 2005)"] = f"({round(Lower_CI_AM, 4)}, {round(Upper_CI_AM, 4)})"
-        results["Confidence Intervals adjusted (Bonett & Price, 2012)"] = f"({round(Lower_CI_BP, 4)}, {round(Upper_CI_BP, 4)})"
-        results["Confidence Intervals (NewComb)"] = f"({round(Lower_CI_newcomb, 4)}, {round(Upper_CI_newcomb, 4)})"
+        results["Confidence Intervals Wald"] = f"({round(LowerCi_WALD, 4)}, {round(UpperCi_WALD, 4)})"
+        results["Confidence Intervals Wald Corrected (Edwards)"] = f"({round(LowerCi_WALD_Corrected, 4)}, {round(UpperCi_WALD_Corrected, 4)})"
+        results["Confidence Intervals Wald Corrected (Yates)"] = f"({round(LowerCi_WALD_Corrected_Yates, 4)}, {round(UpperCi_WALD_Corrected_Yates, 4)})"
+        results["Confidence Intervals adjusted (Agresti & Min, 2005)"] = f"({round(LowerCi_AM, 4)}, {round(UpperCi_AM, 4)})"
+        results["Confidence Intervals adjusted (Bonett & Price, 2012)"] = f"({round(LowerCi_BP, 4)}, {round(UpperCi_BP, 4)})"
+        results["Confidence Intervals (NewComb)"] = f"({round(LowerCi_newcomb, 4)}, {round(UpperCi_newcomb, 4)})"
 
         return results
     

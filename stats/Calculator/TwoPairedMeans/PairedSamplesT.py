@@ -356,9 +356,9 @@ def ci_adjusted_lambda_prime_Paired_Samples(
         * correction1
         * np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))
     )
-    Lower_CI_adjusted_lambda = qlambdap(1 / 2 - confidence_level / 2, df=(2 / (1 + correlation**2) * (sample_size - 1)), t=Lambda) / (2 * (1 - Corrected_Correlation)) / correction2  # type: ignore
-    Upper_CI_adjusted_lambda = qlambdap(1 / 2 + confidence_level / 2, df=(2 / (1 + correlation**2) * (sample_size - 1)), t=Lambda) / (2 * (1 - Corrected_Correlation)) / correction2  # type: ignore
-    return Lower_CI_adjusted_lambda, Upper_CI_adjusted_lambda
+    LowerCi_adjusted_lambda = qlambdap(1 / 2 - confidence_level / 2, df=(2 / (1 + correlation**2) * (sample_size - 1)), t=Lambda) / (2 * (1 - Corrected_Correlation)) / correction2  # type: ignore
+    UpperCi_adjusted_lambda = qlambdap(1 / 2 + confidence_level / 2, df=(2 / (1 + correlation**2) * (sample_size - 1)), t=Lambda) / (2 * (1 - Corrected_Correlation)) / correction2  # type: ignore
+    return LowerCi_adjusted_lambda, UpperCi_adjusted_lambda
 
 
 # 6. MAG CI's (Combination of Morris (2000), Algina and Kesselman 2003), and Goulet-Pelletier & Cousineau (2018))
@@ -383,13 +383,13 @@ def ci_mag_paired_samples(
         * correction**2
         * np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))
     )
-    Lower_CI_adjusted_MAG = nct.ppf(
+    LowerCi_adjusted_MAG = nct.ppf(
         1 / 2 - confidence_level / 2, df=df, nc=Lambda
     ) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))
-    Upper_CI_adjusted_MAG = nct.ppf(
+    UpperCi_adjusted_MAG = nct.ppf(
         1 / 2 + confidence_level / 2, df=df, nc=Lambda
     ) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))
-    return Lower_CI_adjusted_MAG, Upper_CI_adjusted_MAG
+    return LowerCi_adjusted_MAG, UpperCi_adjusted_MAG
 
 
 # 7. Morris (2000)
@@ -439,9 +439,9 @@ def ci_t_prime_paired_samples(
         * correction
         * np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))
     )
-    Lower_CI_adjusted_lambda = qlambdap(1 / 2 - confidence_level / 2, df=(2 / (1 + correlation**2) * (sample_size - 1)), t=Lambda) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))  # type: ignore
-    Upper_CI_adjusted_lambda = qlambdap(1 / 2 + confidence_level / 2, df=(2 / (1 + correlation**2) * (sample_size - 1)), t=Lambda) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))  # type: ignore
-    return Lower_CI_adjusted_lambda, Upper_CI_adjusted_lambda
+    LowerCi_adjusted_lambda = qlambdap(1 / 2 - confidence_level / 2, df=(2 / (1 + correlation**2) * (sample_size - 1)), t=Lambda) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))  # type: ignore
+    UpperCi_adjusted_lambda = qlambdap(1 / 2 + confidence_level / 2, df=(2 / (1 + correlation**2) * (sample_size - 1)), t=Lambda) / np.sqrt(sample_size / (2 * (1 - Corrected_Correlation)))  # type: ignore
+    return LowerCi_adjusted_lambda, UpperCi_adjusted_lambda
 
 
 # 9. Non Central Parameter CI's (see Cousineau, 2018) ####Need to fix this
@@ -1036,10 +1036,10 @@ class PairedSamplesT:
             confidence_level + ((1 - confidence_level) / 2),
             Degrees_of_freedom_means_ratio,
         )
-        Lower_CI_Means_Ratio = math.exp(
+        LowerCi_Means_Ratio = math.exp(
             np.log(ratio_of_means) - t_critical_value * np.sqrt(Varaince_of_means_ratio)
         )
-        Upper_CI_Means_Ratio = math.exp(
+        UpperCi_Means_Ratio = math.exp(
             np.log(ratio_of_means) + t_critical_value * np.sqrt(Varaince_of_means_ratio)
         )
 
@@ -1418,8 +1418,8 @@ class PairedSamplesT:
         results["Standard Error of Ratio of Means"] = round(
             Standard_Error_of_means_ratio, 4
         )
-        results["Lower CI's Ratio of Means"] = round(Lower_CI_Means_Ratio, 4)
-        results["Upper CI's Ratio of Means"] = round(Upper_CI_Means_Ratio, 4)
+        results["Lower CI's Ratio of Means"] = round(LowerCi_Means_Ratio, 4)
+        results["Upper CI's Ratio of Means"] = round(UpperCi_Means_Ratio, 4)
 
         # Mean Difference (Unstandardized)
         mean_difference = sample_mean_1 - sample_mean_2
@@ -1850,10 +1850,10 @@ class PairedSamplesT:
             confidence_level + ((1 - confidence_level) / 2),
             Degrees_of_freedom_means_ratio,
         )
-        Lower_CI_Means_Ratio = math.exp(
+        LowerCi_Means_Ratio = math.exp(
             np.log(ratio_of_means) - t_critical_value * np.sqrt(Varaince_of_means_ratio)
         )
-        Upper_CI_Means_Ratio = math.exp(
+        UpperCi_Means_Ratio = math.exp(
             np.log(ratio_of_means) + t_critical_value * np.sqrt(Varaince_of_means_ratio)
         )
 
@@ -2269,8 +2269,8 @@ class PairedSamplesT:
         results["Standard Error of Ratio of Means"] = round(
             Standard_Error_of_means_ratio, 4
         )
-        results["Lower CI's Ratio of Means"] = round(Lower_CI_Means_Ratio, 4)
-        results["Upper CI's Ratio of Means"] = round(Upper_CI_Means_Ratio, 4)
+        results["Lower CI's Ratio of Means"] = round(LowerCi_Means_Ratio, 4)
+        results["Upper CI's Ratio of Means"] = round(UpperCi_Means_Ratio, 4)
 
         formatted_p_value = (
             "{:.3f}".format(p_value).lstrip("0")
