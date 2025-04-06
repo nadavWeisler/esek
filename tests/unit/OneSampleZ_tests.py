@@ -14,7 +14,6 @@ The tests cover the following functions:
 import unittest
 from OneSampleZ import OneSampleZ
 
-
 class TestOneSampleZTests(unittest.TestCase):
     """
     Unit tests for the One_Sample_ZTests module.
