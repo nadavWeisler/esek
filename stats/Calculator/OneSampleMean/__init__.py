@@ -1,12 +1,15 @@
-from .OneSampleT import OneSampleT, OneSampleTResults
-from .OneSampleZ import OneSampleZ, OneSampleZResults
-from .OneSampleAparametric import AparametricOneSample, OneSampleAparametricResults
+from .OneSampleT import OneSampleTResults, one_sample_from_params, one_sample_from_t_score
+from .OneSampleZ import OneSampleZResults, one_sample_from_z_score, one_sample_from_parameters, one_sample_from_data
+from .OneSampleAparametric import apermetric_effect_size_one_sample, OneSampleAparametricResults
 
 __all__ = [
-    'OneSampleT',
+    'one_sample_from_params',
+    'one_sample_from_t_score',
     'OneSampleTResults',
-    'OneSampleZ',
+    'one_sample_from_z_score',
+    'one_sample_from_parameters',
+    'one_sample_from_data',
     'OneSampleZResults',
-    'AparametricOneSample',
-    'OneSampleAparametricResults'
+    'apermetric_effect_size_one_sample',
+    'OneSampleAparametricResults',
 ]
