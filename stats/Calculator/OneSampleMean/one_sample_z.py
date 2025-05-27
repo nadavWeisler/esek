@@ -13,7 +13,7 @@ Z-tests from Z-score, parameters, and data.
 import numpy as np
 from scipy.stats import norm
 
-from results import CohenD
+from src.results import CohenD
 
 
 def calculate_central_ci_from_cohens_d_one_sample(

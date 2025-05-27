@@ -16,10 +16,9 @@ Methods:
 """
 
 import math
+from dataclasses import dataclass
 import numpy as np
 from scipy.stats import norm, nct, t, trim_mean
-from dataclasses import dataclass
-
 
 @dataclass
 class OneSampleCLESResults:
