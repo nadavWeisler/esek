@@ -19,7 +19,7 @@ import math
 import numpy as np
 from scipy.stats import norm, nct, t
 
-from results import CohenD, HedgesG, ApproximatedStandardError
+from src.stats.results import CohenD, HedgesG, ApproximatedStandardError
 
 
 class OneSampleTResults:

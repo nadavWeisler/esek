@@ -1,4 +1,4 @@
 """
 init.py
 """
-from src.stats.Calculator.OneSampleMean import *
+from stats.Calculator.OneSampleMean import *
