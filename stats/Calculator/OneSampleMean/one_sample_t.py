@@ -19,61 +19,32 @@ import math
 import numpy as np
 from scipy.stats import norm, nct, t
 
+from results import CohenD, HedgesG, ApproximatedStandardError
+
 
 class OneSampleTResults:
     """
     A class to store results from one-sample t-tests.
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        t_score: float,
+        degrees_of_freedom: int,
+        p_value: float,
+        cohens_d: CohenD,
+        hedges_g: HedgesG,
+    ) -> None:
         # Effect sizes
-        self.cohens_d = None
-        self.hedges_g = None
+        self.cohens_d: CohenD = cohens_d
+        self.hedges_g: HedgesG = hedges_g
 
         # Test statistics
-        self.t_score = None
-        self.degrees_of_freedom = None
-        self.p_value = None
+        self.t_score = t_score
+        self.degrees_of_freedom = degrees_of_freedom
+        self.p_value = p_value
 
-        # Standard errors for Cohen's d
-        self.standard_error_cohens_d_true = None
-        self.standard_error_cohens_d_morris = None
-        self.standard_error_cohens_d_hedges = None
-        self.standard_error_cohens_d_hedges_olkin = None
-        self.standard_error_cohens_d_mle = None
-        self.standard_error_cohens_d_large_n = None
-        self.standard_error_cohens_d_small_n = None
-
-        # Standard errors for Hedges' g
-        self.standard_error_hedges_g_true = None
-        self.standard_error_hedges_g_morris = None
-        self.standard_error_hedges_g_hedges = None
-        self.standard_error_hedges_g_hedges_olkin = None
-        self.standard_error_hedges_g_mle = None
-        self.standard_error_hedges_g_large_n = None
-        self.standard_error_hedges_g_small_n = None
-
-        # Confidence intervals for Cohen's d
-        self.lower_central_ci_cohens_d = None
-        self.upper_central_ci_cohens_d = None
-        self.lower_pivotal_ci_cohens_d = None
-        self.upper_pivotal_ci_cohens_d = None
-        self.lower_ncp_ci_cohens_d = None
-        self.upper_ncp_ci_cohens_d = None
-
-        # Confidence intervals for Hedges' g
-        self.lower_central_ci_hedges_g = None
-        self.upper_central_ci_hedges_g = None
-        self.lower_pivotal_ci_hedges_g = None
-        self.upper_pivotal_ci_hedges_g = None
-        self.lower_ncp_ci_hedges_g = None
-        self.upper_ncp_ci_hedges_g = None
-
-        # Additional statistics
-        self.correction_factor = None
-        self.standard_error_mean = None
-        self.standardizer_cohens_d = None
-        self.standardizer_hedges_g = None
+        self.standard_error = None
         self.sample_mean = None
         self.population_mean = None
         self.means_difference = None
@@ -301,33 +272,14 @@ def ci_ncp_one_sample(effect_size, sample_size, confidence_level):
     return CI_NCP_low, CI_NCP_High
 
 
-def one_sample_from_t_score(params: dict) -> OneSampleTResults:
+def one_sample_from_t_score(
+    t_score: float, sample_size: float, confidence_level=0.95
+) -> OneSampleTResults:
     """
     Calculate the one-sample t-test results from a given t-score.
-
-    Parameters
-    ----------
-    params : dict
-        A dictionary containing the following keys:
-        - "t score" (float): The t-score value.
-        - "Sample Size" (int): The size of the sample.
-        - "Confidence Level" (float): The confidence level as a percentage (e.g., 95 for 95%).
-
-    Returns
-    -------
-    OneSampleTResults
-        An object containing all calculated statistics and results
     """
-    # Get params
-    t_score = params["t score"]
-    sample_size = params["Sample Size"]
-    confidence_level_percentage = params["Confidence Level"]
-
-    # Create results object
-    results = OneSampleTResults()
 
     # Calculation
-    confidence_level = confidence_level_percentage / 100
     df = sample_size - 1
     p_value = min(float(t.sf((abs(t_score)), df) * 2), 0.99999)
     cohens_d = t_score / np.sqrt(
@@ -372,78 +324,72 @@ def one_sample_from_t_score(params: dict) -> OneSampleTResults:
         hedges_g, sample_size, confidence_level
     )
 
-    # Set results
-    results.cohens_d = round(cohens_d, 4)
-    results.hedges_g = round(hedges_g, 4)
-    results.t_score = round(t_score, 4)
-    results.degrees_of_freedom = round(df, 4)
-    results.p_value = round(p_value, 4)
-    results.standard_error_cohens_d_true = round(standard_error_cohens_d_true, 4)
-    results.standard_error_cohens_d_morris = round(standard_error_cohens_d_morris, 4)
-    results.standard_error_cohens_d_hedges = round(standard_error_cohens_d_hedges, 4)
-    results.standard_error_cohens_d_hedges_olkin = round(
-        standard_error_cohens_d_hedges_olkin, 4
+    cohens_d = CohenD(
+        cohens_d,
+        ci_lower_cohens_d_central,
+        ci_upper_cohens_d_central,
+        standard_error_cohens_d_true,
     )
-    results.standard_error_cohens_d_mle = round(standard_error_cohens_d_mle, 4)
-    results.standard_error_cohens_d_large_n = round(standard_error_cohens_d_large_n, 4)
-    results.standard_error_cohens_d_small_n = round(standard_error_cohens_d_small_n, 4)
-    results.standard_error_hedges_g_true = round(standard_error_hedges_g_true, 4)
-    results.standard_error_hedges_g_morris = round(standard_error_hedges_g_morris, 4)
-    results.standard_error_hedges_g_hedges = round(standard_error_hedges_g_hedges, 4)
-    results.standard_error_hedges_g_hedges_olkin = round(
-        standard_error_hedges_g_hedges_olkin, 4
+
+    cohens_d.standardizer = correction
+    cohens_d.update_non_central_ci(ci_lower_cohens_d_ncp, ci_upper_cohens_d_ncp)
+    cohens_d.update_pivotal_ci(ci_lower_cohens_d_pivotal, ci_upper_cohens_d_pivotal)
+
+    cohens_d_approximated = ApproximatedStandardError(
+        standard_error_cohens_d_true,
+        standard_error_cohens_d_morris,
+        standard_error_cohens_d_hedges,
+        standard_error_cohens_d_hedges_olkin,
+        standard_error_cohens_d_mle,
+        standard_error_cohens_d_large_n,
+        standard_error_cohens_d_small_n,
     )
-    results.standard_error_hedges_g_mle = round(standard_error_hedges_g_mle, 4)
-    results.standard_error_hedges_g_large_n = round(standard_error_hedges_g_large_n, 4)
-    results.standard_error_hedges_g_small_n = round(standard_error_hedges_g_small_n, 4)
-    results.lower_central_ci_cohens_d = round(ci_lower_cohens_d_central, 4)
-    results.upper_central_ci_cohens_d = round(ci_upper_cohens_d_central, 4)
-    results.lower_central_ci_hedges_g = round(ci_lower_hedges_g_central, 4)
-    results.upper_central_ci_hedges_g = round(ci_upper_hedges_g_central, 4)
-    results.lower_pivotal_ci_cohens_d = round(ci_lower_cohens_d_pivotal, 4)
-    results.upper_pivotal_ci_cohens_d = round(ci_upper_cohens_d_pivotal, 4)
-    results.lower_pivotal_ci_hedges_g = round(ci_lower_hedges_g_pivotal * correction, 4)
-    results.upper_pivotal_ci_hedges_g = round(ci_upper_hedges_g_pivotal * correction, 4)
-    results.lower_ncp_ci_cohens_d = round(ci_lower_cohens_d_ncp, 4)
-    results.upper_ncp_ci_cohens_d = round(ci_upper_cohens_d_ncp, 4)
-    results.lower_ncp_ci_hedges_g = round(ci_lower_hedges_g_ncp, 4)
-    results.upper_ncp_ci_hedges_g = round(ci_upper_hedges_g_ncp, 4)
-    results.correction_factor = round(correction, 4)
+
+    cohens_d.approximated_standard_error = cohens_d_approximated
+
+    hedges_g = HedgesG(
+        hedges_g,
+        ci_lower_hedges_g_central,
+        ci_upper_hedges_g_central,
+        standard_error_hedges_g_true,
+    )
+
+    hedges_g.update_non_central_ci(ci_lower_hedges_g_ncp, ci_upper_hedges_g_ncp)
+    hedges_g.update_pivotal_ci(ci_lower_hedges_g_pivotal, ci_upper_hedges_g_pivotal)
+
+    hedges_g_approximated = ApproximatedStandardError(
+        standard_error_hedges_g_true,
+        standard_error_hedges_g_morris,
+        standard_error_hedges_g_hedges,
+        standard_error_hedges_g_hedges_olkin,
+        standard_error_hedges_g_mle,
+        standard_error_hedges_g_large_n,
+        standard_error_hedges_g_small_n,
+    )
+    hedges_g.approximated_standard_error = hedges_g_approximated
+
+    results = OneSampleTResults(
+        t_score=t_score,
+        degrees_of_freedom=df,
+        p_value=p_value,
+        cohens_d=cohens_d,
+        hedges_g=hedges_g,
+    )
 
     return results
 
 
-def one_sample_from_params(params: dict) -> OneSampleTResults:
+def one_sample_from_params(
+    population_mean: float,
+    sample_mean: float,
+    sample_sd: float,
+    sample_size: float,
+    confidence_level: float = 0.95,
+) -> OneSampleTResults:
     """
     Calculate the one-sample t-test results from given parameters.
 
-    Parameters
-    ----------
-    params : dict
-        A dictionary containing the following keys:
-        - "Population Mean" (float): The mean of the population.
-        - "Mean Sample" (float): The mean of the sample.
-        - "Standard Deviation Sample" (float): The standard deviation of the sample.
-        - "Sample Size" (int): The size of the sample.
-        - "Confidence Level" (float): The confidence level as a percentage (e.g., 95 for 95%).
-
-    Returns
-    -------
-    OneSampleTResults
-        An object containing all calculated statistics and results
     """
-    # Set params
-    population_mean = params["Population Mean"]
-    sample_mean = params["Mean Sample"]
-    sample_sd = params["Standard Deviation Sample"]
-    sample_size = params["Sample Size"]
-    confidence_level_percentage = params["Confidence Level"]
-
-    # Create results object
-    results = OneSampleTResults()
-
-    # Calculation
-    confidence_level = confidence_level_percentage / 100
     df = sample_size - 1
     standard_error = sample_sd / np.sqrt(
         df
@@ -494,55 +440,61 @@ def one_sample_from_params(params: dict) -> OneSampleTResults:
         hedges_g, sample_size, confidence_level
     )
 
-    results.cohens_d = round(cohens_d, 4)
-    results.hedges_g = round(hedges_g, 4)
-    results.t_score = round(t_score, 4)
-    results.df = round(df, 4)
-    results.p_value = round(p_value, 4)
-    results.standardizer_cohens_d = round(sample_sd, 4)
-    results.standardizer_hedges_g = round(sample_sd / correction, 4)
-    results.standard_error_mean = round(standard_error, 4)
-    results.standard_error_cohens_d_true = round(standard_error_cohens_d_true, 4)
-    results.standard_error_cohens_d_morris = round(standard_error_cohens_d_morris, 4)
-    results.standard_error_cohens_d_hedges = round(standard_error_cohens_d_hedges, 4)
-    results.standard_error_cohens_d_hedges_olkin = round(
-        standard_error_cohens_d_hedges_olkin, 4
+    cohens_d = CohenD(
+        cohens_d,
+        ci_lower_cohens_d_central,
+        ci_upper_cohens_d_central,
+        standard_error_cohens_d_true,
     )
-    results.standard_error_cohens_d_mle = round(standard_error_cohens_d_mle, 4)
-    results.standard_error_cohens_d_large_n = round(standard_error_cohens_d_large_n, 4)
-    results.standard_error_cohens_d_small_n = round(standard_error_cohens_d_small_n, 4)
-    results.standard_error_hedges_g_true = round(standard_error_hedges_g_true, 4)
-    results.standard_error_hedges_g_morris = round(standard_error_hedges_g_morris, 4)
-    results.standard_error_hedges_g_hedges = round(standard_error_hedges_g_hedges, 4)
-    results.standard_error_hedges_g_hedges_olkin = round(
-        standard_error_hedges_g_hedges_olkin, 4
+    cohens_d.standardizer = correction
+    cohens_d.update_non_central_ci(ci_lower_cohens_d_ncp, ci_upper_cohens_d_ncp)
+    cohens_d.update_pivotal_ci(ci_lower_cohens_d_pivotal, ci_upper_cohens_d_pivotal)
+    cohens_d_approximated = ApproximatedStandardError(
+        standard_error_cohens_d_true,
+        standard_error_cohens_d_morris,
+        standard_error_cohens_d_hedges,
+        standard_error_cohens_d_hedges_olkin,
+        standard_error_cohens_d_mle,
+        standard_error_cohens_d_large_n,
+        standard_error_cohens_d_small_n,
     )
-    results.standard_error_hedges_g_mle = round(standard_error_hedges_g_mle, 4)
-    results.standard_error_hedges_g_large_n = round(standard_error_hedges_g_large_n, 4)
-    results.standard_error_hedges_g_small_n = round(standard_error_hedges_g_small_n, 4)
-    results.sample_mean = round(sample_mean, 4)
-    results.population_mean = round(population_mean, 4)
-    results.means_difference = round(sample_mean - population_mean, 4)
-    results.sample_size = round(sample_size, 4)
-    results.sample_sd = round(sample_sd, 4)
-    results.lower_central_ci_cohens_d = round(ci_lower_cohens_d_central, 4)
-    results.upper_central_ci_cohens_d = round(ci_upper_cohens_d_central, 4)
-    results.lower_ncp_ci_cohens_d = round(ci_lower_cohens_d_ncp, 4)
-    results.upper_ncp_ci_cohens_d = round(ci_upper_cohens_d_ncp, 4)
-    results.lower_pivotal_ci_cohens_d = round(ci_lower_cohens_d_pivotal, 4)
-    results.upper_pivotal_ci_cohens_d = round(ci_upper_cohens_d_pivotal, 4)
-    results.lower_pivotal_ci_hedges_g = round(ci_lower_hedges_g_pivotal * correction, 4)
-    results.upper_pivotal_ci_hedges_g = round(ci_upper_hedges_g_pivotal * correction, 4)
-    results.lower_central_ci_hedges_g = round(ci_lower_hedges_g_central, 4)
-    results.upper_central_ci_hedges_g = round(ci_upper_hedges_g_central, 4)
-    results.lower_ncp_ci_hedges_g = round(ci_lower_hedges_g_ncp, 4)
-    results.upper_ncp_ci_hedges_g = round(ci_upper_hedges_g_ncp, 4)
-    results.correction_factor = round(correction, 4)
+    cohens_d.approximated_standard_error = cohens_d_approximated
+
+    hedges_g = HedgesG(
+        hedges_g,
+        ci_lower_hedges_g_central,
+        ci_upper_hedges_g_central,
+        standard_error_hedges_g_true,
+    )
+
+    hedges_g.update_non_central_ci(ci_lower_hedges_g_ncp, ci_upper_hedges_g_ncp)
+    hedges_g.update_pivotal_ci(ci_lower_hedges_g_pivotal, ci_upper_hedges_g_pivotal)
+    hedges_g_approximated = ApproximatedStandardError(
+        standard_error_hedges_g_true,
+        standard_error_hedges_g_morris,
+        standard_error_hedges_g_hedges,
+        standard_error_hedges_g_hedges_olkin,
+        standard_error_hedges_g_mle,
+        standard_error_hedges_g_large_n,
+        standard_error_hedges_g_small_n,
+    )
+    hedges_g.approximated_standard_error = hedges_g_approximated
+
+    # Create results object
+    results = OneSampleTResults(
+        t_score=t_score,
+        degrees_of_freedom=df,
+        p_value=p_value,
+        cohens_d=cohens_d,
+        hedges_g=hedges_g,
+    )
+    # Assign values to the results object
+    results.sample_size = sample_size
+    results.population_mean = population_mean
+    results.sample_mean = sample_mean
+    results.sample_sd = sample_sd
+    results.standard_error = standard_error
+    results.means_difference = sample_mean - population_mean
+
     return results
-
-
-# Things to consider
-
-# 1. Using a different default for CI - maybe switch to the NCP's one
-# 2. imporve the Pivotal accuracy to match r functions...
-# 3. One Sample from Data
+    
