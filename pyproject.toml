@@ -2,7 +2,36 @@
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "esek"
+version = "0.1.0"
+description = "Effect size estimation and statistics library"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    { name = "Nadav Weisler", email = "weisler.nadav@gmail.com" }
+]
+dependencies = [
+    # Add your runtime dependencies here, for example:
+    # "numpy >= 1.21",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest >= 7.0",
+    "pytest-cov",
+    # add linting or formatting tools if needed
+    # "black",
+    # "flake8",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = "test_*.py"
-python_functions = "test_*"
+pythonpath = ["src"]
+addopts = "--strict-markers"
