@@ -16,53 +16,62 @@ Methods:
 """
 
 import math
+from typing import Optional
 from dataclasses import dataclass
 import numpy as np
+import numpy.typing as npt
 from scipy.stats import norm, nct, t, trim_mean
+
 
 @dataclass
 class OneSampleCLESResults:
     """Class for storing one-sample CLES test results"""
 
     # Common Language Effect Sizes
-    cles_d: float = None  # McGraw & Wong Common Language Effect Size
-    cles_g: float = None  # McGraw & Wong Unbiased Common Language Effect Size
+    cles_d: Optional[npt.NDArray[np.float16]] = (
+        None  # McGraw & Wong Common Language Effect Size
+    )
+    cles_g: Optional[npt.NDArray[np.float16]] = (
+        None  # McGraw & Wong Unbiased Common Language Effect Size
+    )
 
     # Test Statistics
-    t_score: float = None
-    df: float = None
-    p_value: float = None
+    t_score: Optional[npt.NDArray[np.float16]] = None
+    df: Optional[npt.NDArray[np.float16]] = None
+    p_value: Optional[npt.NDArray[np.float16]] = None
 
     # Central CI's
-    lower_central_ci_cld: float = None
-    upper_central_ci_cld: float = None
-    lower_central_ci_clg: float = None
-    upper_central_ci_clg: float = None
+    lower_central_ci_cld: Optional[npt.NDArray[np.float16]] = None
+    upper_central_ci_cld: Optional[npt.NDArray[np.float16]] = None
+    lower_central_ci_clg: Optional[npt.NDArray[np.float16]] = None
+    upper_central_ci_clg: Optional[npt.NDArray[np.float16]] = None
 
     # Non-Central CI's
-    lower_ncp_ci_cld: float = None
-    upper_ncp_ci_cld: float = None
-    lower_ncp_ci_clg: float = None
-    upper_ncp_ci_clg: float = None
+    lower_ncp_ci_cld: Optional[npt.NDArray[np.float16]] = None
+    upper_ncp_ci_cld: Optional[npt.NDArray[np.float16]] = None
+    lower_ncp_ci_clg: Optional[npt.NDArray[np.float16]] = None
+    upper_ncp_ci_clg: Optional[npt.NDArray[np.float16]] = None
 
     # Pivotal CI's
-    lower_pivotal_ci_cld: float = None
-    upper_pivotal_ci_cld: float = None
-    lower_pivotal_ci_clg: float = None
-    upper_pivotal_ci_clg: float = None
+    lower_pivotal_ci_cld: Optional[npt.NDArray[np.float16]] = None
+    upper_pivotal_ci_cld: Optional[npt.NDArray[np.float16]] = None
+    lower_pivotal_ci_clg: Optional[npt.NDArray[np.float16]] = None
+    upper_pivotal_ci_clg: Optional[npt.NDArray[np.float16]] = None
 
     # Robust Statistics
-    robust_effect_size_akp: float = None
-    lower_ci_robust_akp: float = None
-    upper_ci_robust_akp: float = None
-    trimmed_mean: float = None
-    winsorized_sd: float = None
-    yuens_t: float = None
-    robust_df: float = None
-    robust_p_value: float = None
-    mean_difference: float = None
-    standard_error: float = None
-    statistical_line_robust_akp: str = None
+    robust_effect_size_akp: Optional[npt.NDArray[np.float16]] = None
+    lower_ci_robust_akp: Optional[npt.NDArray[np.float16]] = None
+    upper_ci_robust_akp: Optional[npt.NDArray[np.float16]] = None
+    trimmed_mean: Optional[npt.NDArray[np.float16] | float] = None
+    winsorized_sd: Optional[npt.NDArray[np.float16]] = None
+    yuens_t: Optional[npt.NDArray[np.float16]] = None
+    robust_df: Optional[npt.NDArray[np.float16]] = None
+    robust_p_value: Optional[npt.NDArray[np.float16]] = None
+    mean_difference: Optional[npt.NDArray[np.float16]] = None
+    standard_error: Optional[npt.NDArray[np.float16]] = None
+    statistical_line_robust_akp: Optional[str] = None
+    statistical_line_cld: Optional[str] = None
+    statistical_line_clg: Optional[str] = None
 
 
 def pivotal_ci_t(t_score, df, sample_size, confidence_level):
@@ -316,7 +325,7 @@ def area_under_function(
         function_a=function_a,
         function_b=f_midpoint,
         limit=limit - 1,
-        eps=eps
+        eps=eps,
     ) + area_under_function(
         f,
         midpoint,
@@ -325,7 +334,7 @@ def area_under_function(
         function_a=f_midpoint,
         function_b=function_b,
         limit=limit - 1,
-        eps=eps
+        eps=eps,
     )
 
 
@@ -693,7 +702,7 @@ class OneSampleTTest:
         return results
 
     @staticmethod
-    def one_sample_from_data(params: dict) -> dict:
+    def one_sample_from_data(params: dict) -> OneSampleCLESResults:
         """
         Calculate the one-sample t-test results from given sample data.
 
@@ -834,7 +843,7 @@ class OneSampleTTest:
         return results
 
     @staticmethod
-    def robust_one_sample(params: dict) -> dict:
+    def robust_one_sample(params: dict) -> OneSampleCLESResults:
         """
         Calculate the robust one-sample t-test results.
 
