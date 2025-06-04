@@ -130,18 +130,18 @@ def apermetric_effect_size_one_sample(params: dict) -> OneSampleAparametricResul
 
     Parameters:
     params (dict): A dictionary containing the following keys:
-        - "Column 1": A numpy array of sample data.
-        - "Population's Value": The population value to compare against.
-        - "Confidence Level": The confidence level as a percentage.
+        - "column_1": A numpy array of sample data.
+        - "populations_value": The population value to compare against.
+        - "confidence_level": The confidence level as a percentage.
 
     Returns:
     dict: A dictionary containing the results of the Aparametric effect size calculations.
     """
     # region
     # Set Parameters
-    column_1 = params["Column 1"]
-    population_value = params["Population's Value"]
-    confidence_level_percentages = params["Confidence Level"]
+    column_1 = params["column_1"]
+    population_value = params["populations_value"]
+    confidence_level_percentages = params["confidence_level"]
 
     # Calculation
     confidence_level = confidence_level_percentages / 100

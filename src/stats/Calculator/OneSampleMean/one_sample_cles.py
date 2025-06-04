@@ -433,9 +433,9 @@ class OneSampleTTest:
         ----------
         params : dict
             A dictionary containing the following keys:
-            - "t score" (float): The t-score value.
-            - "Sample Size" (int): The size of the sample.
-            - "Confidence Level" (float): The confidence level as a percentage (e.g., 95 for 95%).
+            - "t_score" (float): The t-score value.
+            - "sample_size" (int): The size of the sample.
+            - "confidence_level" (float): The confidence level as a percentage (e.g., 95 for 95%).
 
         Returns
         -------
@@ -443,9 +443,9 @@ class OneSampleTTest:
             An object containing all calculated statistics and results
         """
         # Get params
-        t_score = params["t score"]
-        sample_size = params["Sample Size"]
-        confidence_level_percentages = params["Confidence Level"]
+        t_score = params["t_score"]
+        sample_size = params["sample_size"]
+        confidence_level_percentages = params["confidence_level"]
 
         # Create results object
         results = OneSampleCLESResults()
@@ -567,11 +567,11 @@ class OneSampleTTest:
         ----------
         params : dict
             A dictionary containing the following keys:
-            - "Population Mean" (float): The population mean value.
-            - "Mean Sample" (float): The mean of the sample.
-            - "Standard Deviation Sample" (float): The standard deviation of the sample.
-            - "Sample Size" (int): The size of the sample.
-            - "Confidence Level" (float): The confidence level as a percentage (e.g., 95 for 95%).
+            - "population_mean" (float): The population mean value.
+            - "mean_sample" (float): The mean of the sample.
+            - "standard_deviation_sample" (float): The standard deviation of the sample.
+            - "sample_size" (int): The size of the sample.
+            - "confidence_level" (float): The confidence level as a percentage (e.g., 95 for 95%).
 
         Returns
         -------
@@ -579,11 +579,11 @@ class OneSampleTTest:
             An object containing all calculated statistics and results
         """
         # Set params
-        population_mean = params["Population Mean"]
-        sample_mean = params["Mean Sample"]
-        sample_sd = params["Standard Deviation Sample"]
-        sample_size = params["Sample Size"]
-        confidence_level_percentages = params["Confidence Level"]
+        population_mean = params["population_mean"]
+        sample_mean = params["mean_sample"]
+        sample_sd = params["standard_deviation_sample"]
+        sample_size = params["sample_size"]
+        confidence_level_percentages = params["confidence_level"]
 
         # Create results object
         results = OneSampleCLESResults()
@@ -710,9 +710,9 @@ class OneSampleTTest:
         ----------
         params : dict
             A dictionary containing the following keys:
-            - "column 1" (array-like): The sample data.
-            - "Population's Mean" (float): The population mean value.
-            - "Confidence Level" (float): The confidence level as a percentage (e.g., 95 for 95%).
+            - "column_1" (array-like): The sample data.
+            - "populations_mean" (float): The population mean value.
+            - "confidence_level" (float): The confidence level as a percentage (e.g., 95 for 95%).
 
         Returns
         -------
@@ -739,11 +739,11 @@ class OneSampleTTest:
             - "Statistical Line CLg" (str): A formatted string with the statistical results for CLg.
         """
         # Set params
-        column_1 = params["column 1"]
+        column_1 = params["column_1"]
         population_mean = params[
-            "Population's Mean"
+            "populations_mean"
         ]  # Default should be 0 if not mentioned
-        confidence_level_percentages = params["Confidence Level"]
+        confidence_level_percentages = params["confidence_level"]
 
         # Calculation
         confidence_level = confidence_level_percentages / 100
@@ -851,11 +851,11 @@ class OneSampleTTest:
         ----------
         params : dict
             A dictionary containing the following keys:
-            - "column 1" (array-like): The sample data.
-            - "Trimming Level" (float): The trimming level.
-            - "Population Mean" (float): The population mean value.
-            - "Number of Bootstrap Samples" (int): The number of bootstrap samples.
-            - "Confidence Level" (float): The confidence level as a percentage (e.g., 95 for 95%).
+            - "column_1" (array-like): The sample data.
+            - "trimming_level" (float): The trimming level.
+            - "population_mean" (float): The population mean value.
+            - "number_of_bootstrap_samples" (int): The number of bootstrap samples.
+            - "confidence_level" (float): The confidence level as a percentage (e.g., 95 for 95%).
         Returns
         -------
         OneSampleCLESResults
@@ -872,11 +872,11 @@ class OneSampleTTest:
             - standard_error (float): The standard error
         """
         # Set Parameters
-        column_1 = params["column 1"]
-        trimming_level = params["Trimming Level"]  # The default should be 0.2
-        population_mean = params["Population Mean"]  # The default should be 0.2
-        reps = params["Number of Bootstrap Samples"]
-        confidence_level_percentages = params["Confidence Level"]
+        column_1 = params["column_1"]
+        trimming_level = params["trimming_level"]  # The default should be 0.2
+        population_mean = params["population_mean"]  # The default should be 0.2
+        reps = params["number_of_bootstrap_samples"]
+        confidence_level_percentages = params["confidence_level"]
 
         # Calculation
         confidence_level = confidence_level_percentages / 100
