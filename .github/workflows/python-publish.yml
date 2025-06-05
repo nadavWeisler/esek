@@ -46,7 +46,7 @@ jobs:
       - name: Bump patch version
         id: new_tag
         run: |
-          TAG="${{ steps.get_tag.outputs.latest_tag }}"
+          export TAG="${{ steps.get_tag.outputs.latest_tag }}"
           python -c "
           import semver
           import os
@@ -55,7 +55,8 @@ jobs:
           ver = semver.Version.parse(tag.lstrip('v'))
           new_ver = ver.bump_patch()
           print(f'New tag: v{new_ver}')
-          print(f'tag=v{new_ver}', file=open(os.environ['GITHUB_OUTPUT'], 'a'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+             print(f'tag=v{new_ver}', file=f)
           " 
           
             
