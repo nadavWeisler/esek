@@ -5,7 +5,6 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "esek"
 dynamic = ["version"]
-[tool.setuptools_scm]
 version_file = "esek/_version.py"
 
 description = "Effect size estimation and statistics library"
