@@ -1,12 +1,10 @@
 [build-system]
-requires = ["setuptools>=64.0", "setuptools-scm>=8"]
+requires = ["setuptools>=61.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "esek"
 dynamic = ["version"]
-version_file = "esek/_version.py"
-
 description = "Effect size estimation and statistics library"
 readme = "README.md"
 requires-python = ">=3.8"
