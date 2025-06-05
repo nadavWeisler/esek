@@ -7,11 +7,16 @@ Classes:
 Methods:
     ApermetricEffectSizeOneSample: Calculate the Aparametric effect size using the sign test for one sample.
 """
+
 import math
+from dataclasses import dataclass
+from typing import Optional
 import numpy as np
 from scipy.stats import norm, rankdata, median_abs_deviation
 
+
 # Create results class
+@dataclass
 class OneSampleAparametricResults:
     """
     A class to store results from one-sample aparametric statistical tests.
@@ -24,85 +29,102 @@ class OneSampleAparametricResults:
     - Statistical lines in formatted output
     - Pratt test statistics (considering ties)
     """
-    def __init__(self):
-        # General Summary Statistics
-        self.sample = None
-        self.sample_median = None
-        self.median_of_the_differnece = None
-        self.median_of_absoult_deviation = None
-        self.sample_mean = None
-        self.sample_standard_deviation = None
-        self.number_of_pairs = None
-        self.number_of_pairs_with_a_sign = None
-        self.number_of_times_sample_is_larger = None
-        self.number_of_times_sample_is_smaller = None
-        self.number_of_ties = None
 
-        # Wilcoxon Statistics (Wilcoxon Method that Ignores ties)
-        self.wilcoxon_method = ""
-        self._______________ = ""
-        self.sum_of_the_positive_ranks_without_ties = None
-        self.sum_of_the_negative_ranks_without_ties = None
+    sample: Optional[int | float] = None
+    sample_median: Optional[int | float] = None
+    median_of_the_difference: Optional[int | float] = None
+    median_of_absolute_deviation: Optional[int | float] = None
+    sample_mean: Optional[int | float] = None
+    sample_standard_deviation: Optional[int | float] = None
+    number_of_pairs: Optional[int | float] = None
+    number_of_pairs_with_a_sign: Optional[int | float] = None
+    number_of_times_sample_is_larger: Optional[int | float] = None
+    number_of_times_sample_is_smaller: Optional[int | float] = None
+    number_of_ties: Optional[int | float] = None
 
-        # Wilcoxon Sign Rank Test Statistics (Wilcoxon)
-        self.wilcoxon_mean_w_without_ties = None
-        self.wilcoxon_standard_deviation = None
-        self.wilcoxon_z = None
-        self.wilcoxon_z_with_normal_approximation_continuity_correction = None
-        self.wilcoxon_p_value = None
-        self.wilcoxon_p_value_with_normal_approximation_continuity_correction = None
+    # Wilcoxon Statistics (Wilcoxon Method that Ignores ties)
+    wilcoxon_method: str = ""
+    _______________: str = ""
+    sum_of_the_positive_ranks_without_ties: Optional[int | float] = None
+    sum_of_the_negative_ranks_without_ties: Optional[int | float] = None
 
-        # Rank Biserial Correlation
-        self.matched_pairs_rank_biserial_correlation_ignoring_ties = None
-        self.z_based_rank_biserial_correlation_wilcoxon_method = None
-        self.z_based_corrected_rank_biserial_correlation_wilcoxon_method = None
+    # Wilcoxon Sign Rank Test Statistics (Wilcoxon)
+    wilcoxon_mean_w_without_ties: Optional[int | float] = None
+    wilcoxon_standard_deviation: Optional[int | float] = None
+    wilcoxon_z: Optional[int | float] = None
+    wilcoxon_z_with_normal_approximation_continuity_correction: Optional[
+        int | float
+    ] = None
+    wilcoxon_p_value: Optional[int | float] = None
+    wilcoxon_p_value_with_normal_approximation_continuity_correction: Optional[
+        int | float
+    ] = None
 
-        # Confidence Intervals
-        self.standard_error_of_the_matched_pairs_rank_biserial_correlation_wilcoxon_method = None
-        self.lower_ci_matched_pairs_rank_biserial_wilcoxon = None
-        self.upper_ci_matched_pairs_rank_biserial_wilcoxon = None
-        self.lower_ci_z_based_rank_biserial_wilcoxon = None
-        self.upper_ci_z_based_rank_biserial_wilcoxon = None
-        self.lower_ci_z_based_corrected_rank_biserial_wilcoxon = None
-        self.upper_ci_z_based_corrected_rank_biserial_wilcoxon = None
+    # Rank Biserial Correlation
+    matched_pairs_rank_biserial_correlation_ignoring_ties: Optional[int | float] = None
+    z_based_rank_biserial_correlation_wilcoxon_method: Optional[int | float] = None
+    z_based_corrected_rank_biserial_correlation_wilcoxon_method: Optional[
+        int | float
+    ] = None
 
-        # Statistical Lines Wilcoxon Method
-        self.statistical_line_wilcoxon = None
-        self.statistical_line_wilcoxon_corrected = None
-        self.statistical_line_wilcoxon_matched_pairs = None
+    # Confidence Intervals
+    standard_error_of_the_matched_pairs_rank_biserial_correlation_wilcoxon_method: (
+        Optional[int | float]
+    ) = (None)
+    lower_ci_matched_pairs_rank_biserial_wilcoxon: Optional[int | float] = None
+    upper_ci_matched_pairs_rank_biserial_wilcoxon: Optional[int | float] = None
+    lower_ci_z_based_rank_biserial_wilcoxon: Optional[int | float] = None
+    upper_ci_z_based_rank_biserial_wilcoxon: Optional[int | float] = None
+    lower_ci_z_based_corrected_rank_biserial_wilcoxon: Optional[int | float] = None
+    upper_ci_z_based_corrected_rank_biserial_wilcoxon: Optional[int | float] = None
 
-        self.pratt_method = ""
-        self.sum_of_the_positive_ranks_with_ties = None
-        self.sum_of_the_negative_ranks_with_ties = None
+    # Statistical Lines Wilcoxon Method
+    statistical_line_wilcoxon: Optional[int | float] = None
+    statistical_line_wilcoxon_corrected: Optional[int | float] = None
+    statistical_line_wilcoxon_matched_pairs: Optional[int | float] = None
 
-        self.pratt_meanw_considering_ties = None
-        self.pratt_standard_deviation = None
-        self.pratt_z = None
-        self.pratt_z_with_normal_approximation_continuity_correction = None
-        self.pratt_p_value = None
-        self.pratt_p_value_with_normal_approximation_continuity_correction = None
+    pratt_method: str = ""
+    sum_of_the_positive_ranks_with_ties: Optional[int | float] = None
+    sum_of_the_negative_ranks_with_ties: Optional[int | float] = None
 
-        # Rank Biserial Correlation
-        self.matched_pairs_rank_biserial_correlation_considering_ties = None
-        self.z_based_rank_biserial_correlation_pratt_method = None
-        self.z_based_corrected_rank_biserial_correlation_pratt_method = None
+    pratt_meanw_considering_ties: Optional[int | float] = None
+    pratt_standard_deviation: Optional[int | float] = None
+    pratt_z: Optional[int | float] = None
+    pratt_z_with_normal_approximation_continuity_correction: Optional[int | float] = (
+        None
+    )
+    pratt_p_value: Optional[int | float] = None
+    pratt_p_value_with_normal_approximation_continuity_correction: Optional[
+        int | float
+    ] = None
 
-        # Confidence Intervals
-        self.standard_error_of_the_matched_pairs_rank_biserial_correlation_pratt_method = None
-        self.lower_ci_matched_pairs_rank_biserial_pratt = None
-        self.upper_ci_matched_pairs_rank_biserial_pratt = None
-        self.lower_ci_z_based_rank_biserial_pratt = None
-        self.upper_ci_z_based_rank_biserial_pratt = None
-        self.lower_ci_z_based_corrected_rank_biserial_pratt = None
-        self.upper_ci_z_based_corrected_rank_biserial_pratt = None
+    # Rank Biserial Correlation
+    matched_pairs_rank_biserial_correlation_considering_ties: Optional[int | float] = (
+        None
+    )
+    z_based_rank_biserial_correlation_pratt_method: Optional[int | float] = None
+    z_based_corrected_rank_biserial_correlation_pratt_method: Optional[int | float] = (
+        None
+    )
 
-        # Statistical Lines
-        self.statistical_line_pratt = None
-        self.statistical_line_pratt_corrected = None
-        self.statistical_line_pratt_matched_pairs = None
+    # Confidence Intervals
+    standard_error_of_the_matched_pairs_rank_biserial_correlation_pratt_method: (
+        Optional[int | float]
+    ) = (None)
+    lower_ci_matched_pairs_rank_biserial_pratt: Optional[int | float] = None
+    upper_ci_matched_pairs_rank_biserial_pratt: Optional[int | float] = None
+    lower_ci_z_based_rank_biserial_pratt: Optional[int | float] = None
+    upper_ci_z_based_rank_biserial_pratt: Optional[int | float] = None
+    lower_ci_z_based_corrected_rank_biserial_pratt: Optional[int | float] = None
+    upper_ci_z_based_corrected_rank_biserial_pratt: Optional[int | float] = None
+
+    # Statistical Lines
+    statistical_line_pratt: Optional[int | float] = None
+    statistical_line_pratt_corrected: Optional[int | float] = None
+    statistical_line_pratt_matched_pairs: Optional[int | float] = None
 
 
-def apermetric_effect_size_one_sample(params: dict) -> dict:
+def apermetric_effect_size_one_sample(params: dict) -> OneSampleAparametricResults:
     """
     Calculate the Aparametric effect size using the sign test for one sample.
 
@@ -115,7 +137,7 @@ def apermetric_effect_size_one_sample(params: dict) -> dict:
     Returns:
     dict: A dictionary containing the results of the Aparametric effect size calculations.
     """
-
+    # region
     # Set Parameters
     column_1 = params["Column 1"]
     population_value = params["Population's Value"]
@@ -127,7 +149,7 @@ def apermetric_effect_size_one_sample(params: dict) -> dict:
     # General Summary Statistics
     sample_median_1 = np.median(column_1)
     sample_mean_1 = np.mean(column_1)
-    sample_standard_deviation_1 = np.std(column_1, ddof=1)
+    sample_standard_deviation_1 = float(np.std(column_1, ddof=1))
     difference = column_1 - population_value
     positive_n = difference[difference > 0].shape[
         0
@@ -138,7 +160,7 @@ def apermetric_effect_size_one_sample(params: dict) -> dict:
     zero_n = difference[difference == 0].shape[0]  # Number of ties
     sample_size = len(difference)
     median_difference = np.median(difference)
-    median_absulute_deviation = median_abs_deviation(difference)
+    median_absolute_deviation = float(median_abs_deviation(difference))
 
     # Summary Statistics for the Wilcoxon Sign Rank Test not Considering ties
     difference_no_ties = difference[difference != 0]  # This line removes the ties
@@ -159,9 +181,7 @@ def apermetric_effect_size_one_sample(params: dict) -> dict:
         difference_no_ties == 0, 0, (np.where(difference_no_ties < 0, -1, 1))
     )
     ranked_signs_no_ties = sign_no_ties * ranked_no_ties
-    ranked_signs_no_ties = np.where(
-        difference_no_ties == 0, 0, ranked_signs_no_ties
-    )
+    ranked_signs_no_ties = np.where(difference_no_ties == 0, 0, ranked_signs_no_ties)
     unadjusted_variance_wilcoxon = (
         len(difference_no_ties)
         * (len(difference_no_ties) + 1)
@@ -176,18 +196,16 @@ def apermetric_effect_size_one_sample(params: dict) -> dict:
         z_numerator_wilcoxon < 0, z_numerator_wilcoxon + 0.5, z_numerator_wilcoxon
     )
 
-    z_adjusted_wilcoxon = (z_numerator_wilcoxon) / np.sqrt(
+    z_adjusted_wilcoxon = (z_numerator_wilcoxon) / np.sqrt(adjusted_variance_wilcoxon)
+    z_adjusted_normal_approximation_wilcoxon = (z_numerator_wilcoxon - 0.5) / np.sqrt(
         adjusted_variance_wilcoxon
     )
-    z_adjusted_normal_approximation_wilcoxon = (
-        z_numerator_wilcoxon - 0.5
-    ) / np.sqrt(adjusted_variance_wilcoxon)
     z_unadjusted_wilcoxon = (z_numerator_wilcoxon) / np.sqrt(
         unadjusted_variance_wilcoxon
     )
-    z_unadjusted_normal_approximation_wilcoxon = (
-        z_numerator_wilcoxon - 0.5
-    ) / np.sqrt(unadjusted_variance_wilcoxon)
+    z_unadjusted_normal_approximation_wilcoxon = (z_numerator_wilcoxon - 0.5) / np.sqrt(
+        unadjusted_variance_wilcoxon
+    )
     p_value_adjusted_wilcoxon = min(
         float(norm.sf((abs(z_adjusted_wilcoxon))) * 2), 0.99999
     )
@@ -222,9 +240,7 @@ def apermetric_effect_size_one_sample(params: dict) -> dict:
     z_adjusted_normal_approximation_pratt = (z_numerator_pratt - 0.5) / np.sqrt(
         adjusted_variance_pratt
     )
-    p_value_adjusted_pratt = min(
-        float(norm.sf((abs(z_adjusted_pratt))) * 2), 0.99999
-    )
+    p_value_adjusted_pratt = min(float(norm.sf((abs(z_adjusted_pratt))) * 2), 0.99999)
     p_value_adjusted_normal_approximation_pratt = min(
         float(norm.sf((abs(z_adjusted_normal_approximation_pratt))) * 2), 0.99999
     )
@@ -370,14 +386,15 @@ def apermetric_effect_size_one_sample(params: dict) -> dict:
         ),
         1,
     )
+    # endregion
 
     results = OneSampleAparametricResults()
 
     # General Summary Statistics
     results.sample = positive_sum_ranks_with_ties
     results.sample_median = round(sample_median_1, 4)
-    results.median_of_the_differnece = median_difference
-    results.median_of_absoult_deviation = median_absulute_deviation
+    results.median_of_the_difference = median_difference
+    results.median_of_absolute_deviation = median_absolute_deviation
     results.sample_mean = round(sample_mean_1, 4)
     results.sample_standard_deviation = round(sample_standard_deviation_1, 4)
     results.number_of_pairs = sample_size
@@ -387,30 +404,58 @@ def apermetric_effect_size_one_sample(params: dict) -> dict:
     results.number_of_ties = zero_n
 
     # Wilcoxon Statistics (Wilcoxon Method that Ignores ties)
-    results.sum_of_the_positive_ranks_without_ties = round(positive_sum_ranks_no_ties, 4)
-    results.sum_of_the_negative_ranks_without_ties = round(negative_sum_ranks_no_ties, 4)
+    results.sum_of_the_positive_ranks_without_ties = round(
+        positive_sum_ranks_no_ties, 4
+    )
+    results.sum_of_the_negative_ranks_without_ties = round(
+        negative_sum_ranks_no_ties, 4
+    )
 
     # Wilcoxon Sign Rank Test Statistics (Wilcoxon)
     results.wilcoxon_mean_w_without_ties = mean_w_not_considering_ties
     results.wilcoxon_standard_deviation = np.sqrt(adjusted_variance_wilcoxon)
     results.wilcoxon_z = z_adjusted_wilcoxon
-    results.wilcoxon_z_with_normal_approximation_continuity_correction = z_adjusted_normal_approximation_wilcoxon
+    results.wilcoxon_z_with_normal_approximation_continuity_correction = (
+        z_adjusted_normal_approximation_wilcoxon
+    )
     results.wilcoxon_p_value = p_value_adjusted_wilcoxon
-    results.wilcoxon_p_value_with_normal_approximation_continuity_correction = p_value_adjusted_normal_approximation_wilcoxon
+    results.wilcoxon_p_value_with_normal_approximation_continuity_correction = (
+        p_value_adjusted_normal_approximation_wilcoxon
+    )
 
     # Rank Biserial Correlation
-    results.matched_pairs_rank_biserial_correlation_ignoring_ties = round(matched_pairs_rank_biserial_correlation_ignoring_ties, 5)
-    results.z_based_rank_biserial_correlation_wilcoxon_method = round(z_based_rank_biserial_correlation_no_ties, 5)
-    results.z_based_corrected_rank_biserial_correlation_wilcoxon_method = round(z_based_rank_biserial_correlation_corrected_no_ties, 5)
+    results.matched_pairs_rank_biserial_correlation_ignoring_ties = round(
+        matched_pairs_rank_biserial_correlation_ignoring_ties, 5
+    )
+    results.z_based_rank_biserial_correlation_wilcoxon_method = round(
+        z_based_rank_biserial_correlation_no_ties, 5
+    )
+    results.z_based_corrected_rank_biserial_correlation_wilcoxon_method = round(
+        z_based_rank_biserial_correlation_corrected_no_ties, 5
+    )
 
     # Confidence Intervals
-    results.standard_error_of_the_matched_pairs_rank_biserial_correlation_wilcoxon_method = round(standard_error_match_pairs_rank_biserial_correlation_no_ties, 4)
-    results.lower_ci_matched_pairs_rank_biserial_wilcoxon = round(lower_ci_matched_pairs_wilcoxon, 5)
-    results.upper_ci_matched_pairs_rank_biserial_wilcoxon = round(upper_ci_matched_pairs_wilcoxon, 5)
-    results.lower_ci_z_based_rank_biserial_wilcoxon = round(lower_ci_z_based_wilcoxon, 5)
-    results.upper_ci_z_based_rank_biserial_wilcoxon = round(upper_ci_z_based_wilcoxon, 5)
-    results.lower_ci_z_based_corrected_rank_biserial_wilcoxon = round(lower_ci_z_based_corrected_wilcoxon, 5)
-    results.upper_ci_z_based_corrected_rank_biserial_wilcoxon = round(upper_ci_z_based_corrected_wilcoxon, 5)
+    results.standard_error_of_the_matched_pairs_rank_biserial_correlation_wilcoxon_method = round(
+        standard_error_match_pairs_rank_biserial_correlation_no_ties, 4
+    )
+    results.lower_ci_matched_pairs_rank_biserial_wilcoxon = round(
+        lower_ci_matched_pairs_wilcoxon, 5
+    )
+    results.upper_ci_matched_pairs_rank_biserial_wilcoxon = round(
+        upper_ci_matched_pairs_wilcoxon, 5
+    )
+    results.lower_ci_z_based_rank_biserial_wilcoxon = round(
+        lower_ci_z_based_wilcoxon, 5
+    )
+    results.upper_ci_z_based_rank_biserial_wilcoxon = round(
+        upper_ci_z_based_wilcoxon, 5
+    )
+    results.lower_ci_z_based_corrected_rank_biserial_wilcoxon = round(
+        lower_ci_z_based_corrected_wilcoxon, 5
+    )
+    results.upper_ci_z_based_corrected_rank_biserial_wilcoxon = round(
+        upper_ci_z_based_corrected_wilcoxon, 5
+    )
 
     results.sum_of_the_positive_ranks_with_ties = round(positive_sum_ranks_with_ties, 4)
     results.sum_of_the_negative_ranks_with_ties = round(negative_sum_ranks_with_ties, 4)
@@ -418,25 +463,46 @@ def apermetric_effect_size_one_sample(params: dict) -> dict:
     results.pratt_meanw_considering_ties = mean_w_considering_ties
     results.pratt_standard_deviation = np.sqrt(adjusted_variance_pratt)
     results.pratt_z = z_adjusted_pratt
-    results.pratt_z_with_normal_approximation_continuity_correction = z_adjusted_normal_approximation_pratt
+    results.pratt_z_with_normal_approximation_continuity_correction = (
+        z_adjusted_normal_approximation_pratt
+    )
     results.pratt_p_value = p_value_adjusted_pratt
-    results.pratt_p_value_with_normal_approximation_continuity_correction = p_value_adjusted_normal_approximation_pratt
+    results.pratt_p_value_with_normal_approximation_continuity_correction = (
+        p_value_adjusted_normal_approximation_pratt
+    )
 
     # Rank Biserial Correlation
-    results.matched_pairs_rank_biserial_correlation_considering_ties = round(matched_pairs_rank_biserial_correlation_considering_ties, 5)
-    results.z_based_rank_biserial_correlation_pratt_method = round(z_based_rank_biserial_correlation_with_ties, 5)
-    results.z_based_corrected_rank_biserial_correlation_pratt_method = round(z_based_rank_biserial_correlation_corrected_with_ties, 5)
+    results.matched_pairs_rank_biserial_correlation_considering_ties = round(
+        matched_pairs_rank_biserial_correlation_considering_ties, 5
+    )
+    results.z_based_rank_biserial_correlation_pratt_method = round(
+        z_based_rank_biserial_correlation_with_ties, 5
+    )
+    results.z_based_corrected_rank_biserial_correlation_pratt_method = round(
+        z_based_rank_biserial_correlation_corrected_with_ties, 5
+    )
 
     # Confidence Intervals
-    results.standard_error_of_the_matched_pairs_rank_biserial_correlation_pratt_method = round(standard_error_match_pairs_rank_biserial_correlation_with_ties, 4)
-    results.lower_ci_matched_pairs_rank_biserial_pratt = round(lower_ci_matched_pairs_pratt, 5)
-    results.upper_ci_matched_pairs_rank_biserial_pratt = round(upper_ci_matched_pairs_pratt, 5)
+    results.standard_error_of_the_matched_pairs_rank_biserial_correlation_pratt_method = round(
+        standard_error_match_pairs_rank_biserial_correlation_with_ties, 4
+    )
+    results.lower_ci_matched_pairs_rank_biserial_pratt = round(
+        lower_ci_matched_pairs_pratt, 5
+    )
+    results.upper_ci_matched_pairs_rank_biserial_pratt = round(
+        upper_ci_matched_pairs_pratt, 5
+    )
     results.lower_ci_z_based_rank_biserial_pratt = round(lower_ci_z_based_pratt, 5)
     results.upper_ci_z_based_rank_biserial_pratt = round(upper_ci_z_based_pratt, 5)
-    results.lower_ci_z_based_corrected_rank_biserial_pratt = round(lower_ci_z_based_corrected_pratt, 5)
-    results.upper_ci_z_based_corrected_rank_biserial_pratt = round(upper_ci_z_based_corrected_pratt, 5)
+    results.lower_ci_z_based_corrected_rank_biserial_pratt = round(
+        lower_ci_z_based_corrected_pratt, 5
+    )
+    results.upper_ci_z_based_corrected_rank_biserial_pratt = round(
+        upper_ci_z_based_corrected_pratt, 5
+    )
 
     return results
+
 
 # Things to Consider
 # 1. Consider adding other CI's for example metsamuuronen method for sommers delta (which in the case of two groups equals the rank biserial correlation)

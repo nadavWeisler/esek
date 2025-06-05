@@ -54,7 +54,7 @@ class EffectSize:
         self.standard_error: float = standard_error
         self.statistical_line: str = ""
 
-        self.standardizer: str = "Cohen's d"
+        self.standardizer: float | None = None
         self.non_central_ci: ConfidenceInterval | None = None
         self.pivotal_ci: ConfidenceInterval | None = None
         self.approximated_standard_error: ApproximatedStandardError | None = None

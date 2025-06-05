@@ -16,40 +16,32 @@ t-tests from t-score and parameters.
 """
 
 import math
+from typing import Optional
+from dataclasses import dataclass
 import numpy as np
 from scipy.stats import norm, nct, t
-
 from src.stats.results import CohenD, HedgesG, ApproximatedStandardError
 
 
+@dataclass
 class OneSampleTResults:
     """
     A class to store results from one-sample t-tests.
     """
 
-    def __init__(
-        self,
-        t_score: float,
-        degrees_of_freedom: int,
-        p_value: float,
-        cohens_d: CohenD,
-        hedges_g: HedgesG,
-    ) -> None:
-        # Effect sizes
-        self.cohens_d: CohenD = cohens_d
-        self.hedges_g: HedgesG = hedges_g
-
-        # Test statistics
-        self.t_score = t_score
-        self.degrees_of_freedom = degrees_of_freedom
-        self.p_value = p_value
-
-        self.standard_error = None
-        self.sample_mean = None
-        self.population_mean = None
-        self.means_difference = None
-        self.sample_size = None
-        self.sample_sd = None
+    # Effect sizes
+    cohens_d: Optional[CohenD] = None
+    hedges_g: Optional[HedgesG] = None
+    # Test statistics
+    t_score: Optional[float] = None
+    degrees_of_freedom: Optional[int | float] = None
+    p_value: Optional[float] = None
+    standard_error: Optional[float | int] = None
+    sample_mean: Optional[float | int] = None
+    population_mean: Optional[float | int] = None
+    means_difference: Optional[float | int] = None
+    sample_size: Optional[float | int] = None
+    sample_sd: Optional[float | int] = None
 
 
 def pivotal_ci_t(t_score, df, sample_size, confidence_level):
@@ -368,13 +360,12 @@ def one_sample_from_t_score(
     )
     hedges_g.approximated_standard_error = hedges_g_approximated
 
-    results = OneSampleTResults(
-        t_score=t_score,
-        degrees_of_freedom=df,
-        p_value=p_value,
-        cohens_d=cohens_d,
-        hedges_g=hedges_g,
-    )
+    results = OneSampleTResults()
+    results.t_score = t_score
+    results.degrees_of_freedom = df
+    results.p_value = p_value
+    results.cohens_d = cohens_d
+    results.hedges_g = hedges_g
 
     return results
 
@@ -447,7 +438,9 @@ def one_sample_from_params(
         standard_error_cohens_d_true,
     )
     cohens_d.standardizer = correction
-    cohens_d.update_non_central_ci(ci_lower_cohens_d_ncp, ci_upper_cohens_d_ncp)
+    cohens_d.update_non_central_ci(
+        float(ci_lower_cohens_d_ncp), float(ci_upper_cohens_d_ncp)
+    )
     cohens_d.update_pivotal_ci(ci_lower_cohens_d_pivotal, ci_upper_cohens_d_pivotal)
     cohens_d_approximated = ApproximatedStandardError(
         standard_error_cohens_d_true,
@@ -467,7 +460,9 @@ def one_sample_from_params(
         standard_error_hedges_g_true,
     )
 
-    hedges_g.update_non_central_ci(ci_lower_hedges_g_ncp, ci_upper_hedges_g_ncp)
+    hedges_g.update_non_central_ci(
+        float(ci_lower_hedges_g_ncp), float(ci_upper_hedges_g_ncp)
+    )
     hedges_g.update_pivotal_ci(ci_lower_hedges_g_pivotal, ci_upper_hedges_g_pivotal)
     hedges_g_approximated = ApproximatedStandardError(
         standard_error_hedges_g_true,
@@ -481,13 +476,14 @@ def one_sample_from_params(
     hedges_g.approximated_standard_error = hedges_g_approximated
 
     # Create results object
-    results = OneSampleTResults(
-        t_score=t_score,
-        degrees_of_freedom=df,
-        p_value=p_value,
-        cohens_d=cohens_d,
-        hedges_g=hedges_g,
-    )
+    results = OneSampleTResults()
+
+    results.t_score = t_score
+    results.degrees_of_freedom = df
+    results.p_value = p_value
+    results.cohens_d = cohens_d
+    results.hedges_g = hedges_g
+
     # Assign values to the results object
     results.sample_size = sample_size
     results.population_mean = population_mean
@@ -497,4 +493,3 @@ def one_sample_from_params(
     results.means_difference = sample_mean - population_mean
 
     return results
-    

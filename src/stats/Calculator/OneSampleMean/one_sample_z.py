@@ -10,9 +10,10 @@ and standard error for Cohen's d effect size in a one-sample Z-test.
 Z-tests from Z-score, parameters, and data.
 """
 
+from dataclasses import dataclass
+from typing import Optional
 import numpy as np
 from scipy.stats import norm
-
 from src.stats.results import CohenD
 
 
@@ -59,6 +60,7 @@ def calculate_central_ci_from_cohens_d_one_sample(
     return ci_lower, ci_upper, standard_error_es
 
 
+@dataclass
 class OneSampleZResults:
     """
     A class to store results from one-sample Z statistical tests.
@@ -71,18 +73,16 @@ class OneSampleZResults:
     - Standard error of the effect size
     """
 
-    def __init__(self, z_score: float, p_value: float, cohens_d: CohenD) -> None:
-        self.cohens_d: CohenD = cohens_d
-        self.z_score: float = z_score
-        self.p_value: float = p_value
-
-        self.standard_error_of_the_mean: float | None = None
-        self.sample_mean: float | None = None
-        self.population_mean: float | None = None
-        self.population_sd: float | None = None
-        self.sample_sd: float | None = None
-        self.difference_between_means: float | None = None
-        self.sample_size: float | None = None
+    cohens_d: Optional[CohenD] = None
+    z_score: Optional[float] = None
+    p_value: Optional[float] = None
+    standard_error_of_the_mean: Optional[float] = None
+    sample_mean: Optional[float] = None
+    population_mean: Optional[float] = None
+    population_sd: Optional[float] = None
+    sample_sd: Optional[float] = None
+    difference_between_means: Optional[float] = None
+    sample_size: Optional[float] = None
 
 
 def one_sample_from_z_score(
@@ -108,7 +108,10 @@ def one_sample_from_z_score(
         standard_error=round(standard_error_es, 4),
     )
 
-    results = OneSampleZResults(z_score, p_value, cohens_d)
+    results = OneSampleZResults()
+    results.z_score = z_score
+    results.p_value = p_value
+    results.cohens_d = cohens_d
 
     return results
 
@@ -142,7 +145,10 @@ def one_sample_from_parameters(
     )
 
     # Create results object
-    results = OneSampleZResults(z_score, p_value, cohens_d)
+    results = OneSampleZResults()
+    results.z_score = z_score
+    results.p_value = p_value
+    results.cohens_d = cohens_d
     results.standard_error_of_the_mean = round(mean_standard_error, 4)
     results.sample_mean = sample_mean
     results.population_mean = population_mean
@@ -183,12 +189,15 @@ def one_sample_from_data(
         standard_error=standard_error_es,
     )
 
-    results = OneSampleZResults(z_score, p_value, cohens_d)
+    results = OneSampleZResults()
+    results.z_score = z_score
+    results.p_value = p_value
+    results.cohens_d = cohens_d
     results.sample_size = sample_size
     results.population_mean = population_mean
-    results.sample_mean = sample_mean
-    results.sample_sd = sample_sd
+    results.sample_mean = float(sample_mean)
+    results.sample_sd = float(sample_sd)
     results.standard_error_of_the_mean = standard_error
-    results.difference_between_means = diff_mean
+    results.difference_between_means = float(diff_mean)
 
     return results
