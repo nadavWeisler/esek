@@ -26,6 +26,10 @@ dev = [
     # "flake8",
 ]
 
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "no-local-version"
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 
