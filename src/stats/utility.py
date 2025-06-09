@@ -6,7 +6,7 @@ from dataclasses import asdict, is_dataclass
 from typing import Any
 
 
-def convert_results(dataclass_instance: Any) -> dict:
+def convert_results_to_dict(dataclass_instance: Any) -> dict:
     """
     Converts a dataclass instance to a dictionary.
 
