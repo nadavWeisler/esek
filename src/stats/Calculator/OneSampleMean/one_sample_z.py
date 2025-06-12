@@ -14,8 +14,8 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 from scipy.stats import norm
-from src.stats.results import CohenD
 from ...interfaces import AbstractTest
+from ...results import CohenD
 
 
 def calculate_central_ci_from_cohens_d_one_sample(

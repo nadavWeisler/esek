@@ -20,8 +20,8 @@ from typing import Optional
 from dataclasses import dataclass
 import numpy as np
 from scipy.stats import norm, nct, t
-from src.stats.results import CohenD, HedgesG, ApproximatedStandardError
 from ...interfaces import AbstractTest
+from ...results import CohenD, HedgesG, ApproximatedStandardError
 
 
 @dataclass
