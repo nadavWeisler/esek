@@ -1,5 +1,5 @@
-from .stats import Calculator
-from .stats import utility
+from .esek import Calculator
+from .esek import utility
 
 __all__ = [
     "Calculator",
