@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 from scipy.stats import norm
+from ...interfaces import AbstractTest
 from ...results import CohenD
 
 
@@ -85,119 +86,126 @@ class OneSampleZResults:
     sample_size: Optional[float] = None
 
 
-def one_sample_from_z_score(
-    z_score: float, sample_size: float, confidence_level: float = 0.95
-) -> OneSampleZResults:
+class OneSampleZTests(AbstractTest):
     """
-    Calculate the one-sample Z-test results from a given Z-score.
-
+    A class for performing one-sample Z-tests.
+    This class provides methods to calculate Z-test results from a Z-score,
+    from sample parameters, and from sample data.
     """
 
-    p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
-    cohens_d = z_score / np.sqrt(sample_size)
-    ci_lower, ci_upper, standard_error_es = (
-        calculate_central_ci_from_cohens_d_one_sample(
-            cohens_d, sample_size, confidence_level
+    @staticmethod
+    def from_z_score(
+        z_score: float, sample_size: float, confidence_level: float = 0.95
+    ) -> OneSampleZResults:
+        """
+        Calculate the one-sample Z-test results from a given Z-score.
+        """
+
+        p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
+        cohens_d = z_score / np.sqrt(sample_size)
+        ci_lower, ci_upper, standard_error_es = (
+            calculate_central_ci_from_cohens_d_one_sample(
+                cohens_d, sample_size, confidence_level
+            )
         )
-    )
 
-    cohens_d = CohenD(
-        value=round(cohens_d, 4),
-        ci_lower=round(ci_lower, 4),
-        ci_upper=round(ci_upper, 4),
-        standard_error=round(standard_error_es, 4),
-    )
-
-    results = OneSampleZResults()
-    results.z_score = z_score
-    results.p_value = p_value
-    results.cohens_d = cohens_d
-
-    return results
-
-
-def one_sample_from_parameters(
-    sample_mean: float,
-    sample_size: int,
-    population_mean: int,
-    population_sd,
-    confidence_level=0.95,
-) -> OneSampleZResults:
-    """
-    Calculate the one-sample Z-test results from given population and sample parameters.
-    """
-
-    mean_standard_error = population_sd / np.sqrt(sample_size)
-    z_score = (population_mean - sample_mean) / mean_standard_error
-    cohens_d = (population_mean - sample_mean) / population_sd
-    p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
-    ci_lower, ci_upper, standard_error_es = (
-        calculate_central_ci_from_cohens_d_one_sample(
-            cohens_d, sample_size, confidence_level
+        cohens_d = CohenD(
+            value=round(cohens_d, 4),
+            ci_lower=round(ci_lower, 4),
+            ci_upper=round(ci_upper, 4),
+            standard_error=round(standard_error_es, 4),
         )
-    )
 
-    cohens_d = CohenD(
-        value=round(cohens_d, 4),
-        ci_lower=round(ci_lower, 4),
-        ci_upper=round(ci_upper, 4),
-        standard_error=round(standard_error_es, 4),
-    )
+        results = OneSampleZResults()
+        results.z_score = z_score
+        results.p_value = p_value
+        results.cohens_d = cohens_d
 
-    # Create results object
-    results = OneSampleZResults()
-    results.z_score = z_score
-    results.p_value = p_value
-    results.cohens_d = cohens_d
-    results.standard_error_of_the_mean = round(mean_standard_error, 4)
-    results.sample_mean = sample_mean
-    results.population_mean = population_mean
-    results.population_sd = population_sd
-    return results
+        return results
 
+    @staticmethod
+    def from_parameters(
+        sample_mean: float,
+        sample_size: int,
+        population_mean: int,
+        population_sd,
+        confidence_level=0.95,
+    ) -> OneSampleZResults:
+        """
+        Calculate the one-sample Z-test results from given population and sample parameters.
+        """
 
-def one_sample_from_data(
-    column: list,
-    population_mean: float,
-    population_sd: float,
-    confidence_level: float = 0.95,
-) -> OneSampleZResults:
-    """
-    Calculate the one-sample Z-test results from given sample data.
-    """
-
-    sample_mean = np.mean(column)
-    sample_sd = np.std(column, ddof=1)
-    diff_mean = population_mean - sample_mean
-    sample_size = len(column)
-    standard_error = population_sd / (np.sqrt(sample_size))
-    z_score = diff_mean / standard_error
-    cohens_d = (
-        diff_mean
-    ) / population_sd  # This is the effect size for one sample z-test Cohen's d
-    p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
-    ci_lower, ci_upper, standard_error_es = (
-        calculate_central_ci_from_cohens_d_one_sample(
-            cohens_d, sample_size, confidence_level
+        mean_standard_error = population_sd / np.sqrt(sample_size)
+        z_score = (population_mean - sample_mean) / mean_standard_error
+        cohens_d = (population_mean - sample_mean) / population_sd
+        p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
+        ci_lower, ci_upper, standard_error_es = (
+            calculate_central_ci_from_cohens_d_one_sample(
+                cohens_d, sample_size, confidence_level
+            )
         )
-    )
 
-    cohens_d = CohenD(
-        value=cohens_d,
-        ci_lower=ci_lower,
-        ci_upper=ci_upper,
-        standard_error=standard_error_es,
-    )
+        cohens_d = CohenD(
+            value=round(cohens_d, 4),
+            ci_lower=round(ci_lower, 4),
+            ci_upper=round(ci_upper, 4),
+            standard_error=round(standard_error_es, 4),
+        )
 
-    results = OneSampleZResults()
-    results.z_score = z_score
-    results.p_value = p_value
-    results.cohens_d = cohens_d
-    results.sample_size = sample_size
-    results.population_mean = population_mean
-    results.sample_mean = float(sample_mean)
-    results.sample_sd = float(sample_sd)
-    results.standard_error_of_the_mean = standard_error
-    results.difference_between_means = float(diff_mean)
+        # Create results object
+        results = OneSampleZResults()
+        results.z_score = z_score
+        results.p_value = p_value
+        results.cohens_d = cohens_d
+        results.standard_error_of_the_mean = round(mean_standard_error, 4)
+        results.sample_mean = sample_mean
+        results.population_mean = population_mean
+        results.population_sd = population_sd
+        return results
 
-    return results
+    @staticmethod
+    def from_data(
+        column: list,
+        population_mean: float,
+        population_sd: float,
+        confidence_level: float = 0.95,
+    ) -> OneSampleZResults:
+        """
+        Calculate the one-sample Z-test results from given sample data.
+        """
+
+        sample_mean = np.mean(column)
+        sample_sd = np.std(column, ddof=1)
+        diff_mean = population_mean - sample_mean
+        sample_size = len(column)
+        standard_error = population_sd / (np.sqrt(sample_size))
+        z_score = diff_mean / standard_error
+        cohens_d = (
+            diff_mean
+        ) / population_sd  # This is the effect size for one sample z-test Cohen's d
+        p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
+        ci_lower, ci_upper, standard_error_es = (
+            calculate_central_ci_from_cohens_d_one_sample(
+                cohens_d, sample_size, confidence_level
+            )
+        )
+
+        cohens_d = CohenD(
+            value=cohens_d,
+            ci_lower=ci_lower,
+            ci_upper=ci_upper,
+            standard_error=standard_error_es,
+        )
+
+        results = OneSampleZResults()
+        results.z_score = z_score
+        results.p_value = p_value
+        results.cohens_d = cohens_d
+        results.sample_size = sample_size
+        results.population_mean = population_mean
+        results.sample_mean = float(sample_mean)
+        results.sample_sd = float(sample_sd)
+        results.standard_error_of_the_mean = standard_error
+        results.difference_between_means = float(diff_mean)
+
+        return results
