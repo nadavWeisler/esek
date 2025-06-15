@@ -14,7 +14,8 @@ authors = [
 ]
 dependencies = [
     # Add your runtime dependencies here, for example:
-    # "numpy >= 1.21",
+    "numpy >= 2.0.2",
+    "scipy >= 1.13.1",
 ]
 
 [project.optional-dependencies]

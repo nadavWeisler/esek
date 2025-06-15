@@ -1,4 +1,5 @@
 /.vscode
+/ESEK_Functions
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
