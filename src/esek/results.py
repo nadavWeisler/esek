@@ -14,15 +14,6 @@ class ApproximatedStandardError:
     A class to store approximated standard error values.
     """
 
-    # def __init__(self) -> None:
-    #     self.true_se: float = 0.0
-    #     self.morris: float = 0.0
-    #     self.hedges: float = 0.0
-    #     self.hedges_olkin: float = 0.0
-    #     self.mle: float = 0.0
-    #     self.large_n: float = 0.0
-    #     self.hunter_and_schmidt: float = 0.0
-
     def __init__(
         self,
         true_se: float,
@@ -116,4 +107,57 @@ class HedgesG(EffectSize):
     def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
         super().__init__(value, ci_lower, ci_upper, standard_error)
         self.effect_size_name: str = "Hedges' g"
+        self.update_statistical_line()
+
+
+class CohensDav(EffectSize):
+    """
+    A class to store Cohen's dav effect size values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Cohen's dav"
+        self.update_statistical_line()
+
+
+class HedgesGav(EffectSize):
+    """
+    A class to store Hedge's gav effect size values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Hedge's gav"
+        self.update_statistical_line()
+
+
+class CohensDrm(EffectSize):
+    """
+    A class to store Cohen's drm effect size values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Cohen's drm"
+        self.update_statistical_line()
+
+
+class HedgesGrm(EffectSize):
+    """
+    A class to store Hedge's grm effect size values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Hedge's grm"
+        self.update_statistical_line()
+class RatioOfMeans(EffectSize):
+    """
+    A class to store Ratio of Means effect size values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Ratio of Means"
         self.update_statistical_line()
