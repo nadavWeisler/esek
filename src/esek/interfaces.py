@@ -9,12 +9,8 @@ class AbstractTest(ABC):
     """
 
     @abstractmethod
-    def from_z_score(self):
-        """Calculate results from a Z-score."""
-        pass
-
-    def from_t_score(self):
-        """Calculate results from a T-score."""
+    def from_score(self):
+        """Calculate results from a Z-score or T-score."""
         pass
 
     @abstractmethod

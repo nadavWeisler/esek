@@ -273,7 +273,7 @@ class OneSampleTTest(AbstractTest):
     """
 
     @staticmethod
-    def from_t_score(
+    def from_score(
         t_score: float, sample_size: float, confidence_level=0.95
     ) -> OneSampleTResults:
         """
@@ -383,14 +383,6 @@ class OneSampleTTest(AbstractTest):
         results.hedges_g = hedges_g
 
         return results
-
-    @staticmethod
-    def from_z_score() -> OneSampleTResults:
-        """
-        Calculate the one-sample t-test results from a Z-score.
-        This method is not implemented yet.
-        """
-        raise NotImplementedError("This method is not implemented yet.")
 
     @staticmethod
     def from_parameters(
