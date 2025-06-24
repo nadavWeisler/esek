@@ -26,7 +26,7 @@ class TwoPairedTTests(AbstractTest):
     """
 
     @staticmethod
-    def from_z_score() -> TwoPairedTResults:
+    def from_score() -> TwoPairedTResults:
         """
         TODO: add docstring
         """
