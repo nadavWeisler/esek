@@ -49,6 +49,10 @@ class EffectSize:
         self.non_central_ci: ConfidenceInterval | None = None
         self.pivotal_ci: ConfidenceInterval | None = None
         self.approximated_standard_error: ApproximatedStandardError | None = None
+        self.mag: ConfidenceInterval | None = None
+        self.lambda_prime: ConfidenceInterval | None = None
+        self.morris: ConfidenceInterval | None = None
+        self.t_prime: ConfidenceInterval | None = None
 
     def update_statistical_line(self) -> None:
         """
@@ -85,6 +89,40 @@ class EffectSize:
         Update the pivotal confidence interval.
         """
         self.pivotal_ci = ConfidenceInterval(pivotal_ci_lower, pivotal_ci_upper)
+        self.update_statistical_line()
+
+    def update_mag_ci(self, mag_ci_lower: float, mag_ci_upper: float) -> None:
+        """
+        Update the mag confidence interval.
+        """
+        self.mag_ci = ConfidenceInterval(mag_ci_lower, mag_ci_upper)
+        self.update_statistical_line()
+
+    def update_lambda_prime_ci(
+        self, lambda_prime_ci_lower: float, lambda_prime_ci_upper: float
+    ) -> None:
+        """
+        Update the lambda prime confidence interval.
+        """
+        self.lambda_prime = ConfidenceInterval(
+            lambda_prime_ci_lower, lambda_prime_ci_upper
+        )
+        self.update_statistical_line()
+
+    def update_morris_ci(self, morris_ci_lower: float, morris_ci_upper: float) -> None:
+        """
+        Update the morris prime confidence interval.
+        """
+        self.morris = ConfidenceInterval(morris_ci_lower, morris_ci_upper)
+        self.update_statistical_line()
+
+    def update_t_prime_ci(
+        self, t_prime_ci_lower: float, t_prime_ci_upper: float
+    ) -> None:
+        """
+        Update the t prime prime confidence interval.
+        """
+        self.t_prime = ConfidenceInterval(t_prime_ci_lower, t_prime_ci_upper)
         self.update_statistical_line()
 
 
@@ -152,6 +190,8 @@ class HedgesGrm(EffectSize):
         super().__init__(value, ci_lower, ci_upper, standard_error)
         self.effect_size_name: str = "Hedge's grm"
         self.update_statistical_line()
+
+
 class RatioOfMeans(EffectSize):
     """
     A class to store Ratio of Means effect size values.
