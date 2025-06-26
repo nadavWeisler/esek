@@ -20,8 +20,8 @@ from typing import Optional
 from dataclasses import dataclass
 import numpy as np
 from scipy.stats import norm, nct, t
-from ...interfaces import AbstractTest
-from ...results import CohenD, HedgesG, ApproximatedStandardError
+from ...utils import interfaces
+from ...utils import res
 
 
 @dataclass
@@ -31,8 +31,8 @@ class OneSampleTResults:
     """
 
     # Effect sizes
-    cohens_d: Optional[CohenD] = None
-    hedges_g: Optional[HedgesG] = None
+    cohens_d: Optional[res.CohenD] = None
+    hedges_g: Optional[res.HedgesG] = None
     # Test statistics
     t_score: Optional[float] = None
     degrees_of_freedom: Optional[int | float] = None
@@ -265,7 +265,7 @@ def ci_ncp_one_sample(effect_size, sample_size, confidence_level):
     return CI_NCP_low, CI_NCP_High
 
 
-class OneSampleTTest(AbstractTest):
+class OneSampleTTest(interfaces.AbstractTest):
     """
     A class to perform one-sample t-tests and calculate various statistics.
     This class provides methods to calculate T-test results from a t-score,
@@ -331,7 +331,7 @@ class OneSampleTTest(AbstractTest):
             hedges_g, sample_size, confidence_level
         )
 
-        cohens_d = CohenD(
+        cohens_d = res.CohenD(
             cohens_d,
             ci_lower_cohens_d_central,
             ci_upper_cohens_d_central,
@@ -342,7 +342,7 @@ class OneSampleTTest(AbstractTest):
         cohens_d.update_non_central_ci(ci_lower_cohens_d_ncp, ci_upper_cohens_d_ncp)
         cohens_d.update_pivotal_ci(ci_lower_cohens_d_pivotal, ci_upper_cohens_d_pivotal)
 
-        cohens_d_approximated = ApproximatedStandardError(
+        cohens_d_approximated = res.ApproximatedStandardError(
             standard_error_cohens_d_true,
             standard_error_cohens_d_morris,
             standard_error_cohens_d_hedges,
@@ -354,7 +354,7 @@ class OneSampleTTest(AbstractTest):
 
         cohens_d.approximated_standard_error = cohens_d_approximated
 
-        hedges_g = HedgesG(
+        hedges_g = res.HedgesG(
             hedges_g,
             ci_lower_hedges_g_central,
             ci_upper_hedges_g_central,
@@ -364,7 +364,7 @@ class OneSampleTTest(AbstractTest):
         hedges_g.update_non_central_ci(ci_lower_hedges_g_ncp, ci_upper_hedges_g_ncp)
         hedges_g.update_pivotal_ci(ci_lower_hedges_g_pivotal, ci_upper_hedges_g_pivotal)
 
-        hedges_g_approximated = ApproximatedStandardError(
+        hedges_g_approximated = res.ApproximatedStandardError(
             standard_error_hedges_g_true,
             standard_error_hedges_g_morris,
             standard_error_hedges_g_hedges,
@@ -459,7 +459,7 @@ class OneSampleTTest(AbstractTest):
             hedges_g, sample_size, confidence_level
         )
 
-        cohens_d = CohenD(
+        cohens_d = res.CohenD(
             cohens_d,
             ci_lower_cohens_d_central,
             ci_upper_cohens_d_central,
@@ -470,7 +470,7 @@ class OneSampleTTest(AbstractTest):
             float(ci_lower_cohens_d_ncp), float(ci_upper_cohens_d_ncp)
         )
         cohens_d.update_pivotal_ci(ci_lower_cohens_d_pivotal, ci_upper_cohens_d_pivotal)
-        cohens_d_approximated = ApproximatedStandardError(
+        cohens_d_approximated = res.ApproximatedStandardError(
             standard_error_cohens_d_true,
             standard_error_cohens_d_morris,
             standard_error_cohens_d_hedges,
@@ -481,7 +481,7 @@ class OneSampleTTest(AbstractTest):
         )
         cohens_d.approximated_standard_error = cohens_d_approximated
 
-        hedges_g = HedgesG(
+        hedges_g = res.HedgesG(
             hedges_g,
             ci_lower_hedges_g_central,
             ci_upper_hedges_g_central,
@@ -492,7 +492,7 @@ class OneSampleTTest(AbstractTest):
             float(ci_lower_hedges_g_ncp), float(ci_upper_hedges_g_ncp)
         )
         hedges_g.update_pivotal_ci(ci_lower_hedges_g_pivotal, ci_upper_hedges_g_pivotal)
-        hedges_g_approximated = ApproximatedStandardError(
+        hedges_g_approximated = res.ApproximatedStandardError(
             standard_error_hedges_g_true,
             standard_error_hedges_g_morris,
             standard_error_hedges_g_hedges,
