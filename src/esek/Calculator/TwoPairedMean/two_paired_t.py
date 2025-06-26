@@ -11,7 +11,7 @@ import numpy as np
 from scipy.stats import norm, nct, t, gmean
 import rpy2.robjects as robjects
 from ...utils import interfaces
-from ...utils import results as res
+from ...utils import res
 
 qlambdap = robjects.r["qlambdap"]
 

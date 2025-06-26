@@ -13,7 +13,7 @@ from typing import Optional
 import numpy as np
 from scipy.stats import norm
 from ...utils import interfaces
-from ...utils import results as res
+from ...utils import res
 from ...utils import utility
 
 
