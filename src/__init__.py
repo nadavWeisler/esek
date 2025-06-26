@@ -1,7 +1,7 @@
 from .esek import Calculator
-from .esek import utility
+from .esek import utils
 
 __all__ = [
     "Calculator",
-    "utility",
+    "utils",
 ]
