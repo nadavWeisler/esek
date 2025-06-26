@@ -1,6 +1,6 @@
-import interfaces
-import results as res
-import utility
+from . import interfaces
+from . import results as res
+from . import utility
 
 __all__ = [
     "interfaces",
