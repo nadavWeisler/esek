@@ -10,16 +10,8 @@ from typing import Optional
 import numpy as np
 from scipy.stats import norm, nct, t, gmean
 import rpy2.robjects as robjects
-from ...interfaces import AbstractTest
-from ...results import (
-    CohenD,
-    HedgesG,
-    CohensDav,
-    HedgesGav,
-    CohensDrm,
-    HedgesGrm,
-    RatioOfMeans,
-)
+from ...utils import interfaces
+from ...utils import results as res
 
 qlambdap = robjects.r["qlambdap"]
 
@@ -30,12 +22,12 @@ class TwoPairedTResults:
     A class to store the results of a Two Paired T-test.
     """
 
-    cohens_d: Optional[CohenD] = None
-    hedge_g: Optional[HedgesG] = None
-    cohens_dav: Optional[CohensDav] = None
-    hedge_gav: Optional[HedgesGav] = None
-    cohens_drm: Optional[CohensDrm] = None
-    hedge_grm: Optional[HedgesGrm] = None
+    cohens_d: Optional[res.CohenD] = None
+    hedge_g: Optional[res.HedgesG] = None
+    cohens_dav: Optional[res.CohensDav] = None
+    hedge_gav: Optional[res.HedgesGav] = None
+    cohens_drm: Optional[res.CohensDrm] = None
+    hedge_grm: Optional[res.HedgesGrm] = None
     t_score: Optional[float] = None
     p_value: Optional[float] = None
     degrees_of_freedom: Optional[float] = None
@@ -52,7 +44,7 @@ class TwoPairedTResults:
     sample_mean_2: Optional[float] = None
 
 
-class TwoPairedTTests(AbstractTest):
+class TwoPairedTTests(interfaces.AbstractTest):
     """
     A class to perform Two Paired T-tests and calculate effect sizes.
     This class provides methods to calculate Cohen's d, Hedges' g, and their variants
@@ -98,8 +90,6 @@ class TwoPairedTTests(AbstractTest):
         df = int(sample_size - 1)
         p_value = min(float(t.sf((abs(t_score)), df) * 2), 0.99999)
 
-        cohens_dz = CohenD
-
         cohens_dz_value = t_score / np.sqrt(sample_size)
         correction = math.exp(
             math.lgamma(df / 2)
@@ -138,14 +128,14 @@ class TwoPairedTTests(AbstractTest):
             t_score, df, sample_size, confidence_level
         )
 
-        cohens_dz = CohenD(
+        cohens_dz = res.CohenD(
             value=cohens_dz_value,
             ci_lower=ci_lower_cohens_dz_central,
             ci_upper=ci_upper_cohens_dz_central,
             standard_error=standard_error_cohens_dz_true,
         )
 
-        hedges_gz = HedgesG(
+        hedges_gz = res.HedgesG(
             value=hedges_gz_value,
             ci_lower=ci_lower_hedges_gz_central,
             ci_upper=ci_upper_hedges_gz_central,
@@ -456,37 +446,37 @@ class TwoPairedTTests(AbstractTest):
             np.log(ratio_of_means) + t_critical_value * np.sqrt(variance_of_means_ratio)
         )
 
-        cohens_dz = CohenD(
+        cohens_dz = res.CohenD(
             value=cohens_dz_value,
             ci_lower=ci_lower_cohens_dz_central,
             ci_upper=ci_upper_cohens_dz_central,
             standard_error=standard_error_cohens_dz_true,
         )
-        hedges_gz = HedgesG(
+        hedges_gz = res.HedgesG(
             value=hedges_gz_value,
             ci_lower=ci_lower_hedges_gz_central,
             ci_upper=ci_upper_hedges_gz_central,
             standard_error=standard_error_hedges_gz_true,
         )
-        cohens_dav = CohensDav(
+        cohens_dav = res.CohensDav(
             value=cohens_dav_value,
             ci_lower=ci_lower_cohens_dav_central,
             ci_upper=ci_upper_cohens_dav_central,
             standard_error=standard_error_cohens_dav_true,
         )
-        hedges_gav = HedgesGav(
+        hedges_gav = res.HedgesGav(
             value=hedges_gav_value,
             ci_lower=ci_lower_hedges_gav_central,
             ci_upper=ci_upper_hedges_gav_central,
             standard_error=standard_error_hedges_gav_true,
         )
-        cohens_drm = CohensDrm(
+        cohens_drm = res.CohensDrm(
             value=cohens_drm_value,
             ci_lower=ci_lower_cohens_drm_central,
             ci_upper=ci_upper_cohens_drm_central,
             standard_error=standard_error_cohens_drm_true,
         )
-        hedges_grm = HedgesGrm(
+        hedges_grm = res.HedgesGrm(
             value=hedges_grm_value,
             ci_lower=ci_lower_hedges_grm_central,
             ci_upper=ci_upper_hedges_grm_central,
@@ -543,7 +533,7 @@ class TwoPairedTTests(AbstractTest):
         hedges_gav.update_lambda_prime_ci(
             round(lower_ci_lambda_prime_gav, 4), round(upper_ci_lambda_prime_gav, 4)
         )
-        ratio_of_means = RatioOfMeans(
+        ratio_of_means = res.RatioOfMeans(
             value=round(ratio_of_means, 4),
             standard_error=round(standard_error_of_means_ratio, 4),
             ci_lower=round(lower_ci_means_ratio, 4),
@@ -856,37 +846,37 @@ class TwoPairedTTests(AbstractTest):
             np.log(ratio_of_means) + t_critical_value * np.sqrt(variance_of_means_ratio)
         )
 
-        cohens_dz = CohenD(
+        cohens_dz = res.CohenD(
             value=cohens_dz_value,
             ci_lower=ci_lower_cohens_dz_central,
             ci_upper=ci_upper_cohens_dz_central,
             standard_error=standard_error_cohens_dz_true,
         )
-        hedges_gz = HedgesG(
+        hedges_gz = res.HedgesG(
             value=hedges_gz_value,
             ci_lower=ci_lower_hedges_gz_central,
             ci_upper=ci_upper_hedges_gz_central,
             standard_error=standard_error_hedges_gz_true,
         )
-        cohens_dav = CohensDav(
+        cohens_dav = res.CohensDav(
             value=cohens_dav_value,
             ci_lower=ci_lower_cohens_dav_central,
             ci_upper=ci_upper_cohens_dav_central,
             standard_error=standard_error_cohens_dav_true,
         )
-        hedges_gav = HedgesGav(
+        hedges_gav = res.HedgesGav(
             value=hedges_gav_value,
             ci_lower=ci_lower_hedges_gav_central,
             ci_upper=ci_upper_hedges_gav_central,
             standard_error=standard_error_hedges_gav_true,
         )
-        cohens_drm = CohensDrm(
+        cohens_drm = res.CohensDrm(
             value=cohens_drm_value,
             ci_lower=ci_lower_cohens_drm_central,
             ci_upper=ci_upper_cohens_drm_central,
             standard_error=standard_error_cohens_drm_true,
         )
-        hedges_grm = HedgesGrm(
+        hedges_grm = res.HedgesGrm(
             value=hedges_grm_value,
             ci_lower=ci_lower_hedges_grm_central,
             ci_upper=ci_upper_hedges_grm_central,
@@ -942,7 +932,7 @@ class TwoPairedTTests(AbstractTest):
         hedges_gav.update_lambda_prime_ci(
             round(lower_ci_lambda_prime_gav, 4), round(upper_ci_lambda_prime_gav, 4)
         )
-        ratio_of_means = RatioOfMeans(
+        ratio_of_means = res.RatioOfMeans(
             value=round(ratio_of_means, 4),
             standard_error=round(standard_error_of_means_ratio, 4),
             ci_lower=round(lower_ci_means_ratio, 4),

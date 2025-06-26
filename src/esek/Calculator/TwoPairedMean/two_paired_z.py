@@ -12,9 +12,9 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 from scipy.stats import norm
-from ...interfaces import AbstractTest
-from ...results import CohenD
-from ...utility import central_ci_from_cohens_d
+from ...utils import interfaces
+from ...utils import results as res
+from ...utils import utility
 
 
 @dataclass
@@ -23,7 +23,7 @@ class TwoPairedZResults:
     a dataclass for the results of a two paired Z-test.
     """
 
-    cohens_d: Optional[CohenD] = None
+    cohens_d: Optional[res.CohenD] = None
     z_score: Optional[float] = None
     p_value: Optional[float] = None
     difference_standard_error: Optional[float] = None
@@ -38,7 +38,7 @@ class TwoPairedZResults:
     sample_size_2: Optional[float] = None
 
 
-class TwoPairedZTests(AbstractTest):
+class TwoPairedZTests(interfaces.AbstractTest):
     """
     A class for performing two paired Z-tests.
     This class provides methods to calculate Z-test results from a Z-score,
@@ -65,10 +65,10 @@ class TwoPairedZTests(AbstractTest):
 
         p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
         cohens_d = z_score / np.sqrt(sample_size)
-        ci_lower, ci_upper, standard_error_es = central_ci_from_cohens_d(
+        ci_lower, ci_upper, standard_error_es = utility.central_ci_from_cohens_d(
             cohens_d, sample_size, confidence_level
         )
-        cohens_d = CohenD(
+        cohens_d = res.CohenD(
             value=round(cohens_d, 4),
             ci_lower=round(ci_lower, 4),
             ci_upper=round(ci_upper, 4),
@@ -103,11 +103,11 @@ class TwoPairedZTests(AbstractTest):
         z_score = (sample_mean_diff - population_diff) / mean_Standard_error
         cohens_d = (sample_mean_diff - population_diff) / population_diff_sd
         p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
-        ci_lower, ci_upper, standard_error_es = central_ci_from_cohens_d(
+        ci_lower, ci_upper, standard_error_es = utility.central_ci_from_cohens_d(
             cohens_d, sample_size, confidence_level
         )
 
-        cohens_d = CohenD(
+        cohens_d = res.CohenD(
             value=round(cohens_d, 4),
             ci_lower=round(ci_lower, 4),
             ci_upper=round(ci_upper, 4),
@@ -149,11 +149,11 @@ class TwoPairedZTests(AbstractTest):
         z_score = diff_mean / standard_error
         cohens_d = (diff_mean) / population_diff_sd
         p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
-        ci_lower, ci_upper, standard_error_es = central_ci_from_cohens_d(
+        ci_lower, ci_upper, standard_error_es = utility.central_ci_from_cohens_d(
             cohens_d, sample_size, confidence_level
         )
 
-        cohens_d = CohenD(
+        cohens_d = res.CohenD(
             value=round(cohens_d, 4),
             ci_lower=round(ci_lower, 4),
             ci_upper=round(ci_upper, 4),
