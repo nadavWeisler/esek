@@ -4,6 +4,7 @@ from .two_paired_aparametric import (
     TwoPairedAparametricTests,
     TwoPairedAparametricResults,
 )
+from .two_paired_robust import TwoPairedRobustTests, TwoPairedRobustResults
 
 __all__ = [
     "TwoPairedZTests",
@@ -12,4 +13,6 @@ __all__ = [
     "TwoPairedTResults",
     "TwoPairedAparametricTests",
     "TwoPairedAparametricResults",
+    "TwoPairedRobustTests",
+    "TwoPairedRobustResults",
 ]
