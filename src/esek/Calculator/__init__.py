@@ -1,3 +1,3 @@
-from . import OneSampleMean, TwoSampleMean
+from . import OneSampleMean, TwoSampleMean, TwoPairedMean
 
-__all__ = ["OneSampleMean", "TwoSampleMean"]
+__all__ = ["OneSampleMean", "TwoSampleMean", "TwoPairedMean"]
