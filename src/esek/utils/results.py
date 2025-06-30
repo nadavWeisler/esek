@@ -216,6 +216,28 @@ class RatioOfMeans(EffectSize):
         self.update_statistical_line()
 
 
+class RobustAKP(EffectSize):
+    """
+    A class to store Robust AKP effect size values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Robust AKP"
+        self.update_statistical_line()
+
+
+class RobustExplanatory(EffectSize):
+    """
+    A class to store Robust Explanatory effect size values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Robust Explanatory"
+        self.update_statistical_line()
+
+
 class InferentialStatistics:
     """
     A class to store inferential statistics.
@@ -259,7 +281,7 @@ class Sample(DescriptiveStatistics):
         size: int,
     ) -> None:
         super().__init__(mean, standard_deviation)
-        self.size: float = size
+        self.size: int = size
         self.diff_mean: float | None = None
         self.diff_sd: float | None = None
         self.population_sd_diff: float | None = None
