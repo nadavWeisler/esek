@@ -8,12 +8,9 @@ import math
 from dataclasses import dataclass
 from typing import Optional
 import numpy as np
-from scipy.stats import norm, nct, t, gmean
-import rpy2.robjects as robjects
+from scipy.stats import norm, nct, t, gmean, ncf
 from ...utils import interfaces
 from ...utils import res
-
-qlambdap = robjects.r["qlambdap"]
 
 
 @dataclass
@@ -1192,8 +1189,21 @@ class TwoPairedTTests(interfaces.AbstractTest):
             * correction
             * np.sqrt(sample_size / (2 * (1 - corrected_correlation)))
         )
-        lower_ci_adjusted_lambda = qlambdap(1 / 2 - confidence_level / 2, df=(2 / (1 + correlation**2) * (sample_size - 1)), t=lambda_function) / np.sqrt(sample_size / (2 * (1 - corrected_correlation)))  # type: ignore
-        upper_ci_adjusted_lambda = qlambdap(1 / 2 + confidence_level / 2, df=(2 / (1 + correlation**2) * (sample_size - 1)), t=lambda_function) / np.sqrt(sample_size / (2 * (1 - corrected_correlation)))  # type: ignore
+
+        alpha = 1 - confidence_level
+        p_lower = 0.5 - confidence_level / 2
+        p_upper = 0.5 + confidence_level / 2
+
+        dfn = 1
+        dfd = df_corrected
+
+        lower_q = ncf.ppf(p_lower, dfn, dfd, lambda_function)
+        upper_q = ncf.ppf(p_upper, dfn, dfd, lambda_function)
+
+        denominator = np.sqrt(sample_size / (2 * (1 - corrected_correlation)))
+        lower_ci_adjusted_lambda = lower_q / denominator
+        upper_ci_adjusted_lambda = upper_q / denominator
+
         return lower_ci_adjusted_lambda, upper_ci_adjusted_lambda
 
     def ci_adjusted_lambda_prime(
@@ -1229,8 +1239,21 @@ class TwoPairedTTests(interfaces.AbstractTest):
             * correction1
             * np.sqrt(sample_size / (2 * (1 - corrected_correlation)))
         )
-        lower_ci_adjusted_lambda = qlambdap(1 / 2 - confidence_level / 2, df=(2 / (1 + correlation**2) * (sample_size - 1)), t=lambda_function) / (2 * (1 - corrected_correlation)) / correction2  # type: ignore
-        upper_ci_adjusted_lambda = qlambdap(1 / 2 + confidence_level / 2, df=(2 / (1 + correlation**2) * (sample_size - 1)), t=lambda_function) / (2 * (1 - corrected_correlation)) / correction2  # type: ignore
+
+        alpha = 1 - confidence_level
+        p_lower = 0.5 - confidence_level / 2
+        p_upper = 0.5 + confidence_level / 2
+
+        dfn = 1
+        dfd = df_corrected
+
+        lower_q = ncf.ppf(p_lower, dfn, dfd, lambda_function)
+        upper_q = ncf.ppf(p_upper, dfn, dfd, lambda_function)
+
+        denominator = 2 * (1 - corrected_correlation) * correction2
+        lower_ci_adjusted_lambda = lower_q / denominator
+        upper_ci_adjusted_lambda = upper_q / denominator
+
         return lower_ci_adjusted_lambda, upper_ci_adjusted_lambda
 
     def ci_mag(
