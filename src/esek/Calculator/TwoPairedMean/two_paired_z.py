@@ -24,18 +24,9 @@ class TwoPairedZResults:
     """
 
     cohens_d: Optional[res.CohenD] = None
-    z_score: Optional[float] = None
-    p_value: Optional[float] = None
-    difference_standard_error: Optional[float] = None
-    sample_mean_1: Optional[float] = None
-    sample_mean_2: Optional[float] = None
-    difference_population_sd: Optional[float] = None
-    sample_sd_1: Optional[float] = None
-    sample_sd_2: Optional[float] = None
-    difference_between_means: Optional[float] = None
-    difference_sd: Optional[float] = None
-    sample_size_1: Optional[float] = None
-    sample_size_2: Optional[float] = None
+    inferential: Optional[res.InferentialStatistics] = None
+    sample1: Optional[res.Sample] = None
+    sample2: Optional[res.Sample] = None
 
 
 class TwoPairedZTests(interfaces.AbstractTest):
@@ -75,10 +66,14 @@ class TwoPairedZTests(interfaces.AbstractTest):
             standard_error=round(standard_error_es, 4),
         )
 
+        inferential = res.InferentialStatistics(
+            p_value=round(p_value, 4),
+            score=round(z_score, 4),
+        )
+
         results = TwoPairedZResults()
         results.cohens_d = cohens_d
-        results.z_score = round(z_score, 4)
-        results.p_value = round(p_value, 4)
+        results.inferential = inferential
 
         return results
 
@@ -114,11 +109,15 @@ class TwoPairedZTests(interfaces.AbstractTest):
             standard_error=round(standard_error_es, 4),
         )
 
+        inferential = res.InferentialStatistics(
+            p_value=round(p_value, 4),
+            score=round(z_score, 4),
+        )
+        inferential.standard_error = round(mean_Standard_error, 4)
+
         results = TwoPairedZResults()
         results.cohens_d = cohens_d
-        results.z_score = round(z_score, 4)
-        results.p_value = round(p_value, 15)
-        results.difference_standard_error = round(mean_Standard_error, 4)
+        results.inferential = inferential
 
         return results
 
@@ -160,19 +159,31 @@ class TwoPairedZTests(interfaces.AbstractTest):
             standard_error=round(standard_error_es, 4),
         )
 
+        inferential = res.InferentialStatistics(
+            p_value=round(p_value, 4),
+            score=round(z_score, 4),
+        )
+        inferential.standard_error = round(standard_error, 4)
+        sample1 = res.Sample(
+            mean=round(sample_mean_1, 4),
+            standard_deviation=round(float(sample_sd_1), 4),
+            size=round(sample_size, 4),
+        )
+        sample2 = res.Sample(
+            mean=round(sample_mean_2, 4),
+            standard_deviation=round(float(sample_sd_2), 4),
+            size=round(sample_size, 4),
+        )
+        samples: list[res.Sample] = [sample1, sample2]
+        for sample in samples:
+            sample.diff_mean = round(diff_mean, 4)
+            sample.diff_sd = round(population_diff_sd, 4)
+            sample.population_sd_diff = round(population_diff_sd, 4)
+
         results = TwoPairedZResults()
         results.cohens_d = cohens_d
-        results.z_score = round(z_score, 4)
-        results.p_value = round(p_value, 4)
-        results.difference_standard_error = round(standard_error, 4)
-        results.sample_mean_1 = round(sample_mean_1, 4)
-        results.sample_mean_2 = round(sample_mean_2, 4)
-        results.sample_sd_1 = round(float(sample_sd_1), 4)
-        results.sample_sd_2 = round(float(sample_sd_2), 4)
-        results.sample_size_1 = round(sample_size, 4)
-        results.sample_size_2 = round(sample_size, 4)
-        results.difference_between_means = round(diff_mean, 4)
-        results.difference_population_sd = round(population_diff_sd, 4)
-        results.difference_sd = None  # TODO: add
+        results.inferential = inferential
+        results.sample1 = sample1
+        results.sample2 = sample2
 
         return results

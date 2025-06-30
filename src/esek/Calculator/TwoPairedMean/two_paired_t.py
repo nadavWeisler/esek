@@ -28,20 +28,9 @@ class TwoPairedTResults:
     hedge_gav: Optional[res.HedgesGav] = None
     cohens_drm: Optional[res.CohensDrm] = None
     hedge_grm: Optional[res.HedgesGrm] = None
-    t_score: Optional[float] = None
-    p_value: Optional[float] = None
-    degrees_of_freedom: Optional[float] = None
-    sample_mean_1: Optional[float] = None
-    sample_mean_2: Optional[float] = None
-    sample_sd_1: Optional[int] = None
-    sample_sd_2: Optional[int] = None
-    sample_size_1: Optional[int] = None
-    sample_size_2: Optional[int] = None
-    mean_difference: Optional[float] = None
-    difference_sd: Optional[float] = None
-    standard_error: Optional[float] = None
-    sample_mean_1: Optional[float] = None
-    sample_mean_2: Optional[float] = None
+    inferential: Optional[res.InferentialStatistics] = None
+    sample1: Optional[res.Sample] = None
+    sample2: Optional[res.Sample] = None
 
 
 class TwoPairedTTests(interfaces.AbstractTest):
@@ -153,12 +142,16 @@ class TwoPairedTTests(interfaces.AbstractTest):
             round(ci_upper_hedges_gz_pivotal * correction, 4),
         )
 
+        inferential = res.InferentialStatistics(
+            score=round(t_score, 4),
+            p_value=round(p_value, 4),
+        )
+        inferential.degrees_of_freedom = round(df, 4)
+
         results = TwoPairedTResults()
         results.cohens_d = cohens_dz
         results.hedge_g = hedges_gz
-        results.t_score = round(t_score, 4)
-        results.p_value = round(p_value, 4)
-        results.degrees_of_freedom = round(df, 4)
+        results.inferential = inferential
 
         return results
 
@@ -539,6 +532,26 @@ class TwoPairedTTests(interfaces.AbstractTest):
             ci_lower=round(lower_ci_means_ratio, 4),
             ci_upper=round(upper_ci_means_ratio, 4),
         )
+        sample1 = res.Sample(
+            mean=round(sample_mean_1, 4),
+            standard_deviation=int(sample_sd_1),
+            size=sample_size,
+        )
+        sample2 = res.Sample(
+            mean=round(sample_mean_2, 4),
+            standard_deviation=int(sample_sd_2),
+            size=sample_size,
+        )
+
+        sample1.diff_mean = round(sample_mean_1 - sample_mean_2, 4)
+        sample2.diff_mean = round(sample_mean_2 - sample_mean_1, 4)
+
+        inferential = res.InferentialStatistics(
+            score=round(t_score, 4),
+            p_value=round(p_value, 4),
+        )
+        inferential.degrees_of_freedom = round(df, 4)
+        inferential.standard_error = round(standard_error, 4)
 
         results = TwoPairedTResults()
         results.cohens_d = cohens_dz
@@ -547,18 +560,9 @@ class TwoPairedTTests(interfaces.AbstractTest):
         results.hedge_gav = hedges_gav
         results.cohens_drm = cohens_drm
         results.hedge_grm = hedges_grm
-        results.t_score = round(t_score, 4)
-        results.p_value = round(p_value, 4)
-        results.degrees_of_freedom = round(df, 4)
-        results.sample_mean_1 = round(sample_mean_1, 4)
-        results.sample_mean_2 = round(sample_mean_2, 4)
-        results.sample_sd_1 = int(sample_sd_1)
-        results.sample_sd_2 = int(sample_sd_2)
-        results.sample_size_1 = sample_size
-        results.sample_size_2 = sample_size
-        results.mean_difference = round(sample_mean_1 - sample_mean_2, 4)
-        results.difference_sd = None
-        results.standard_error = round(standard_error, 4)
+        results.sample1 = sample1
+        results.sample2 = sample2
+        results.inferential = inferential
 
         return results
 
@@ -939,6 +943,26 @@ class TwoPairedTTests(interfaces.AbstractTest):
             ci_upper=round(upper_ci_means_ratio, 4),
         )
 
+        sample1 = res.Sample(
+            mean=round(sample_mean_1, 4),
+            standard_deviation=int(sample_sd_1),
+            size=sample_size,
+        )
+        sample2 = res.Sample(
+            mean=round(sample_mean_2, 4),
+            standard_deviation=int(sample_sd_2),
+            size=sample_size,
+        )
+        sample1.diff_mean = round(sample_mean_1 - sample_mean_2, 4)
+        sample2.diff_mean = round(sample_mean_2 - sample_mean_1, 4)
+
+        inferential = res.InferentialStatistics(
+            score=round(t_score, 4),
+            p_value=round(p_value, 4),
+        )
+        inferential.degrees_of_freedom = round(df, 4)
+        inferential.standard_error = round(standard_error, 4)
+
         results = TwoPairedTResults()
         results.cohens_d = cohens_dz
         results.hedge_g = hedges_gz
@@ -946,18 +970,9 @@ class TwoPairedTTests(interfaces.AbstractTest):
         results.hedge_gav = hedges_gav
         results.cohens_drm = cohens_drm
         results.hedge_grm = hedges_grm
-        results.t_score = round(t_score, 4)
-        results.p_value = round(p_value, 4)
-        results.degrees_of_freedom = round(df, 4)
-        results.sample_mean_1 = round(sample_mean_1, 4)
-        results.sample_mean_2 = round(sample_mean_2, 4)
-        results.sample_sd_1 = int(sample_sd_1)
-        results.sample_sd_2 = int(sample_sd_2)
-        results.sample_size_1 = sample_size
-        results.sample_size_2 = sample_size
-        results.mean_difference = round(sample_mean_1 - sample_mean_2, 4)
-        results.difference_sd = None
-        results.standard_error = round(standard_error, 4)
+        results.inferential = inferential
+        results.sample1 = sample1
+        results.sample2 = sample2
 
         return results
 
