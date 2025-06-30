@@ -238,6 +238,96 @@ class RobustExplanatory(EffectSize):
         self.update_statistical_line()
 
 
+class CLES(EffectSize):
+    """
+    A class to store Common Language Effect Size (CLES) values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error, method) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = (
+            "Common Language Effect Size (CLES)" + f" ({method})"
+        )
+        self.update_statistical_line()
+
+
+class ProbabilityOfSuperiority(EffectSize):
+    """
+    A class to store Probability of Superiority (PS) values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Probability of Superiority (PS)"
+        self.update_statistical_line()
+
+
+class VarghaDelaney(EffectSize):
+    """
+    A class to store Vargha-Delaney effect size values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Vargha-Delaney"
+        self.update_statistical_line()
+
+
+class CliffsDelta(EffectSize):
+    """
+    A class to store Cliff's Delta effect size values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Cliff's Delta"
+        self.update_statistical_line()
+
+
+class NonParametricU1(EffectSize):
+    """
+    A class to store Non-Parametric U1 effect size values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Non-Parametric U1"
+        self.update_statistical_line()
+
+
+class NonParametricU3(EffectSize):
+    """
+    A class to store Non-Parametric U3 effect size values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Non-Parametric U3"
+        self.update_statistical_line()
+
+
+class KraemerAndrewGamma(EffectSize):
+    """
+    A class to store Kraemer-Andrew Gamma effect size values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Kraemer-Andrew Gamma"
+        self.update_statistical_line()
+
+
+class WilcoxMusakaQ(EffectSize):
+    """
+    A class to store Wilcox-Musaka Q effect size values.
+    """
+
+    def __init__(self, value, ci_lower, ci_upper, standard_error) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Wilcox-Musaka Q"
+        self.update_statistical_line()
+
+
 class InferentialStatistics:
     """
     A class to store inferential statistics.
