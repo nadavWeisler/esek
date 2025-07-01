@@ -107,17 +107,17 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
 
         cles_cohen = res.CLES(
             method="cohen's dz",
-            value=np.around(cles_dz, 4),
+            value=float(np.around(cles_dz, 4)),
             standard_error=standard_error_cohens_dz,
-            ci_lower=np.around(norm.cdf(ci_lower_cohens_dz_central) * 100, 4),
-            ci_upper=np.around(norm.cdf(ci_upper_cohens_dz_central) * 100, 4),
+            ci_lower=float(np.around(norm.cdf(ci_lower_cohens_dz_central) * 100, 4)),
+            ci_upper=float(np.around(norm.cdf(ci_upper_cohens_dz_central) * 100, 4)),
         )
         cles_hedges = res.CLES(
             method="hedges' gz",
-            value=np.around(cles_gz, 4),
+            value=float(np.around(cles_gz, 4)),
             standard_error=standard_error_hedges_gz,
-            ci_lower=np.around(norm.cdf(ci_lower_hedges_gz_central) * 100, 4),
-            ci_upper=np.around(norm.cdf(ci_upper_hedges_gz_central) * 100, 4),
+            ci_lower=float(np.around(norm.cdf(ci_lower_hedges_gz_central) * 100, 4)),
+            ci_upper=float(np.around(norm.cdf(ci_upper_hedges_gz_central) * 100, 4)),
         )
 
         cles_cohen.update_pivotal_ci(
@@ -197,17 +197,17 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
 
         cles_cohen = res.CLES(
             method="cohen's dz",
-            value=np.around(cles_dz, 4),
+            value=float(np.around(cles_dz, 4)),
             standard_error=standard_error_cohens_dz,
-            ci_lower=np.around(norm.cdf(ci_lower_cohens_dz_central) * 100, 4),
-            ci_upper=np.around(norm.cdf(ci_upper_cohens_dz_central) * 100, 4),
+            ci_lower=float(np.around(norm.cdf(ci_lower_cohens_dz_central) * 100, 4)),
+            ci_upper=float(np.around(norm.cdf(ci_upper_cohens_dz_central) * 100, 4)),
         )
         cles_hedges = res.CLES(
             method="hedges' gz",
-            value=np.around(cles_gz, 4),
+            value=float(np.around(cles_gz, 4)),
             standard_error=standard_error_hedges_gz,
-            ci_lower=np.around(norm.cdf(ci_lower_hedges_gz_central) * 100, 4),
-            ci_upper=np.around(norm.cdf(ci_upper_hedges_gz_central) * 100, 4),
+            ci_lower=float(np.around(norm.cdf(ci_lower_hedges_gz_central) * 100, 4)),
+            ci_upper=float(np.around(norm.cdf(ci_upper_hedges_gz_central) * 100, 4)),
         )
         cles_cohen.update_pivotal_ci(
             pivotal_ci_lower=float(
@@ -544,17 +544,17 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
 
         cles_dz = res.CLES(
             method="cohen's dz",
-            value=np.around(cles_dz, 4),
+            value=float(np.around(cles_dz, 4)),
             standard_error=standard_error_cohens_dz,
-            ci_lower=np.around(norm.cdf(ci_lower_cohens_dz_central) * 100, 4),
-            ci_upper=np.around(norm.cdf(ci_upper_cohens_dz_central) * 100, 4),
+            ci_lower=float(np.around(norm.cdf(ci_lower_cohens_dz_central) * 100, 4)),
+            ci_upper=float(np.around(norm.cdf(ci_upper_cohens_dz_central) * 100, 4)),
         )
         cles_gz = res.CLES(
             method="hedges' gz",
-            value=np.around(cles_gz, 4),
+            value=float(np.around(cles_gz, 4)),
             standard_error=standard_error_hedges_gz,
-            ci_lower=np.around(norm.cdf(ci_lower_hedges_gz_central) * 100, 4),
-            ci_upper=np.around(norm.cdf(ci_upper_hedges_gz_central) * 100, 4),
+            ci_lower=float(np.around(norm.cdf(ci_lower_hedges_gz_central) * 100, 4)),
+            ci_upper=float(np.around(norm.cdf(ci_upper_hedges_gz_central) * 100, 4)),
         )
         cles_dz.update_pivotal_ci(
             pivotal_ci_lower=float(
@@ -574,7 +574,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
         )
         probability_of_superiority = res.ProbabilityOfSuperiority(
             value=round(ps_dep, 4),
-            standard_error=None,
+            standard_error=0.0,
             ci_lower=np.round(
                 min(float(lower_ci_ps_dep_pratt), float(upper_ci_ps_dep_pratt)), 4
             ),
@@ -584,39 +584,39 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
         )
         vargha_delaney = res.VarghaDelaney(
             value=round(vda_xy, 4),
-            standard_error=None,
+            standard_error=0.0,
             ci_lower=round((lower_ci_cliff + 1) / 2, 4),
             ci_upper=round((upper_ci_cliff + 1) / 2, 4),
         )
         cliffs_delta_es = res.CliffsDelta(
             value=round(cliffs_delta, 4),
-            standard_error=None,
+            standard_error=0.0,
             ci_lower=round(lower_ci_cliff, 4),
             ci_upper=round(upper_ci_cliff, 4),
         )
         kraemer_andrews_gamma = res.KraemerAndrewGamma(
-            value=kraemer_andrews_gamma,
-            standard_error=None,
-            ci_lower=round(lower_ci_kraemer_andrews_gamma_boot, 4),
-            ci_upper=round(upper_ci_kraemer_andrews_gamma_boot, 4),
+            value=float(kraemer_andrews_gamma),
+            standard_error=0.0,
+            ci_lower=float(round(lower_ci_kraemer_andrews_gamma_boot, 4)),
+            ci_upper=float(round(upper_ci_kraemer_andrews_gamma_boot, 4)),
         )
         non_param_u3 = res.NonParametricU3(
             value=round(hentschke_stuttgen_u3, 4),
-            standard_error=None,
-            ci_lower=round(lower_ci_hentschke_stuttgen_u3, 4),
-            ci_upper=round(upper_ci_hentschke_stuttgen_u3, 4),
+            standard_error=0.0,
+            ci_lower=float(round(lower_ci_hentschke_stuttgen_u3, 4)),
+            ci_upper=float(round(upper_ci_hentschke_stuttgen_u3, 4)),
         )
         non_param_u1 = res.NonParametricU1(
             value=round(hentschke_stuttgen_u1, 4),
-            standard_error=None,
-            ci_lower=round(lower_ci_hentschke_stuttgen_u1, 4),
-            ci_upper=round(upper_ci_hentschke_stuttgen_u1, 4),
+            standard_error=0.0,
+            ci_lower=float(round(lower_ci_hentschke_stuttgen_u1, 4)),
+            ci_upper=float(round(upper_ci_hentschke_stuttgen_u1, 4)),
         )
         wilcox_musaka_q_dep = res.WilcoxMusakaQ(
             value=wilcox_musaka_q_dep,
-            standard_error=None,
-            ci_lower=None,
-            ci_upper=None,
+            standard_error=0.0,
+            ci_lower=0.0,
+            ci_upper=0.0,
         )
 
         results = TwoPairedCommonLangResults()
