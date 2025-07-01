@@ -14,8 +14,8 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 from scipy.stats import norm
-from ...interfaces import AbstractTest
-from ...results import CohenD
+from ...utils import interfaces
+from ...utils import res
 
 
 def calculate_central_ci_from_cohens_d_one_sample(
@@ -74,7 +74,7 @@ class OneSampleZResults:
     - Standard error of the effect size
     """
 
-    cohens_d: Optional[CohenD] = None
+    cohens_d: Optional[res.CohenD] = None
     z_score: Optional[float] = None
     p_value: Optional[float] = None
     standard_error_of_the_mean: Optional[float] = None
@@ -86,7 +86,7 @@ class OneSampleZResults:
     sample_size: Optional[float] = None
 
 
-class OneSampleZTests(AbstractTest):
+class OneSampleZTests(interfaces.AbstractTest):
     """
     A class for performing one-sample Z-tests.
     This class provides methods to calculate Z-test results from a Z-score,
@@ -109,7 +109,7 @@ class OneSampleZTests(AbstractTest):
             )
         )
 
-        cohens_d = CohenD(
+        cohens_d = res.CohenD(
             value=round(cohens_d, 4),
             ci_lower=round(ci_lower, 4),
             ci_upper=round(ci_upper, 4),
@@ -145,7 +145,7 @@ class OneSampleZTests(AbstractTest):
             )
         )
 
-        cohens_d = CohenD(
+        cohens_d = res.CohenD(
             value=round(cohens_d, 4),
             ci_lower=round(ci_lower, 4),
             ci_upper=round(ci_upper, 4),
@@ -190,7 +190,7 @@ class OneSampleZTests(AbstractTest):
             )
         )
 
-        cohens_d = CohenD(
+        cohens_d = res.CohenD(
             value=cohens_d,
             ci_lower=ci_lower,
             ci_upper=ci_upper,
