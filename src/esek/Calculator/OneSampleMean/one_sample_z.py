@@ -94,7 +94,7 @@ class OneSampleZTests(AbstractTest):
     """
 
     @staticmethod
-    def from_z_score(
+    def from_score(
         z_score: float, sample_size: float, confidence_level: float = 0.95
     ) -> OneSampleZResults:
         """
