@@ -97,7 +97,7 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
         sample_mean_2 = np.mean(column_2)
         sample_standard_deviation_1 = np.std(column_1, ddof=1)
         sample_standard_deviation_2 = np.std(column_2, ddof=1)
-        difference = (column_1 - column_2) - population_difference
+        difference = (np.array(column_1) - np.array(column_2)) - population_difference
         positive_n = difference[difference > 0].shape[0]
         negative_n = difference[difference < 0].shape[0]
         zero_n = difference[difference == 0].shape[0]
@@ -289,8 +289,8 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
             median_absolute_deviation=float(median_absolute_deviation),
         )
 
-        group1.diff_median = median_difference
-        group2.diff_median = median_difference
+        group1.diff_median = float(median_difference)
+        group2.diff_median = float(median_difference)
 
         wilcoxon_sign_rank = res.WilcoxonSignedRank(
             times_group1_larger=positive_n,
@@ -399,7 +399,8 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
         Returns:
             tuple[float, float]: The lower and upper confidence interval, bounded to [-1, 1].
         """
-        fisher_z = math.atanh(correlation)
+        safe_corr = max(min(correlation, 0.999999), -0.999999)
+        fisher_z = math.atanh(safe_corr)
         margin = z_critical * standard_error
         lower = max(math.tanh(fisher_z - margin), -1)
         upper = min(math.tanh(fisher_z + margin), 1)
