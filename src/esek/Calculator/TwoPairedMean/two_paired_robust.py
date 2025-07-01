@@ -234,13 +234,13 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
 
         robust_akp = res.RobustAKP(
             value=round(akp_effect_size, 4),
-            ci_lower=round(lower_ci_akp_boot, 4),
-            ci_upper=round(upper_ci_akp_boot, 4),
+            ci_lower=float(round(lower_ci_akp_boot, 4)),
+            ci_upper=float(round(upper_ci_akp_boot, 4)),
             standard_error=round(yuen_standard_error, 4),
         )
         robust_explanatory = res.RobustExplanatory(
             value=round(explanatory_power_effect_size, 4),
-            ci_lower=round(lower_ci_e_pow_boot, 4),
+            ci_lower=float(round(lower_ci_e_pow_boot, 4)),
             ci_upper=round(min(float(upper_ci_e_pow_boot), 1.0), 4),
             standard_error=round(yuen_standard_error, 4),
         )

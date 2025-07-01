@@ -191,7 +191,7 @@ class OneSampleZTests(interfaces.AbstractTest):
         )
 
         cohens_d = res.CohenD(
-            value=cohens_d,
+            value=float(cohens_d),
             ci_lower=ci_lower,
             ci_upper=ci_upper,
             standard_error=standard_error_es,
