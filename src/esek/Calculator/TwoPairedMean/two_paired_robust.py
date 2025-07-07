@@ -86,7 +86,7 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
         column_1 = columns[0]
         column_2 = columns[1]
 
-        difference = column_1 - column_2
+        difference = np.array(column_1) - np.array(column_2)
         sample_size = len(column_1)
         correction = np.sqrt(
             float(
