@@ -25,6 +25,7 @@ class TwoPairedTResults:
     hedge_gav: Optional[res.HedgesGav] = None
     cohens_drm: Optional[res.CohensDrm] = None
     hedge_grm: Optional[res.HedgesGrm] = None
+    ratio_of_means: Optional[res.RatioOfMeans] = None
     inferential: Optional[res.InferentialStatistics] = None
     sample1: Optional[res.Sample] = None
     sample2: Optional[res.Sample] = None
@@ -523,7 +524,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
         hedges_gav.update_lambda_prime_ci(
             round(lower_ci_lambda_prime_gav, 4), round(upper_ci_lambda_prime_gav, 4)
         )
-        ratio_of_means = res.RatioOfMeans(
+        ratio_of_means_effect_size = res.RatioOfMeans(
             value=round(ratio_of_means, 4),
             standard_error=round(standard_error_of_means_ratio, 4),
             ci_lower=round(lower_ci_means_ratio, 4),
@@ -560,6 +561,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
         results.sample1 = sample1
         results.sample2 = sample2
         results.inferential = inferential
+        results.ratio_of_means = ratio_of_means_effect_size
 
         return results
 
@@ -933,7 +935,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
         hedges_gav.update_lambda_prime_ci(
             round(lower_ci_lambda_prime_gav, 4), round(upper_ci_lambda_prime_gav, 4)
         )
-        ratio_of_means = res.RatioOfMeans(
+        ratio_of_means_effect_size = res.RatioOfMeans(
             value=round(ratio_of_means, 4),
             standard_error=round(standard_error_of_means_ratio, 4),
             ci_lower=round(lower_ci_means_ratio, 4),
@@ -967,6 +969,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
         results.hedge_gav = hedges_gav
         results.cohens_drm = cohens_drm
         results.hedge_grm = hedges_grm
+        results.ratio_of_means = ratio_of_means_effect_size
         results.inferential = inferential
         results.sample1 = sample1
         results.sample2 = sample2
