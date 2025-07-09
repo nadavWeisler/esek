@@ -41,7 +41,7 @@ class EffectSize:
     def __init__(self, value: float, ci_lower: float, ci_upper: float, standard_error: float) -> None:
         self.effect_size_name: str = "Effect Size"
         self.value: float = value
-        self.ci: ConfidenceInterval = ConfidenceInterval(ci_lower, ci_upper)
+        self.ci: ConfidenceInterval = ConfidenceInterval(float(ci_lower), float(ci_upper))
         self.standard_error: float = standard_error
         self.statistical_line: str = ""
 
