@@ -251,7 +251,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
         sample_size_1 = len(column_1)
         sample_size_2 = len(column_2)
 
-        difference = column_1 - column_2
+        difference = np.array(column_1) - np.array(column_2)
         mean_difference = np.mean(difference)
         standard_deviation_of_the_difference = np.std(difference, ddof=1)
         sample_size = len(difference)
@@ -273,12 +273,12 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             ci_lower_cohens_dz_central,
             ci_upper_cohens_dz_central,
             standard_error_cohens_dz,
-        ) = self.calculate_central_ci(cohens_dz, sample_size, confidence_level)
+        ) = self.calculate_central_ci(float(cohens_dz), sample_size, confidence_level)
         (
             ci_lower_hedges_gz_central,
             ci_upper_hedges_gz_central,
             standard_error_hedges_gz,
-        ) = self.calculate_central_ci(hedges_gz, sample_size, confidence_level)
+        ) = self.calculate_central_ci(float(hedges_gz), sample_size, confidence_level)
         ci_lower_cohens_dz_pivotal, ci_upper_cohens_dz_pivotal = self.pivotal_ci(
             t_score, df, sample_size, confidence_level
         )

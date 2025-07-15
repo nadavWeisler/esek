@@ -97,7 +97,7 @@ class EffectSize:
         """
         Update the mag confidence interval.
         """
-        self.mag_ci = ConfidenceInterval(mag_ci_lower, mag_ci_upper)
+        self.mag = ConfidenceInterval(mag_ci_lower, mag_ci_upper)
         self.update_statistical_line()
 
     def update_lambda_prime_ci(
