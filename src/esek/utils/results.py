@@ -167,6 +167,50 @@ class CohensDav(EffectSize):
         self.update_statistical_line()
 
 
+class CohensDCLES(EffectSize):
+    """
+    A class to store Cohen's d CLES effect size values.
+    """
+
+    def __init__(
+        self,
+        value: float,
+        central_ci_lower: float,
+        central_ci_upper: float,
+        non_central_ci_lower: float,
+        non_central_ci_upper: float,
+        standard_error: float,
+    ) -> None:
+        super().__init__(value, central_ci_lower, central_ci_upper, standard_error)
+        self.effect_size_name: str = "Cohen's d CLES"
+        self.non_central_ci: ConfidenceInterval = ConfidenceInterval(
+            non_central_ci_lower, non_central_ci_upper
+        )
+        self.update_statistical_line()
+
+
+class HedgesGCLES(EffectSize):
+    """
+    A class to store Hedges' g CLES effect size values.
+    """
+
+    def __init__(
+        self,
+        value: float,
+        central_ci_lower: float,
+        central_ci_upper: float,
+        non_central_ci_lower: float,
+        non_central_ci_upper: float,
+        standard_error: float,
+    ) -> None:
+        super().__init__(value, central_ci_lower, central_ci_upper, standard_error)
+        self.effect_size_name: str = "Hedges' g CLES"
+        self.non_central_ci = ConfidenceInterval(
+            non_central_ci_lower, non_central_ci_upper
+        )
+        self.update_statistical_line()
+
+
 class HedgesGav(EffectSize):
     """
     A class to store Hedge's gav effect size values.
@@ -236,6 +280,33 @@ class RatioOfMeans(EffectSize):
     ) -> None:
         super().__init__(value, ci_lower, ci_upper, standard_error)
         self.effect_size_name: str = "Ratio of Means"
+        self.update_statistical_line()
+
+
+class YuensRobustT(EffectSize):
+    """
+    A class to store Yuen's Robust T effect size values.
+    """
+
+    def __init__(
+        self,
+        value: float,
+        degrees_of_freedom: float,
+        p_value: float,
+        standard_error: float,
+        trimmed_mean: float,
+        winsorized_mean: float,
+        robust_apk_value: float,
+        ci_lower: float,
+        ci_upper: float,
+    ) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.degrees_of_freedom: float = degrees_of_freedom
+        self.p_value: float = p_value
+        self.trimmed_mean: float = trimmed_mean
+        self.winsorized_mean: float = winsorized_mean
+        self.robust_apk_value: float = robust_apk_value
+        self.effect_size_name: str = "Yuen's Robust T"
         self.update_statistical_line()
 
 
