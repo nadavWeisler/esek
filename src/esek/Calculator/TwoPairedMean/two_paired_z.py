@@ -11,10 +11,8 @@ such as in pre-test and post-test scenarios.
 from dataclasses import dataclass
 from typing import Optional
 import numpy as np
-from scipy.stats import norm
-from ...utils import interfaces
-from ...utils import res
-from ...utils import utility
+from scipy import stats
+from ...utils import interfaces, res, utils
 
 
 @dataclass
@@ -54,9 +52,9 @@ class TwoPairedZTests(interfaces.AbstractTest):
         It returns an instance of TwoPairedZResults containing these values.
         """
 
-        p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
+        p_value = min(float(stats.norm.sf((abs(z_score))) * 2), 0.99999)
         cohens_d = z_score / np.sqrt(sample_size)
-        ci_lower, ci_upper, standard_error_es = utility.central_ci_from_cohens_d(
+        ci_lower, ci_upper, standard_error_es = utils.ci_from_cohens_simple(
             cohens_d, sample_size, confidence_level
         )
         cohens_d = res.CohenD(
@@ -97,8 +95,8 @@ class TwoPairedZTests(interfaces.AbstractTest):
         sample_mean_diff = sample_mean_1 - sample_mean_2
         z_score = (sample_mean_diff - population_diff) / mean_Standard_error
         cohens_d = (sample_mean_diff - population_diff) / population_diff_sd
-        p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
-        ci_lower, ci_upper, standard_error_es = utility.central_ci_from_cohens_d(
+        p_value = min(float(stats.norm.sf((abs(z_score))) * 2), 0.99999)
+        ci_lower, ci_upper, standard_error_es = utils.ci_from_cohens_simple(
             cohens_d, sample_size, confidence_level
         )
 
@@ -147,8 +145,8 @@ class TwoPairedZTests(interfaces.AbstractTest):
 
         z_score = diff_mean / standard_error
         cohens_d = (diff_mean) / population_diff_sd
-        p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
-        ci_lower, ci_upper, standard_error_es = utility.central_ci_from_cohens_d(
+        p_value = min(float(stats.norm.sf((abs(z_score))) * 2), 0.99999)
+        ci_lower, ci_upper, standard_error_es = utils.ci_from_cohens_simple(
             cohens_d, sample_size, confidence_level
         )
 

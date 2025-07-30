@@ -9,11 +9,9 @@ calculating confidence intervals for the results.
 
 from dataclasses import dataclass
 from typing import Optional
-import math
 import numpy as np
-from scipy.stats import norm, rankdata, median_abs_deviation
-from ...utils import interfaces
-from ...utils import res
+from scipy import stats
+from ...utils import interfaces, res, utils
 
 
 @dataclass
@@ -72,8 +70,9 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
             "from_score method is not implemented for TwoPairedAparametric."
         )
 
+    @staticmethod
     def from_data(
-        self, columns: list, population_difference: float, confidence_level: float
+        columns: list, population_difference: float, confidence_level: float
     ) -> TwoPairedAparametricResults:
         """
         Computes results from two paired aparametric tests using provided data columns,
@@ -103,14 +102,14 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
         zero_n = difference[difference == 0].shape[0]
         sample_size = len(difference)
         median_difference = np.median(difference)
-        median_absolute_deviation = median_abs_deviation(difference)
+        median_absolute_deviation = stats.median_abs_deviation(difference)
 
         difference_no_ties = difference[difference != 0]
-        ranked_no_ties = rankdata(abs(difference_no_ties))
+        ranked_no_ties = stats.rankdata(abs(difference_no_ties))
         positive_sum_ranks_no_ties = ranked_no_ties[difference_no_ties > 0].sum()
         negative_sum_ranks_no_ties = ranked_no_ties[difference_no_ties < 0].sum()
 
-        ranked_with_ties = rankdata(abs(difference))
+        ranked_with_ties = stats.rankdata(abs(difference))
         positive_sum_ranks_with_ties = ranked_with_ties[difference > 0].sum()
         negative_sum_ranks_with_ties = ranked_with_ties[difference < 0].sum()
 
@@ -150,16 +149,17 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
             z_numerator_wilcoxon - 0.5
         ) / np.sqrt(unadjusted_variance_wilcoxon)
         p_value_adjusted_wilcoxon = min(
-            float(norm.sf((abs(z_adjusted_wilcoxon))) * 2), 0.99999
+            float(stats.norm.sf((abs(z_adjusted_wilcoxon))) * 2), 0.99999
         )
         p_value_adjusted_Normal_approximation_wilcoxon = min(
-            float(norm.sf((abs(z_adjusted_normal_approximation_wilcoxon))) * 2), 0.99999
+            float(stats.norm.sf((abs(z_adjusted_normal_approximation_wilcoxon))) * 2),
+            0.99999,
         )
         p_value_unadjusted_wilcoxon = min(
-            float(norm.sf((abs(z_unadjusted_wilcoxon))) * 2), 0.99999
+            float(stats.norm.sf((abs(z_unadjusted_wilcoxon))) * 2), 0.99999
         )
         p_value_unadjusted_normal_approximation_wilcoxon = min(
-            float(norm.sf((abs(z_unadjusted_normal_approximation_wilcoxon))) * 2),
+            float(stats.norm.sf((abs(z_unadjusted_normal_approximation_wilcoxon))) * 2),
             0.99999,
         )
 
@@ -183,10 +183,11 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
             adjusted_variance_pratt
         )
         p_value_adjusted_pratt = min(
-            float(norm.sf((abs(z_adjusted_pratt))) * 2), 0.99999
+            float(stats.norm.sf((abs(z_adjusted_pratt))) * 2), 0.99999
         )
         p_value_adjusted_normal_approximation_pratt = min(
-            float(norm.sf((abs(z_adjusted_normal_approximation_pratt))) * 2), 0.99999
+            float(stats.norm.sf((abs(z_adjusted_normal_approximation_pratt))) * 2),
+            0.99999,
         )
 
         matched_pairs_rank_biserial_corelation_ignoring_ties = (
@@ -225,11 +226,11 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
             / ((sample_size**2 + sample_size) / 2)
         )
         z_critical_value = float(
-            norm.ppf((1 - confidence_level) + ((confidence_level) / 2))
+            stats.norm.ppf((1 - confidence_level) + ((confidence_level) / 2))
         )
 
         lower_ci_matched_pairs_wilcoxon, upper_ci_matched_pairs_wilcoxon = (
-            self.compute_confidence_interval(
+            utils.compute_fisher_confidence_interval(
                 matched_pairs_rank_biserial_corelation_ignoring_ties,
                 standard_error_match_pairs_rank_biserial_corelation_no_ties,
                 z_critical_value,
@@ -237,7 +238,7 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
         )
 
         lower_ci_z_based_wilcoxon, upper_ci_z_based_wilcoxon = (
-            self.compute_confidence_interval(
+            utils.compute_fisher_confidence_interval(
                 z_based_rank_biserial_correlation_no_ties,
                 standard_error_match_pairs_rank_biserial_corelation_no_ties,
                 z_critical_value,
@@ -245,7 +246,7 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
         )
 
         lower_ci_z_based_corrected_wilcoxon, upper_ci_z_based_corrected_wilcoxon = (
-            self.compute_confidence_interval(
+            utils.compute_fisher_confidence_interval(
                 z_based_rank_biserial_correlation_corrected_no_ties,
                 standard_error_match_pairs_rank_biserial_corelation_no_ties,
                 z_critical_value,
@@ -253,7 +254,7 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
         )
 
         lower_ci_matched_pairs_pratt, upper_ci_matched_pairs_pratt = (
-            self.compute_confidence_interval(
+            utils.compute_fisher_confidence_interval(
                 matched_pairs_rank_biserial_corelation_considering_ties,
                 standard_error_match_pairs_rank_biserial_corelation_with_ties,
                 z_critical_value,
@@ -261,7 +262,7 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
         )
 
         lower_ci_z_based_pratt, upper_ci_z_based_pratt = (
-            self.compute_confidence_interval(
+            utils.compute_fisher_confidence_interval(
                 z_based_rank_biserial_correlation_with_ties,
                 standard_error_match_pairs_rank_biserial_corelation_with_ties,
                 z_critical_value,
@@ -269,7 +270,7 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
         )
 
         lower_ci_z_based_corrected_pratt, upper_ci_z_based_corrected_pratt = (
-            self.compute_confidence_interval(
+            utils.compute_fisher_confidence_interval(
                 z_based_rank_biserial_correlation_corrected_with_ties,
                 standard_error_match_pairs_rank_biserial_corelation_with_ties,
                 z_critical_value,
@@ -384,24 +385,3 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
         results.corrected_z_based_biserial_pratt = corrected_z_based_biserial_pratt
 
         return results
-
-    def compute_confidence_interval(
-        self, correlation: float, standard_error: float, z_critical: float
-    ) -> tuple[float, float]:
-        """
-        Compute the lower and upper confidence intervals for a given correlation using Fisher's z-transformation.
-
-        Args:
-            correlation (float): The correlation coefficient (e.g., rank-biserial).
-            standard_error (float): The standard error of the correlation.
-            z_critical (float): The z-value for the desired confidence level (e.g., 1.96 for 95%).
-
-        Returns:
-            tuple[float, float]: The lower and upper confidence interval, bounded to [-1, 1].
-        """
-        safe_corr = max(min(correlation, 0.999999), -0.999999)
-        fisher_z = math.atanh(safe_corr)
-        margin = z_critical * standard_error
-        lower = max(math.tanh(fisher_z - margin), -1)
-        upper = min(math.tanh(fisher_z + margin), 1)
-        return lower, upper

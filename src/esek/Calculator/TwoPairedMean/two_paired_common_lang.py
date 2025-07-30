@@ -12,9 +12,8 @@ from dataclasses import dataclass
 import math
 from typing import Optional
 import numpy as np
-from scipy.stats import norm, nct, beta, t
-from ...utils import interfaces
-from ...utils import res
+from scipy import stats
+from ...utils import interfaces, res, utils
 
 
 @dataclass
@@ -69,15 +68,16 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
 
     """
 
+    @staticmethod
     def from_score(
-        self, t_score: float, sample_size: int, confidence_level: float
+        t_score: float, sample_size: int, confidence_level: float
     ) -> TwoPairedCommonLangResults:
         """
         Calculates common language effect sizes from a t-score, sample size, and confidence level.
         """
 
         cohens_dz = t_score / np.sqrt(sample_size)
-        cles_dz = norm.cdf(cohens_dz) * 100
+        cles_dz = stats.norm.cdf(cohens_dz) * 100
         df = sample_size - 1
         correction = math.exp(
             math.lgamma(df / 2)
@@ -85,23 +85,23 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             - math.lgamma((df - 1) / 2)
         )
         hedges_gz = correction * cohens_dz
-        cles_gz = norm.cdf(hedges_gz) * 100
-        p_value = min(float(t.sf((abs(t_score)), df) * 2), 0.99999)
+        cles_gz = stats.norm.cdf(hedges_gz) * 100
+        p_value = min(float(stats.t.sf((abs(t_score)), df) * 2), 0.99999)
 
         (
             ci_lower_cohens_dz_central,
             ci_upper_cohens_dz_central,
             standard_error_cohens_dz,
-        ) = self.calculate_central_ci(cohens_dz, sample_size, confidence_level)
+        ) = utils.ci_from_cohens_paired(cohens_dz, sample_size, confidence_level)
         (
             ci_lower_hedges_gz_central,
             ci_upper_hedges_gz_central,
             standard_error_hedges_gz,
-        ) = self.calculate_central_ci(hedges_gz, sample_size, confidence_level)
-        ci_lower_cohens_dz_pivotal, ci_upper_cohens_dz_pivotal = self.pivotal_ci(
+        ) = utils.ci_from_cohens_paired(hedges_gz, sample_size, confidence_level)
+        ci_lower_cohens_dz_pivotal, ci_upper_cohens_dz_pivotal = utils.pivotal_ci_t(
             t_score, df, sample_size, confidence_level
         )
-        ci_lower_hedges_gz_pivotal, ci_upper_hedges_gz_pivotal = self.pivotal_ci(
+        ci_lower_hedges_gz_pivotal, ci_upper_hedges_gz_pivotal = utils.pivotal_ci_t(
             t_score, df, sample_size, confidence_level
         )
 
@@ -109,31 +109,43 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             method="cohen's dz",
             value=float(np.around(cles_dz, 4)),
             standard_error=standard_error_cohens_dz,
-            ci_lower=float(np.around(norm.cdf(ci_lower_cohens_dz_central) * 100, 4)),
-            ci_upper=float(np.around(norm.cdf(ci_upper_cohens_dz_central) * 100, 4)),
+            ci_lower=float(
+                np.around(stats.norm.cdf(ci_lower_cohens_dz_central) * 100, 4)
+            ),
+            ci_upper=float(
+                np.around(stats.norm.cdf(ci_upper_cohens_dz_central) * 100, 4)
+            ),
         )
         cles_hedges = res.CLES(
             method="hedges' gz",
             value=float(np.around(cles_gz, 4)),
             standard_error=standard_error_hedges_gz,
-            ci_lower=float(np.around(norm.cdf(ci_lower_hedges_gz_central) * 100, 4)),
-            ci_upper=float(np.around(norm.cdf(ci_upper_hedges_gz_central) * 100, 4)),
+            ci_lower=float(
+                np.around(stats.norm.cdf(ci_lower_hedges_gz_central) * 100, 4)
+            ),
+            ci_upper=float(
+                np.around(stats.norm.cdf(ci_upper_hedges_gz_central) * 100, 4)
+            ),
         )
 
         cles_cohen.update_pivotal_ci(
             pivotal_ci_lower=float(
-                np.around(norm.cdf(ci_lower_cohens_dz_pivotal) * 100, 4)
+                np.around(stats.norm.cdf(ci_lower_cohens_dz_pivotal) * 100, 4)
             ),
             pivotal_ci_upper=float(
-                np.around(norm.cdf(ci_upper_cohens_dz_pivotal) * 100, 4)
+                np.around(stats.norm.cdf(ci_upper_cohens_dz_pivotal) * 100, 4)
             ),
         )
         cles_hedges.update_pivotal_ci(
             pivotal_ci_lower=float(
-                np.around(norm.cdf(ci_lower_hedges_gz_pivotal * correction) * 100, 4)
+                np.around(
+                    stats.norm.cdf(ci_lower_hedges_gz_pivotal * correction) * 100, 4
+                )
             ),
             pivotal_ci_upper=float(
-                np.around(norm.cdf(ci_upper_hedges_gz_pivotal * correction) * 100, 4)
+                np.around(
+                    stats.norm.cdf(ci_upper_hedges_gz_pivotal * correction) * 100, 4
+                )
             ),
         )
 
@@ -143,8 +155,8 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
 
         return results
 
+    @staticmethod
     def from_parameters(
-        self,
         sample_mean_1: float,
         sample_mean_2: float,
         sample_sd_1: float,
@@ -166,7 +178,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             - 2 * correlation * sample_sd_1 * sample_sd_2
         )
         cohens_dz = mean_difference / standardizer_dz
-        cles_dz = norm.cdf(cohens_dz) * 100
+        cles_dz = stats.norm.cdf(cohens_dz) * 100
         t_score = cohens_dz * np.sqrt(sample_size)
         df = sample_size - 1
         correction = math.exp(
@@ -175,23 +187,23 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             - math.lgamma((df - 1) / 2)
         )
         hedges_gz = correction * cohens_dz
-        cles_gz = norm.cdf(hedges_gz) * 100
-        p_value = min(float(t.sf((abs(t_score)), df) * 2), 0.99999)
+        cles_gz = stats.norm.cdf(hedges_gz) * 100
+        p_value = min(float(stats.t.sf((abs(t_score)), df) * 2), 0.99999)
 
         (
             ci_lower_cohens_dz_central,
             ci_upper_cohens_dz_central,
             standard_error_cohens_dz,
-        ) = self.calculate_central_ci(cohens_dz, sample_size, confidence_level)
+        ) = utils.ci_from_cohens_paired(cohens_dz, sample_size, confidence_level)
         (
             ci_lower_hedges_gz_central,
             ci_upper_hedges_gz_central,
             standard_error_hedges_gz,
-        ) = self.calculate_central_ci(hedges_gz, sample_size, confidence_level)
-        ci_lower_cohens_dz_pivotal, ci_upper_cohens_dz_pivotal = self.pivotal_ci(
+        ) = utils.ci_from_cohens_paired(hedges_gz, sample_size, confidence_level)
+        ci_lower_cohens_dz_pivotal, ci_upper_cohens_dz_pivotal = utils.pivotal_ci_t(
             t_score, df, sample_size, confidence_level
         )
-        ci_lower_hedges_gz_pivotal, ci_upper_hedges_gz_pivotal = self.pivotal_ci(
+        ci_lower_hedges_gz_pivotal, ci_upper_hedges_gz_pivotal = utils.pivotal_ci_t(
             t_score, df, sample_size, confidence_level
         )
 
@@ -199,30 +211,42 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             method="cohen's dz",
             value=float(np.around(cles_dz, 4)),
             standard_error=standard_error_cohens_dz,
-            ci_lower=float(np.around(norm.cdf(ci_lower_cohens_dz_central) * 100, 4)),
-            ci_upper=float(np.around(norm.cdf(ci_upper_cohens_dz_central) * 100, 4)),
+            ci_lower=float(
+                np.around(stats.norm.cdf(ci_lower_cohens_dz_central) * 100, 4)
+            ),
+            ci_upper=float(
+                np.around(stats.norm.cdf(ci_upper_cohens_dz_central) * 100, 4)
+            ),
         )
         cles_hedges = res.CLES(
             method="hedges' gz",
             value=float(np.around(cles_gz, 4)),
             standard_error=standard_error_hedges_gz,
-            ci_lower=float(np.around(norm.cdf(ci_lower_hedges_gz_central) * 100, 4)),
-            ci_upper=float(np.around(norm.cdf(ci_upper_hedges_gz_central) * 100, 4)),
+            ci_lower=float(
+                np.around(stats.norm.cdf(ci_lower_hedges_gz_central) * 100, 4)
+            ),
+            ci_upper=float(
+                np.around(stats.norm.cdf(ci_upper_hedges_gz_central) * 100, 4)
+            ),
         )
         cles_cohen.update_pivotal_ci(
             pivotal_ci_lower=float(
-                np.around(norm.cdf(ci_lower_cohens_dz_pivotal) * 100, 4)
+                np.around(stats.norm.cdf(ci_lower_cohens_dz_pivotal) * 100, 4)
             ),
             pivotal_ci_upper=float(
-                np.around(norm.cdf(ci_upper_cohens_dz_pivotal) * 100, 4)
+                np.around(stats.norm.cdf(ci_upper_cohens_dz_pivotal) * 100, 4)
             ),
         )
         cles_hedges.update_pivotal_ci(
             pivotal_ci_lower=float(
-                np.around(norm.cdf(ci_lower_hedges_gz_pivotal * correction) * 100, 4)
+                np.around(
+                    stats.norm.cdf(ci_lower_hedges_gz_pivotal * correction) * 100, 4
+                )
             ),
             pivotal_ci_upper=float(
-                np.around(norm.cdf(ci_upper_hedges_gz_pivotal * correction) * 100, 4)
+                np.around(
+                    stats.norm.cdf(ci_upper_hedges_gz_pivotal * correction) * 100, 4
+                )
             ),
         )
 
@@ -232,12 +256,16 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
 
         return results
 
+    @staticmethod
     def from_data(
-        self, column: list, reps: int, confidence_level: float
+        column: list, reps: int, confidence_level: float
     ) -> TwoPairedCommonLangResults:
         """
         Calculates common language effect sizes from data in two columns.
         """
+
+        if len(column) != 2:
+            raise ValueError("Input must be a list with two columns of data.")
 
         column_1 = column[0]
         column_2 = column[1]
@@ -257,7 +285,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
         sample_size = len(difference)
 
         cohens_dz = mean_difference / standard_deviation_of_the_difference
-        cles_dz = norm.cdf(cohens_dz) * 100
+        cles_dz = stats.norm.cdf(cohens_dz) * 100
         t_score = cohens_dz * np.sqrt(sample_size)
         df = sample_size - 1
         correction = math.exp(
@@ -266,23 +294,23 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             - math.lgamma((df - 1) / 2)
         )
         hedges_gz = correction * cohens_dz
-        cles_gz = norm.cdf(hedges_gz) * 100
-        p_value = min(float(t.sf((abs(t_score)), df) * 2), 0.99999)
+        cles_gz = stats.norm.cdf(hedges_gz) * 100
+        p_value = min(float(stats.t.sf((abs(t_score)), df) * 2), 0.99999)
 
         (
             ci_lower_cohens_dz_central,
             ci_upper_cohens_dz_central,
             standard_error_cohens_dz,
-        ) = self.calculate_central_ci(float(cohens_dz), sample_size, confidence_level)
+        ) = utils.ci_from_cohens_paired(float(cohens_dz), sample_size, confidence_level)
         (
             ci_lower_hedges_gz_central,
             ci_upper_hedges_gz_central,
             standard_error_hedges_gz,
-        ) = self.calculate_central_ci(float(hedges_gz), sample_size, confidence_level)
-        ci_lower_cohens_dz_pivotal, ci_upper_cohens_dz_pivotal = self.pivotal_ci(
+        ) = utils.ci_from_cohens_paired(float(hedges_gz), sample_size, confidence_level)
+        ci_lower_cohens_dz_pivotal, ci_upper_cohens_dz_pivotal = utils.pivotal_ci_t(
             t_score, df, sample_size, confidence_level
         )
-        ci_lower_hedges_gz_pivotal, ci_upper_hedges_gz_pivotal = self.pivotal_ci(
+        ci_lower_hedges_gz_pivotal, ci_upper_hedges_gz_pivotal = utils.pivotal_ci_t(
             t_score, df, sample_size, confidence_level
         )
 
@@ -301,8 +329,8 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             - sum(np.where(column_2 > column_1, 1, 0))
         ) / sample_size
 
-        ctag_square = norm.ppf(1 - confidence_level) ** 2
-        ctag = norm.ppf(1 - confidence_level)
+        ctag_square = stats.norm.ppf(1 - confidence_level) ** 2
+        ctag = stats.norm.ppf(1 - confidence_level)
         A = ((count_group1_larger + 1) / (sample_size - count_group1_larger)) ** 2
         B = (
             81 * (count_group1_larger + 1) * (sample_size - count_group1_larger)
@@ -361,7 +389,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
 
         if count_group1_larger == 0:
             lower_ci_ps_dep_pratt = 0
-            upper_ci_ps_dep_pratt = beta.ppf(
+            upper_ci_ps_dep_pratt = stats.beta.ppf(
                 1 - confidence_level,
                 count_group1_larger + 1,
                 sample_size - count_group1_larger,
@@ -380,8 +408,8 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
         if upper_ci_ps_dep_pratt > 1:
             upper_ci_ps_dep_pratt = 1
 
-        critical_z_value = norm.ppf(0.05 / 2)
-        critical_t_value = t.ppf(0.05 / 2, (sample_size - 1))
+        critical_z_value = stats.norm.ppf(0.05 / 2)
+        critical_t_value = stats.t.ppf(0.05 / 2, (sample_size - 1))
 
         feng_standard_error = np.sqrt(
             np.sum((np.sign(difference) - cliffs_delta) ** 2)
@@ -419,7 +447,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             aparametric_cohens_u3_no_ties = 1 / (sample_size + 1)
         elif aparametric_cohens_u3_no_ties == 1:
             aparametric_cohens_u3_no_ties = sample_size / (sample_size + 1)
-        kraemer_andrews_gamma = norm.ppf(aparametric_cohens_u3_no_ties)
+        kraemer_andrews_gamma = stats.norm.ppf(aparametric_cohens_u3_no_ties)
 
         number_of_cases_x_equal_to_median_y = sum(
             1 for val in column_1 if val == sample_2_median
@@ -491,7 +519,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             sample_size / (sample_size + 1),
             number_of_cases_x_larger_than_median_y_bootstrapping,
         )
-        kraemer_andrews_gamma_bootstrapping = norm.ppf(
+        kraemer_andrews_gamma_bootstrapping = stats.norm.ppf(
             number_of_cases_x_larger_than_median_y_bootstrapping
         )
         lower_ci_kraemer_andrews_gamma_boot = np.percentile(
@@ -546,30 +574,42 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             method="cohen's dz",
             value=float(np.around(cles_dz, 4)),
             standard_error=standard_error_cohens_dz,
-            ci_lower=float(np.around(norm.cdf(ci_lower_cohens_dz_central) * 100, 4)),
-            ci_upper=float(np.around(norm.cdf(ci_upper_cohens_dz_central) * 100, 4)),
+            ci_lower=float(
+                np.around(stats.norm.cdf(ci_lower_cohens_dz_central) * 100, 4)
+            ),
+            ci_upper=float(
+                np.around(stats.norm.cdf(ci_upper_cohens_dz_central) * 100, 4)
+            ),
         )
         cles_gz = res.CLES(
             method="hedges' gz",
             value=float(np.around(cles_gz, 4)),
             standard_error=standard_error_hedges_gz,
-            ci_lower=float(np.around(norm.cdf(ci_lower_hedges_gz_central) * 100, 4)),
-            ci_upper=float(np.around(norm.cdf(ci_upper_hedges_gz_central) * 100, 4)),
+            ci_lower=float(
+                np.around(stats.norm.cdf(ci_lower_hedges_gz_central) * 100, 4)
+            ),
+            ci_upper=float(
+                np.around(stats.norm.cdf(ci_upper_hedges_gz_central) * 100, 4)
+            ),
         )
         cles_dz.update_pivotal_ci(
             pivotal_ci_lower=float(
-                np.around(norm.cdf(ci_lower_cohens_dz_pivotal) * 100, 4)
+                np.around(stats.norm.cdf(ci_lower_cohens_dz_pivotal) * 100, 4)
             ),
             pivotal_ci_upper=float(
-                np.around(norm.cdf(ci_upper_cohens_dz_pivotal) * 100, 4)
+                np.around(stats.norm.cdf(ci_upper_cohens_dz_pivotal) * 100, 4)
             ),
         )
         cles_gz.update_pivotal_ci(
             pivotal_ci_lower=float(
-                np.around(norm.cdf(ci_lower_hedges_gz_pivotal * correction) * 100, 4)
+                np.around(
+                    stats.norm.cdf(ci_lower_hedges_gz_pivotal * correction) * 100, 4
+                )
             ),
             pivotal_ci_upper=float(
-                np.around(norm.cdf(ci_upper_hedges_gz_pivotal * correction) * 100, 4)
+                np.around(
+                    stats.norm.cdf(ci_upper_hedges_gz_pivotal * correction) * 100, 4
+                )
             ),
         )
         probability_of_superiority = res.ProbabilityOfSuperiority(
@@ -631,99 +671,3 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
         results.wilcox_musaka_q = wilcox_musaka_q_dep
 
         return results
-
-    def pivotal_ci(
-        self, t_score, df: float, sample_size: int, confidence_level: float
-    ) -> tuple:
-        is_negative = False
-        if t_score < 0:
-            is_negative = True
-            t_score = abs(t_score)
-        upper_limit = 1 - (1 - confidence_level) / 2
-        lower_limit = (1 - confidence_level) / 2
-
-        lower_criterion = [-t_score, t_score / 2, t_score]
-        upper_criterion = [t_score, 2 * t_score, 3 * t_score]
-
-        while nct.cdf(t_score, df, lower_criterion[0]) < upper_limit:
-            lower_criterion = [
-                lower_criterion[0] - t_score,
-                lower_criterion[0],
-                lower_criterion[2],
-            ]
-
-        while nct.cdf(t_score, df, upper_criterion[0]) < lower_limit:
-            if nct.cdf(t_score, df) < lower_limit:
-                lower_ci = [0, nct.cdf(t_score, df)]
-                upper_criterion = [
-                    upper_criterion[0] / 4,
-                    upper_criterion[0],
-                    upper_criterion[2],
-                ]
-
-        while nct.cdf(t_score, df, upper_criterion[2]) > lower_limit:
-            upper_criterion = [
-                upper_criterion[0],
-                upper_criterion[2],
-                upper_criterion[2] + t_score,
-            ]
-
-        lower_ci = 0.0
-        diff_lower = 1
-        while diff_lower > 0.00001:
-            if nct.cdf(t_score, df, lower_criterion[1]) < upper_limit:
-                lower_criterion = [
-                    lower_criterion[0],
-                    (lower_criterion[0] + lower_criterion[1]) / 2,
-                    lower_criterion[1],
-                ]
-            else:
-                lower_criterion = [
-                    lower_criterion[1],
-                    (lower_criterion[1] + lower_criterion[2]) / 2,
-                    lower_criterion[2],
-                ]
-            diff_lower = abs(nct.cdf(t_score, df, lower_criterion[1]) - upper_limit)
-            lower_ci = lower_criterion[1] / (np.sqrt(sample_size))
-
-        upper_ci = 0.0
-        diff_upper = 1
-        while diff_upper > 0.00001:
-            if nct.cdf(t_score, df, upper_criterion[1]) < lower_limit:
-                upper_criterion = [
-                    upper_criterion[0],
-                    (upper_criterion[0] + upper_criterion[1]) / 2,
-                    upper_criterion[1],
-                ]
-            else:
-                upper_criterion = [
-                    upper_criterion[1],
-                    (upper_criterion[1] + upper_criterion[2]) / 2,
-                    upper_criterion[2],
-                ]
-            diff_upper = abs(nct.cdf(t_score, df, upper_criterion[1]) - lower_limit)
-            upper_ci = upper_criterion[1] / (np.sqrt(sample_size))
-        if is_negative:
-            return -upper_ci, -lower_ci
-        else:
-            return lower_ci, upper_ci
-
-    def calculate_central_ci(
-        self, cohens_d: float, sample_size: int, confidence_level: float
-    ) -> tuple:
-        df = sample_size - 1
-        correction_factor = math.exp(
-            math.lgamma(df / 2)
-            - math.log(math.sqrt(df / 2))
-            - math.lgamma((df - 1) / 2)
-        )
-        standard_error_es = np.sqrt(
-            (df / (df - 2)) * (1 / sample_size) * (1 + cohens_d**2 * sample_size)
-            - (cohens_d**2 / correction_factor**2)
-        )
-        z_critical_value = norm.ppf(confidence_level + ((1 - confidence_level) / 2))
-        ci_lower, ci_upper = (
-            cohens_d - standard_error_es * z_critical_value,
-            cohens_d + standard_error_es * z_critical_value,
-        )
-        return ci_lower, ci_upper, standard_error_es
