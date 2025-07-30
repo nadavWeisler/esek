@@ -1,9 +1,9 @@
 from . import interfaces
 from . import results as res
-from . import utility
+from . import utils
 
 __all__ = [
     "interfaces",
     "res",
-    "utility",
+    "utils",
 ]
