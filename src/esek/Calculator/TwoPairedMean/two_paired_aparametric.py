@@ -12,8 +12,7 @@ from typing import Optional
 import math
 import numpy as np
 from scipy.stats import norm, rankdata, median_abs_deviation
-from ...utils import interfaces
-from ...utils import res
+from ...utils import interfaces, res
 
 
 @dataclass

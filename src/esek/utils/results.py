@@ -435,12 +435,16 @@ class Group(DescriptiveStatistics):
         mean: float,
         standard_deviation: float,
         median: float,
-        median_absolute_deviation: float,
+        median_absolute_deviation: float | None = None,
     ) -> None:
         super().__init__(mean, standard_deviation)
         self.median: float = median
-        self.median_absolute_deviation: float = median_absolute_deviation
+        self.median_absolute_deviation: float | None = median_absolute_deviation
         self.diff_median: float | None = None
+        self.sample_size: int | None = None
+        self.u_statistic: float | None = None
+        self.w_statistic: float | None = None
+        self.mean_rank: float | None = None
 
 
 class WilcoxonSignedRank(DescriptiveStatistics):
