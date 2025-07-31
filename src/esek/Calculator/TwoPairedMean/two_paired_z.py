@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 from scipy import stats
-from ...utils import interfaces, res, utils
+from ...utils import interfaces, res, utils, es
 
 
 @dataclass
@@ -21,7 +21,7 @@ class TwoPairedZResults:
     a dataclass for the results of a two paired Z-test.
     """
 
-    cohens_d: Optional[res.CohenD] = None
+    cohens_d: Optional[es.CohenD] = None
     inferential: Optional[res.InferentialStatistics] = None
     sample1: Optional[res.Sample] = None
     sample2: Optional[res.Sample] = None
@@ -57,7 +57,7 @@ class TwoPairedZTests(interfaces.AbstractTest):
         ci_lower, ci_upper, standard_error_es = utils.ci_from_cohens_simple(
             cohens_d, sample_size, confidence_level
         )
-        cohens_d = res.CohenD(
+        cohens_d = es.CohenD(
             value=round(cohens_d, 4),
             ci_lower=round(ci_lower, 4),
             ci_upper=round(ci_upper, 4),
@@ -100,7 +100,7 @@ class TwoPairedZTests(interfaces.AbstractTest):
             cohens_d, sample_size, confidence_level
         )
 
-        cohens_d = res.CohenD(
+        cohens_d = es.CohenD(
             value=round(cohens_d, 4),
             ci_lower=round(ci_lower, 4),
             ci_upper=round(ci_upper, 4),
@@ -150,7 +150,7 @@ class TwoPairedZTests(interfaces.AbstractTest):
             cohens_d, sample_size, confidence_level
         )
 
-        cohens_d = res.CohenD(
+        cohens_d = es.CohenD(
             value=round(cohens_d, 4),
             ci_lower=round(ci_lower, 4),
             ci_upper=round(ci_upper, 4),

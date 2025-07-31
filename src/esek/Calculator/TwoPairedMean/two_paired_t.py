@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 from scipy import stats
-from ...utils import interfaces, res, utils
+from ...utils import interfaces, res, utils, es
 
 
 @dataclass
@@ -18,13 +18,13 @@ class TwoPairedTResults:
     A class to store the results of a Two Paired T-test.
     """
 
-    cohens_d: Optional[res.CohenD] = None
-    hedge_g: Optional[res.HedgesG] = None
-    cohens_dav: Optional[res.CohensDav] = None
-    hedge_gav: Optional[res.HedgesGav] = None
-    cohens_drm: Optional[res.CohensDrm] = None
-    hedge_grm: Optional[res.HedgesGrm] = None
-    ratio_of_means: Optional[res.RatioOfMeans] = None
+    cohens_d: Optional[es.CohenD] = None
+    hedge_g: Optional[es.HedgesG] = None
+    cohens_dav: Optional[es.CohensDav] = None
+    hedge_gav: Optional[es.HedgesGav] = None
+    cohens_drm: Optional[es.CohensDrm] = None
+    hedge_grm: Optional[es.HedgesGrm] = None
+    ratio_of_means: Optional[es.RatioOfMeans] = None
     inferential: Optional[res.InferentialStatistics] = None
     sample1: Optional[res.Sample] = None
     sample2: Optional[res.Sample] = None
@@ -115,14 +115,14 @@ class TwoPairedTTests(interfaces.AbstractTest):
             t_score, df, sample_size, confidence_level
         )
 
-        cohens_dz = res.CohenD(
+        cohens_dz = es.CohenD(
             value=cohens_dz_value,
             ci_lower=ci_lower_cohens_dz_central,
             ci_upper=ci_upper_cohens_dz_central,
             standard_error=standard_error_cohens_dz_true,
         )
 
-        hedges_gz = res.HedgesG(
+        hedges_gz = es.HedgesG(
             value=hedges_gz_value,
             ci_lower=ci_lower_hedges_gz_central,
             ci_upper=ci_upper_hedges_gz_central,
@@ -437,37 +437,37 @@ class TwoPairedTTests(interfaces.AbstractTest):
             np.log(ratio_of_means) + t_critical_value * np.sqrt(variance_of_means_ratio)
         )
 
-        cohens_dz = res.CohenD(
+        cohens_dz = es.CohenD(
             value=cohens_dz_value,
             ci_lower=ci_lower_cohens_dz_central,
             ci_upper=ci_upper_cohens_dz_central,
             standard_error=standard_error_cohens_dz_true,
         )
-        hedges_gz = res.HedgesG(
+        hedges_gz = es.HedgesG(
             value=hedges_gz_value,
             ci_lower=ci_lower_hedges_gz_central,
             ci_upper=ci_upper_hedges_gz_central,
             standard_error=standard_error_hedges_gz_true,
         )
-        cohens_dav = res.CohensDav(
+        cohens_dav = es.CohensDav(
             value=cohens_dav_value,
             ci_lower=ci_lower_cohens_dav_central,
             ci_upper=ci_upper_cohens_dav_central,
             standard_error=standard_error_cohens_dav_true,
         )
-        hedges_gav = res.HedgesGav(
+        hedges_gav = es.HedgesGav(
             value=hedges_gav_value,
             ci_lower=ci_lower_hedges_gav_central,
             ci_upper=ci_upper_hedges_gav_central,
             standard_error=standard_error_hedges_gav_true,
         )
-        cohens_drm = res.CohensDrm(
+        cohens_drm = es.CohensDrm(
             value=cohens_drm_value,
             ci_lower=ci_lower_cohens_drm_central,
             ci_upper=ci_upper_cohens_drm_central,
             standard_error=standard_error_cohens_drm_true,
         )
-        hedges_grm = res.HedgesGrm(
+        hedges_grm = es.HedgesGrm(
             value=hedges_grm_value,
             ci_lower=ci_lower_hedges_grm_central,
             ci_upper=ci_upper_hedges_grm_central,
@@ -524,7 +524,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
         hedges_gav.update_lambda_prime_ci(
             round(lower_ci_lambda_prime_gav, 4), round(upper_ci_lambda_prime_gav, 4)
         )
-        ratio_of_means_effect_size = res.RatioOfMeans(
+        ratio_of_means_effect_size = es.RatioOfMeans(
             value=round(ratio_of_means, 4),
             standard_error=round(standard_error_of_means_ratio, 4),
             ci_lower=round(lower_ci_means_ratio, 4),
@@ -850,37 +850,37 @@ class TwoPairedTTests(interfaces.AbstractTest):
             np.log(ratio_of_means) + t_critical_value * np.sqrt(variance_of_means_ratio)
         )
 
-        cohens_dz = res.CohenD(
+        cohens_dz = es.CohenD(
             value=cohens_dz_value,
             ci_lower=ci_lower_cohens_dz_central,
             ci_upper=ci_upper_cohens_dz_central,
             standard_error=standard_error_cohens_dz_true,
         )
-        hedges_gz = res.HedgesG(
+        hedges_gz = es.HedgesG(
             value=hedges_gz_value,
             ci_lower=ci_lower_hedges_gz_central,
             ci_upper=ci_upper_hedges_gz_central,
             standard_error=standard_error_hedges_gz_true,
         )
-        cohens_dav = res.CohensDav(
+        cohens_dav = es.CohensDav(
             value=cohens_dav_value,
             ci_lower=ci_lower_cohens_dav_central,
             ci_upper=ci_upper_cohens_dav_central,
             standard_error=standard_error_cohens_dav_true,
         )
-        hedges_gav = res.HedgesGav(
+        hedges_gav = es.HedgesGav(
             value=hedges_gav_value,
             ci_lower=ci_lower_hedges_gav_central,
             ci_upper=ci_upper_hedges_gav_central,
             standard_error=standard_error_hedges_gav_true,
         )
-        cohens_drm = res.CohensDrm(
+        cohens_drm = es.CohensDrm(
             value=cohens_drm_value,
             ci_lower=ci_lower_cohens_drm_central,
             ci_upper=ci_upper_cohens_drm_central,
             standard_error=standard_error_cohens_drm_true,
         )
-        hedges_grm = res.HedgesGrm(
+        hedges_grm = es.HedgesGrm(
             value=hedges_grm_value,
             ci_lower=ci_lower_hedges_grm_central,
             ci_upper=ci_upper_hedges_grm_central,
@@ -936,7 +936,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
         hedges_gav.update_lambda_prime_ci(
             round(lower_ci_lambda_prime_gav, 4), round(upper_ci_lambda_prime_gav, 4)
         )
-        ratio_of_means_effect_size = res.RatioOfMeans(
+        ratio_of_means_effect_size = es.RatioOfMeans(
             value=round(ratio_of_means, 4),
             standard_error=round(standard_error_of_means_ratio, 4),
             ci_lower=round(lower_ci_means_ratio, 4),
