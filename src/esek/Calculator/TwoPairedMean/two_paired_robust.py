@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 from scipy import stats
-from ...utils import interfaces, res, utils
+from ...utils import interfaces, res, utils, es
 
 
 @dataclass
@@ -22,8 +22,8 @@ class TwoPairedRobustResults:
     sample1: Optional[res.Sample] = None
     sample2: Optional[res.Sample] = None
     inferential: Optional[res.InferentialStatistics] = None
-    robust_akp: Optional[res.RobustAKP] = None
-    robust_explanatory: Optional[res.RobustExplanatory] = None
+    robust_akp: Optional[es.RobustAKP] = None
+    robust_explanatory: Optional[es.RobustExplanatory] = None
     yuen_robust_t: Optional[float] = None
     winsorized_pearson_correlation: Optional[float] = None
     winsorized_pearson_correlation_p_value: Optional[float] = None
@@ -231,13 +231,13 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
         inferential.degrees_of_freedom = round(df, 4)
         inferential.means_difference = round(difference_trimmed_means, 4)
 
-        robust_akp = res.RobustAKP(
+        robust_akp = es.RobustAKP(
             value=round(akp_effect_size, 4),
             ci_lower=float(round(lower_ci_akp_boot, 4)),
             ci_upper=float(round(upper_ci_akp_boot, 4)),
             standard_error=round(yuen_standard_error, 4),
         )
-        robust_explanatory = res.RobustExplanatory(
+        robust_explanatory = es.RobustExplanatory(
             value=round(explanatory_power_effect_size, 4),
             ci_lower=float(round(lower_ci_e_pow_boot, 4)),
             ci_upper=round(min(float(upper_ci_e_pow_boot), 1.0), 4),

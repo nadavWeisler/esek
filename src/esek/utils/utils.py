@@ -286,6 +286,28 @@ def central_ci_paired(
 ) -> tuple:
     """
     Calculates the confidence intervals and standard errors for various effect sizes
+    Parameters
+    ----------
+    effect_size : float
+        The calculated effect size (Cohen's d).
+    sample_size : int
+        The size of the sample.
+    confidence_level : float
+        The confidence level as a decimal (e.g., 0.95 for 95%).
+
+    Returns
+    -------
+    tuple
+        A tuple containing:
+        - ci_lower (float): Lower bound of the confidence interval.
+        - ci_upper (float): Upper bound of the confidence interval.
+        - Standard_error_effect_size_True (float): Standard error of the effect size (True).
+        - Standard_error_effect_size_Morris (float): Standard error of the effect size (Morris).
+        - Standard_error_effect_size_Hedges (float): Standard error of the effect size (Hedges).
+        - Standard_error_effect_size_Hedges_Olkin (float): Standard error of the effect size (Hedges_Olkin).
+        - Standard_error_effect_size_MLE (float): Standard error of the effect size (MLE).
+        - Standard_error_effect_size_Large_N (float): Standard error of the effect size (Large N).
+        - Standard_error_effect_size_Small_N (float): Standard error of the effect size (Small N).
     """
     df = sample_size - 1
     correction_factor = math.exp(
@@ -539,3 +561,50 @@ def ci_morris(
         effect_size + np.sqrt(cohens_d_variance_corrected) * z_critical_value,
     )
     return ci_lower_morris, ci_upper_morris
+
+
+def ci_ncp(
+    effect_size: float, sample_size: int, confidence_level: float
+) -> tuple[float, float]:
+    """
+    Calculate the Non-Central Parameter (NCP) confidence intervals for a one-sample t-test.
+
+    Parameters
+    ----------
+    effect_size : float
+        The calculated effect size (Cohen's d).
+    sample_size : int
+        The size of the sample.
+    confidence_level : float
+        The confidence level as a decimal (e.g., 0.95 for 95%).
+
+    Returns
+    -------
+    tuple
+        A tuple containing:
+        - ci_ncp_low (float): Lower bound of the NCP confidence interval.
+        - ci_ncp_high (float): Upper bound of the NCP confidence interval.
+    """
+    ncp_value = effect_size * math.sqrt(sample_size)
+
+    reduced_size = sample_size - 1
+    if reduced_size <= 0:
+        raise ValueError("Sample size must be greater than 1 for NCP calculation.")
+
+    def ci_ncp_ppf(is_high: bool) -> float:
+        q = 0.5 + confidence_level / 2 if is_high else 0.5 - confidence_level / 2
+
+        return float(
+            stats.nct.ppf(
+                q,
+                reduced_size,
+                loc=0,
+                scale=1,
+                nc=ncp_value,
+            )
+        )
+
+    ci_ncp_low = ci_ncp_ppf(False) / ncp_value * effect_size
+    ci_ncp_high = ci_ncp_ppf(True) / ncp_value * effect_size
+
+    return ci_ncp_low, ci_ncp_high

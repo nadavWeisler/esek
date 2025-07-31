@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 from scipy import stats
-from ...utils import interfaces, res, utils
+from ...utils import interfaces, res, utils, es
 
 
 @dataclass
@@ -23,12 +23,12 @@ class TwoPairedAparametricResults:
     group1: Optional[res.Group] = None
     group2: Optional[res.Group] = None
     wilcoxon_sign_rank: Optional[res.WilcoxonSignedRank] = None
-    matched_pairs_biserial_wilcoxon: Optional[res.Biserial] = None
-    z_based_biserial_wilcoxon: Optional[res.Biserial] = None
-    corrected_z_based_biserial_wilcoxon: Optional[res.Biserial] = None
-    matched_pairs_biserial_pratt: Optional[res.Biserial] = None
-    z_based_biserial_pratt: Optional[res.Biserial] = None
-    corrected_z_based_biserial_pratt: Optional[res.Biserial] = None
+    matched_pairs_biserial_wilcoxon: Optional[es.Biserial] = None
+    z_based_biserial_wilcoxon: Optional[es.Biserial] = None
+    corrected_z_based_biserial_wilcoxon: Optional[es.Biserial] = None
+    matched_pairs_biserial_pratt: Optional[es.Biserial] = None
+    z_based_biserial_pratt: Optional[es.Biserial] = None
+    corrected_z_based_biserial_pratt: Optional[es.Biserial] = None
 
 
 class TwoPairedAparametricTests(interfaces.AbstractTest):
@@ -301,7 +301,7 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
             num_of_non_tied_pairs=len(ranked_no_ties),
         )
 
-        matched_pairs_biserial_wilcoxon = res.Biserial(
+        matched_pairs_biserial_wilcoxon = es.Biserial(
             name="Matched Pairs Rank Biserial (Wilcoxon Method)",
             value=round(matched_pairs_rank_biserial_corelation_ignoring_ties, 5),
             standard_error=round(
@@ -310,7 +310,7 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
             ci_lower=round(lower_ci_matched_pairs_wilcoxon, 5),
             ci_upper=round(upper_ci_matched_pairs_wilcoxon, 5),
         )
-        z_based_biserial_wilcoxon = res.Biserial(
+        z_based_biserial_wilcoxon = es.Biserial(
             name="Z-based Rank Biserial Correlation (Wilcoxon Method)",
             value=round(z_based_rank_biserial_correlation_no_ties, 5),
             standard_error=round(
@@ -319,7 +319,7 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
             ci_lower=round(lower_ci_z_based_wilcoxon, 5),
             ci_upper=round(upper_ci_z_based_wilcoxon, 5),
         )
-        corrected_z_based_biserial_wilcoxon = res.Biserial(
+        corrected_z_based_biserial_wilcoxon = es.Biserial(
             name="Corrected Z-based Rank Biserial Correlation (Wilcoxon Method)",
             value=round(z_based_rank_biserial_correlation_corrected_no_ties, 5),
             standard_error=round(
@@ -329,21 +329,21 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
             ci_upper=round(upper_ci_z_based_corrected_wilcoxon, 5),
         )
 
-        matched_pairs_biserial_pratt = res.Biserial(
+        matched_pairs_biserial_pratt = es.Biserial(
             name="Matched Pairs Rank Biserial (Pratt Method)",
             value=round(matched_pairs_rank_biserial_corelation_considering_ties, 5),
             standard_error=np.sqrt(adjusted_variance_pratt),
             ci_lower=round(lower_ci_matched_pairs_pratt, 5),
             ci_upper=round(upper_ci_matched_pairs_pratt, 5),
         )
-        z_based_biserial_pratt = res.Biserial(
+        z_based_biserial_pratt = es.Biserial(
             name="Z-based Rank Biserial Correlation (Pratt Method)",
             value=round(z_based_rank_biserial_correlation_with_ties, 5),
             standard_error=np.sqrt(adjusted_variance_pratt),
             ci_lower=round(lower_ci_z_based_pratt, 5),
             ci_upper=round(upper_ci_z_based_pratt, 5),
         )
-        corrected_z_based_biserial_pratt = res.Biserial(
+        corrected_z_based_biserial_pratt = es.Biserial(
             name="Corrected Z-based Rank Biserial Correlation (Pratt Method)",
             value=round(z_based_rank_biserial_correlation_corrected_with_ties, 5),
             standard_error=np.sqrt(adjusted_variance_pratt),

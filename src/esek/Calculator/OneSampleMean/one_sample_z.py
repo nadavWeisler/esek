@@ -13,9 +13,8 @@ Z-tests from Z-score, parameters, and data.
 from dataclasses import dataclass
 from typing import Optional
 import numpy as np
-from scipy.stats import norm
-from ...utils import interfaces
-from ...utils import res
+from scipy import stats
+from ...utils import interfaces, es
 
 
 def calculate_central_ci_from_cohens_d_one_sample(
@@ -53,7 +52,7 @@ def calculate_central_ci_from_cohens_d_one_sample(
     to estimate the standard deviation of the effect size.
     """
     standard_error_es = np.sqrt((1 / sample_size) + ((cohens_d**2 / (2 * sample_size))))
-    z_critical_value = norm.ppf(confidence_level + ((1 - confidence_level) / 2))
+    z_critical_value = stats.norm.ppf(confidence_level + ((1 - confidence_level) / 2))
     ci_lower, ci_upper = (
         cohens_d - standard_error_es * z_critical_value,
         cohens_d + standard_error_es * z_critical_value,
@@ -74,7 +73,7 @@ class OneSampleZResults:
     - Standard error of the effect size
     """
 
-    cohens_d: Optional[res.CohenD] = None
+    cohens_d: Optional[es.CohenD] = None
     z_score: Optional[float] = None
     p_value: Optional[float] = None
     standard_error_of_the_mean: Optional[float] = None
@@ -101,7 +100,7 @@ class OneSampleZTests(interfaces.AbstractTest):
         Calculate the one-sample Z-test results from a given Z-score.
         """
 
-        p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
+        p_value = min(float(stats.norm.sf((abs(z_score))) * 2), 0.99999)
         cohens_d = z_score / np.sqrt(sample_size)
         ci_lower, ci_upper, standard_error_es = (
             calculate_central_ci_from_cohens_d_one_sample(
@@ -109,7 +108,7 @@ class OneSampleZTests(interfaces.AbstractTest):
             )
         )
 
-        cohens_d = res.CohenD(
+        cohens_d = es.CohenD(
             value=round(cohens_d, 4),
             ci_lower=round(ci_lower, 4),
             ci_upper=round(ci_upper, 4),
@@ -138,14 +137,14 @@ class OneSampleZTests(interfaces.AbstractTest):
         mean_standard_error = population_sd / np.sqrt(sample_size)
         z_score = (population_mean - sample_mean) / mean_standard_error
         cohens_d = (population_mean - sample_mean) / population_sd
-        p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
+        p_value = min(float(stats.norm.sf((abs(z_score))) * 2), 0.99999)
         ci_lower, ci_upper, standard_error_es = (
             calculate_central_ci_from_cohens_d_one_sample(
                 cohens_d, sample_size, confidence_level
             )
         )
 
-        cohens_d = res.CohenD(
+        cohens_d = es.CohenD(
             value=round(cohens_d, 4),
             ci_lower=round(ci_lower, 4),
             ci_upper=round(ci_upper, 4),
@@ -183,14 +182,14 @@ class OneSampleZTests(interfaces.AbstractTest):
         cohens_d = (
             diff_mean
         ) / population_sd  # This is the effect size for one sample z-test Cohen's d
-        p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
+        p_value = min(float(stats.norm.sf((abs(z_score))) * 2), 0.99999)
         ci_lower, ci_upper, standard_error_es = (
             calculate_central_ci_from_cohens_d_one_sample(
                 cohens_d, sample_size, confidence_level
             )
         )
 
-        cohens_d = res.CohenD(
+        cohens_d = es.CohenD(
             value=float(cohens_d),
             ci_lower=ci_lower,
             ci_upper=ci_upper,

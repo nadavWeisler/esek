@@ -13,7 +13,7 @@ import math
 from typing import Optional
 import numpy as np
 from scipy import stats
-from ...utils import interfaces, res, utils
+from ...utils import interfaces, utils, es
 
 
 @dataclass
@@ -23,15 +23,15 @@ class TwoPairedCommonLangResults:
         This class contains various effect size results such as CLES, Hedges' g, probability
     """
 
-    cles_cohen: Optional[res.CLES] = None
-    cles_hedges: Optional[res.CLES] = None
-    probability_of_superiority: Optional[res.ProbabilityOfSuperiority] = None
-    vargha_delaney: Optional[res.VarghaDelaney] = None
-    cliff_delta: Optional[res.CliffsDelta] = None
-    non_param_u1: Optional[res.NonParametricU1] = None
-    non_param_u3: Optional[res.NonParametricU3] = None
-    kraemer_andrew_gamma: Optional[res.KraemerAndrewGamma] = None
-    wilcox_musaka_q: Optional[res.WilcoxMusakaQ] = None
+    cles_cohen: Optional[es.CLES] = None
+    cles_hedges: Optional[es.CLES] = None
+    probability_of_superiority: Optional[es.ProbabilityOfSuperiority] = None
+    vargha_delaney: Optional[es.VarghaDelaney] = None
+    cliff_delta: Optional[es.CliffsDelta] = None
+    non_param_u1: Optional[es.NonParametricU1] = None
+    non_param_u3: Optional[es.NonParametricU3] = None
+    kraemer_andrew_gamma: Optional[es.KraemerAndrewGamma] = None
+    wilcox_musaka_q: Optional[es.WilcoxMusakaQ] = None
 
 
 class TwoPairedCommonLangTests(interfaces.AbstractTest):
@@ -105,7 +105,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             t_score, df, sample_size, confidence_level
         )
 
-        cles_cohen = res.CLES(
+        cles_cohen = es.CLES(
             method="cohen's dz",
             value=float(np.around(cles_dz, 4)),
             standard_error=standard_error_cohens_dz,
@@ -116,7 +116,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
                 np.around(stats.norm.cdf(ci_upper_cohens_dz_central) * 100, 4)
             ),
         )
-        cles_hedges = res.CLES(
+        cles_hedges = es.CLES(
             method="hedges' gz",
             value=float(np.around(cles_gz, 4)),
             standard_error=standard_error_hedges_gz,
@@ -207,7 +207,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             t_score, df, sample_size, confidence_level
         )
 
-        cles_cohen = res.CLES(
+        cles_cohen = es.CLES(
             method="cohen's dz",
             value=float(np.around(cles_dz, 4)),
             standard_error=standard_error_cohens_dz,
@@ -218,7 +218,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
                 np.around(stats.norm.cdf(ci_upper_cohens_dz_central) * 100, 4)
             ),
         )
-        cles_hedges = res.CLES(
+        cles_hedges = es.CLES(
             method="hedges' gz",
             value=float(np.around(cles_gz, 4)),
             standard_error=standard_error_hedges_gz,
@@ -570,7 +570,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
             ((confidence_level) + ((1 - confidence_level) / 2)) * 100,
         )
 
-        cles_dz = res.CLES(
+        cles_dz = es.CLES(
             method="cohen's dz",
             value=float(np.around(cles_dz, 4)),
             standard_error=standard_error_cohens_dz,
@@ -581,7 +581,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
                 np.around(stats.norm.cdf(ci_upper_cohens_dz_central) * 100, 4)
             ),
         )
-        cles_gz = res.CLES(
+        cles_gz = es.CLES(
             method="hedges' gz",
             value=float(np.around(cles_gz, 4)),
             standard_error=standard_error_hedges_gz,
@@ -612,7 +612,7 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
                 )
             ),
         )
-        probability_of_superiority = res.ProbabilityOfSuperiority(
+        probability_of_superiority = es.ProbabilityOfSuperiority(
             value=round(ps_dep, 4),
             standard_error=0.0,
             ci_lower=np.round(
@@ -622,37 +622,37 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
                 max(float(lower_ci_ps_dep_pratt), float(upper_ci_ps_dep_pratt)), 4
             ),
         )
-        vargha_delaney = res.VarghaDelaney(
+        vargha_delaney = es.VarghaDelaney(
             value=round(vda_xy, 4),
             standard_error=0.0,
             ci_lower=round((lower_ci_cliff + 1) / 2, 4),
             ci_upper=round((upper_ci_cliff + 1) / 2, 4),
         )
-        cliffs_delta_es = res.CliffsDelta(
+        cliffs_delta_es = es.CliffsDelta(
             value=round(cliffs_delta, 4),
             standard_error=0.0,
             ci_lower=round(lower_ci_cliff, 4),
             ci_upper=round(upper_ci_cliff, 4),
         )
-        kraemer_andrews_gamma = res.KraemerAndrewGamma(
+        kraemer_andrews_gamma = es.KraemerAndrewGamma(
             value=float(kraemer_andrews_gamma),
             standard_error=0.0,
             ci_lower=float(round(lower_ci_kraemer_andrews_gamma_boot, 4)),
             ci_upper=float(round(upper_ci_kraemer_andrews_gamma_boot, 4)),
         )
-        non_param_u3 = res.NonParametricU3(
+        non_param_u3 = es.NonParametricU3(
             value=round(hentschke_stuttgen_u3, 4),
             standard_error=0.0,
             ci_lower=float(round(lower_ci_hentschke_stuttgen_u3, 4)),
             ci_upper=float(round(upper_ci_hentschke_stuttgen_u3, 4)),
         )
-        non_param_u1 = res.NonParametricU1(
+        non_param_u1 = es.NonParametricU1(
             value=round(hentschke_stuttgen_u1, 4),
             standard_error=0.0,
             ci_lower=float(round(lower_ci_hentschke_stuttgen_u1, 4)),
             ci_upper=float(round(upper_ci_hentschke_stuttgen_u1, 4)),
         )
-        wilcox_musaka_q_dep = res.WilcoxMusakaQ(
+        wilcox_musaka_q_dep = es.WilcoxMusakaQ(
             value=wilcox_musaka_q_dep,
             standard_error=0.0,
             ci_lower=0.0,
