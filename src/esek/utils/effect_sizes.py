@@ -1,5 +1,6 @@
 from .results import EffectSize
 
+
 class CohenD(EffectSize):
     """
     A class to store Cohen's d effect size values.
@@ -245,4 +246,30 @@ class WilcoxMusakaQ(EffectSize):
     ) -> None:
         super().__init__(value, ci_lower, ci_upper, standard_error)
         self.effect_size_name: str = "Wilcox-Musaka Q"
+        self.update_statistical_line()
+
+
+class GlassDelta(EffectSize):
+    """
+    A class to store Glass's Delta effect size values.
+    """
+
+    def __init__(
+        self, value: float, ci_lower: float, ci_upper: float, standard_error: float
+    ) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Glass's Delta"
+        self.update_statistical_line()
+
+
+class GlassDeltaUnbiased(EffectSize):
+    """
+    A class to store Glass's Delta Unbiased effect size values.
+    """
+
+    def __init__(
+        self, value: float, ci_lower: float, ci_upper: float, standard_error: float
+    ) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Glass's Delta Unbiased"
         self.update_statistical_line()

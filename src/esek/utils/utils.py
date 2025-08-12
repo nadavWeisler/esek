@@ -8,6 +8,30 @@ from typing import Any, Callable
 import numpy as np
 from numpy.typing import NDArray
 from scipy import stats
+from .interfaces import MethodType
+
+
+def not_implemented(method_type: MethodType, stats_test_type: str):
+    """
+    Decorator to mark a class method as not implemented.
+
+    Args:
+        method_type (MethodType): Type of the method (e.g., 'from_score', 'from_parameters', 'from_data').
+        stats_test_type (str): The statistical test type.
+
+    Returns:
+        function: A decorated function that always raises NotImplementedError.
+    """
+
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            raise NotImplementedError(
+                f"{method_type} method is not implemented for {stats_test_type}"
+            )
+
+        return wrapper
+
+    return decorator
 
 
 def convert_results_to_dict(dataclass_instance: Any) -> dict:
@@ -64,13 +88,13 @@ def ci_from_cohens_simple(
     we estimate it based on the sample using the Hedges and Olkin (1985) formula
     to estimate the standard deviation of the effect size.
     """
-    Standard_error_es = np.sqrt((1 / sample_size) + ((cohens_d**2 / (2 * sample_size))))
+    standard_error_es = np.sqrt((1 / sample_size) + ((cohens_d**2 / (2 * sample_size))))
     z_critical_value = stats.norm.ppf(confidence_level + ((1 - confidence_level) / 2))
     ci_lower, ci_upper = (
-        cohens_d - Standard_error_es * z_critical_value,
-        cohens_d + Standard_error_es * z_critical_value,
+        cohens_d - standard_error_es * z_critical_value,
+        cohens_d + standard_error_es * z_critical_value,
     )
-    return ci_lower, ci_upper, Standard_error_es
+    return ci_lower, ci_upper, standard_error_es
 
 
 def compute_fisher_confidence_interval(
