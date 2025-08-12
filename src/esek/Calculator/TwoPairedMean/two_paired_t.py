@@ -8,9 +8,8 @@ import math
 from dataclasses import dataclass
 from typing import Optional
 import numpy as np
-from scipy.stats import norm, nct, t, gmean, ncf
-from ...utils import interfaces
-from ...utils import res
+from scipy import stats
+from ...utils import interfaces, res, utils, es
 
 
 @dataclass
@@ -19,13 +18,13 @@ class TwoPairedTResults:
     A class to store the results of a Two Paired T-test.
     """
 
-    cohens_d: Optional[res.CohenD] = None
-    hedge_g: Optional[res.HedgesG] = None
-    cohens_dav: Optional[res.CohensDav] = None
-    hedge_gav: Optional[res.HedgesGav] = None
-    cohens_drm: Optional[res.CohensDrm] = None
-    hedge_grm: Optional[res.HedgesGrm] = None
-    ratio_of_means: Optional[res.RatioOfMeans] = None
+    cohens_d: Optional[es.CohenD] = None
+    hedge_g: Optional[es.HedgesG] = None
+    cohens_dav: Optional[es.CohensDav] = None
+    hedge_gav: Optional[es.HedgesGav] = None
+    cohens_drm: Optional[es.CohensDrm] = None
+    hedge_grm: Optional[es.HedgesGrm] = None
+    ratio_of_means: Optional[es.RatioOfMeans] = None
     inferential: Optional[res.InferentialStatistics] = None
     sample1: Optional[res.Sample] = None
     sample2: Optional[res.Sample] = None
@@ -67,15 +66,16 @@ class TwoPairedTTests(interfaces.AbstractTest):
 
     """
 
+    @staticmethod
     def from_score(
-        self, t_score: float, sample_size: float, confidence_level: float
+        t_score: float, sample_size: int, confidence_level: float
     ) -> TwoPairedTResults:
         """
         Calculates effect sizes and confidence intervals from a t-score.
         """
 
         df = int(sample_size - 1)
-        p_value = min(float(t.sf((abs(t_score)), df) * 2), 0.99999)
+        p_value = min(float(stats.t.sf((abs(t_score)), df) * 2), 0.99999)
 
         cohens_dz_value = t_score / np.sqrt(sample_size)
         correction = math.exp(
@@ -95,7 +95,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_cohens_dz_mle,
             standard_error_cohens_dz_largen,
             standard_error_cohens_dz_small_n,
-        ) = self.calculate_central_ci(cohens_dz_value, sample_size, confidence_level)
+        ) = utils.central_ci_paired(cohens_dz_value, sample_size, confidence_level)
         (
             ci_lower_hedges_gz_central,
             ci_upper_hedges_gz_central,
@@ -106,23 +106,23 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_hedges_gz_mle,
             standard_error_hedges_gz_largen,
             standard_error_hedges_gz_small_n,
-        ) = self.calculate_central_ci(hedges_gz_value, sample_size, confidence_level)
+        ) = utils.central_ci_paired(hedges_gz_value, sample_size, confidence_level)
 
-        ci_lower_cohens_dz_pivotal, ci_upper_cohens_dz_pivotal = self.pivotal_ci_t(
+        ci_lower_cohens_dz_pivotal, ci_upper_cohens_dz_pivotal = utils.pivotal_ci_t(
             t_score, df, sample_size, confidence_level
         )
-        ci_lower_hedges_gz_pivotal, ci_upper_hedges_gz_pivotal = self.pivotal_ci_t(
+        ci_lower_hedges_gz_pivotal, ci_upper_hedges_gz_pivotal = utils.pivotal_ci_t(
             t_score, df, sample_size, confidence_level
         )
 
-        cohens_dz = res.CohenD(
+        cohens_dz = es.CohenD(
             value=cohens_dz_value,
             ci_lower=ci_lower_cohens_dz_central,
             ci_upper=ci_upper_cohens_dz_central,
             standard_error=standard_error_cohens_dz_true,
         )
 
-        hedges_gz = res.HedgesG(
+        hedges_gz = es.HedgesG(
             value=hedges_gz_value,
             ci_lower=ci_lower_hedges_gz_central,
             ci_upper=ci_upper_hedges_gz_central,
@@ -153,8 +153,8 @@ class TwoPairedTTests(interfaces.AbstractTest):
 
         return results
 
+    @staticmethod
     def from_parameters(
-        self,
         sample_mean_1: float,
         sample_mean_2: float,
         sample_sd_1: float,
@@ -196,7 +196,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             (np.sqrt((sample_sd_1**2 + sample_sd_2**2) / 2)) / np.sqrt(sample_size)
         )
 
-        p_value = min(float(t.sf((abs(t_score)), df) * 2), 0.99999)
+        p_value = min(float(stats.t.sf((abs(t_score)), df) * 2), 0.99999)
         cohens_dz_value = (
             (sample_mean_1 - sample_mean_2) - population_mean_diff
         ) / standardizer_dz
@@ -225,7 +225,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_cohens_dz_MLE,
             standard_error_cohens_dz_Largen,
             standard_error_cohens_dz_Small_n,
-        ) = self.calculate_central_ci(cohens_dz_value, sample_size, confidence_level)
+        ) = utils.central_ci_paired(cohens_dz_value, sample_size, confidence_level)
         (
             ci_lower_hedges_gz_central,
             ci_upper_hedges_gz_central,
@@ -236,7 +236,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_hedges_gz_MLE,
             standard_error_hedges_gz_Largen,
             standard_error_hedges_gz_Small_n,
-        ) = self.calculate_central_ci(hedges_gz_value, sample_size, confidence_level)
+        ) = utils.central_ci_paired(hedges_gz_value, sample_size, confidence_level)
         (
             ci_lower_cohens_dav_central,
             ci_upper_cohens_dav_central,
@@ -247,7 +247,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_cohens_dav_MLE,
             standard_error_cohens_dav_Largen,
             standard_error_cohens_dav_Small_n,
-        ) = self.calculate_central_ci(cohens_dav_value, sample_size, confidence_level)
+        ) = utils.central_ci_paired(cohens_dav_value, sample_size, confidence_level)
         (
             ci_lower_hedges_gav_central,
             ci_upper_hedges_gav_central,
@@ -258,7 +258,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_hedges_gav_MLE,
             standard_error_hedges_gav_Largen,
             standard_error_hedges_gav_Small_n,
-        ) = self.calculate_central_ci(hedges_gav_value, sample_size, confidence_level)
+        ) = utils.central_ci_paired(hedges_gav_value, sample_size, confidence_level)
         (
             ci_lower_cohens_drm_central,
             ci_upper_cohens_drm_central,
@@ -269,7 +269,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_cohens_drm_MLE,
             standard_error_cohens_drm_Largen,
             standard_error_cohens_drm_Small_n,
-        ) = self.calculate_central_ci(cohens_drm_value, sample_size, confidence_level)
+        ) = utils.central_ci_paired(cohens_drm_value, sample_size, confidence_level)
         (
             ci_lower_hedges_grm_central,
             ci_upper_hedges_grm_central,
@@ -280,7 +280,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_hedges_grm_MLE,
             standard_error_hedges_grm_Largen,
             standard_error_hedges_grm_Small_n,
-        ) = self.calculate_central_ci(hedges_gz_value, sample_size, confidence_level)
+        ) = utils.central_ci_paired(hedges_gz_value, sample_size, confidence_level)
         (
             ci_lower_cohens_dz_central_pooled,
             ci_upper_cohens_dz_central_pooled,
@@ -291,7 +291,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_cohens_dz_MLE_pooled,
             standard_error_cohens_dz_Largen_pooled,
             standard_error_cohens_dz_Small_n_pooled,
-        ) = self.calculate_se_pooled(
+        ) = utils.calculate_se_pooled(
             cohens_dz_value, sample_size, correlation, confidence_level
         )
         (
@@ -304,7 +304,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_hedges_gz_MLE_pooled,
             standard_error_hedges_gz_Largen_pooled,
             standard_error_hedges_gz_Small_n_pooled,
-        ) = self.calculate_se_pooled(
+        ) = utils.calculate_se_pooled(
             hedges_gz_value, sample_size, correlation, confidence_level
         )
         (
@@ -317,7 +317,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_cohens_dav_MLE_pooled,
             standard_error_cohens_dav_Largen_pooled,
             standard_error_cohens_dav_Small_n_pooled,
-        ) = self.calculate_se_pooled(
+        ) = utils.calculate_se_pooled(
             cohens_dav_value, sample_size, correlation, confidence_level
         )
         (
@@ -330,7 +330,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_hedges_gav_MLE_pooled,
             standard_error_hedges_gav_Largen_pooled,
             standard_error_hedges_gav_Small_n_pooled,
-        ) = self.calculate_se_pooled(
+        ) = utils.calculate_se_pooled(
             hedges_gav_value, sample_size, correlation, confidence_level
         )
         (
@@ -343,7 +343,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_cohens_drm_MLE_pooled,
             standard_error_cohens_drm_Largen_pooled,
             standard_error_cohens_drm_Small_n_pooled,
-        ) = self.calculate_se_pooled(
+        ) = utils.calculate_se_pooled(
             cohens_drm_value, sample_size, correlation, confidence_level
         )
         (
@@ -356,20 +356,20 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_hedges_grm_MLE_pooled,
             standard_error_hedges_grm_Largen_pooled,
             standard_error_hedges_grm_Small_n_pooled,
-        ) = self.calculate_se_pooled(
+        ) = utils.calculate_se_pooled(
             hedges_gz_value, sample_size, correlation, confidence_level
         )
-        ci_lower_cohens_dz_pivotal, ci_upper_cohens_dz_pivotal = self.pivotal_ci_t(
+        ci_lower_cohens_dz_pivotal, ci_upper_cohens_dz_pivotal = utils.pivotal_ci_t(
             t_score, df, sample_size, confidence_level
         )
-        ci_lower_cohens_dav_pivotal, ci_upper_cohens_dav_pivotal = self.pivotal_ci_t(
+        ci_lower_cohens_dav_pivotal, ci_upper_cohens_dav_pivotal = utils.pivotal_ci_t(
             t_score_av, df, sample_size, confidence_level
         )
-        ci_lower_cohens_drm_pivotal, ci_upper_cohens_drm_pivotal = self.pivotal_ci_t(
+        ci_lower_cohens_drm_pivotal, ci_upper_cohens_drm_pivotal = utils.pivotal_ci_t(
             t_score, df, sample_size, confidence_level
         )
 
-        lower_ci_tprime_dav, upper_ci_tprime_dav = self.ci_t_prime(
+        lower_ci_tprime_dav, upper_ci_tprime_dav = utils.ci_t_prime(
             cohens_dav_value,
             sample_sd_1,
             sample_sd_2,
@@ -382,7 +382,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             upper_ci_tprime_dav * correction,
         )
         lower_ci_lambda_prime_dav, upper_ci_lambda_prime_dav = (
-            self.ci_adjusted_lambda_prime(
+            utils.ci_adjusted_lambda_prime(
                 cohens_dav_value,
                 sample_sd_1,
                 sample_sd_2,
@@ -395,7 +395,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             lower_ci_lambda_prime_dav * correction,
             upper_ci_lambda_prime_dav * correction,
         )
-        lower_ci_mag_dav, upper_ci_mag_dav = self.ci_mag(
+        lower_ci_mag_dav, upper_ci_mag_dav = utils.ci_mag(
             cohens_dav_value,
             sample_sd_1,
             sample_sd_2,
@@ -407,7 +407,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             lower_ci_mag_dav * correction,
             upper_ci_mag_dav * correction,
         )
-        lower_ci_morris_dav, upper_ci_morris_dav = self.ci_morris(
+        lower_ci_morris_dav, upper_ci_morris_dav = utils.ci_morris(
             cohens_dav_value, sample_size, correlation, confidence_level
         )
         lower_ci_morris_gav, upper_ci_morris_gav = (
@@ -426,7 +426,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
         ) / sample_size
         standard_error_of_means_ratio = np.sqrt(variance_of_means_ratio)
         degrees_of_freedom_means_ratio = sample_size - 1
-        t_critical_value = t.ppf(
+        t_critical_value = stats.t.ppf(
             confidence_level + ((1 - confidence_level) / 2),
             degrees_of_freedom_means_ratio,
         )
@@ -437,37 +437,37 @@ class TwoPairedTTests(interfaces.AbstractTest):
             np.log(ratio_of_means) + t_critical_value * np.sqrt(variance_of_means_ratio)
         )
 
-        cohens_dz = res.CohenD(
+        cohens_dz = es.CohenD(
             value=cohens_dz_value,
             ci_lower=ci_lower_cohens_dz_central,
             ci_upper=ci_upper_cohens_dz_central,
             standard_error=standard_error_cohens_dz_true,
         )
-        hedges_gz = res.HedgesG(
+        hedges_gz = es.HedgesG(
             value=hedges_gz_value,
             ci_lower=ci_lower_hedges_gz_central,
             ci_upper=ci_upper_hedges_gz_central,
             standard_error=standard_error_hedges_gz_true,
         )
-        cohens_dav = res.CohensDav(
+        cohens_dav = es.CohensDav(
             value=cohens_dav_value,
             ci_lower=ci_lower_cohens_dav_central,
             ci_upper=ci_upper_cohens_dav_central,
             standard_error=standard_error_cohens_dav_true,
         )
-        hedges_gav = res.HedgesGav(
+        hedges_gav = es.HedgesGav(
             value=hedges_gav_value,
             ci_lower=ci_lower_hedges_gav_central,
             ci_upper=ci_upper_hedges_gav_central,
             standard_error=standard_error_hedges_gav_true,
         )
-        cohens_drm = res.CohensDrm(
+        cohens_drm = es.CohensDrm(
             value=cohens_drm_value,
             ci_lower=ci_lower_cohens_drm_central,
             ci_upper=ci_upper_cohens_drm_central,
             standard_error=standard_error_cohens_drm_true,
         )
-        hedges_grm = res.HedgesGrm(
+        hedges_grm = es.HedgesGrm(
             value=hedges_grm_value,
             ci_lower=ci_lower_hedges_grm_central,
             ci_upper=ci_upper_hedges_grm_central,
@@ -524,7 +524,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
         hedges_gav.update_lambda_prime_ci(
             round(lower_ci_lambda_prime_gav, 4), round(upper_ci_lambda_prime_gav, 4)
         )
-        ratio_of_means_effect_size = res.RatioOfMeans(
+        ratio_of_means_effect_size = es.RatioOfMeans(
             value=round(ratio_of_means, 4),
             standard_error=round(standard_error_of_means_ratio, 4),
             ci_lower=round(lower_ci_means_ratio, 4),
@@ -565,8 +565,9 @@ class TwoPairedTTests(interfaces.AbstractTest):
 
         return results
 
+    @staticmethod
     def from_data(
-        self, columns: list, population_mean_diff: float, confidence_level: float
+        columns: list, population_mean_diff: float, confidence_level: float
     ) -> TwoPairedTResults:
         """
         Calculates effect sizes and confidence intervals from data columns.
@@ -608,7 +609,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
         t_score_av = ((sample_mean_1 - sample_mean_2) - population_mean_diff) / (
             (np.sqrt((sample_sd_1**2 + sample_sd_2**2) / 2)) / np.sqrt(sample_size)
         )
-        p_value = min(float(t.sf((abs(t_score)), df) * 2), 0.99999)
+        p_value = min(float(stats.t.sf((abs(t_score)), df) * 2), 0.99999)
         cohens_dz_value = (
             (sample_mean_1 - sample_mean_2) - population_mean_diff
         ) / standardizer_dz
@@ -637,7 +638,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_cohens_dz_mle,
             standard_error_cohens_dz_largen,
             standard_error_cohens_dz_small_n,
-        ) = self.calculate_central_ci(cohens_dz_value, sample_size, confidence_level)
+        ) = utils.central_ci_paired(cohens_dz_value, sample_size, confidence_level)
         (
             ci_lower_hedges_gz_central,
             ci_upper_hedges_gz_central,
@@ -648,7 +649,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_hedges_gz_mle,
             standard_error_hedges_gz_largen,
             standard_error_hedges_gz_small_n,
-        ) = self.calculate_central_ci(hedges_gz_value, sample_size, confidence_level)
+        ) = utils.central_ci_paired(hedges_gz_value, sample_size, confidence_level)
         (
             ci_lower_cohens_dav_central,
             ci_upper_cohens_dav_central,
@@ -659,7 +660,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_cohens_dav_mle,
             standard_error_cohens_dav_largen,
             standard_error_cohens_dav_small_n,
-        ) = self.calculate_central_ci(cohens_dav_value, sample_size, confidence_level)
+        ) = utils.central_ci_paired(cohens_dav_value, sample_size, confidence_level)
         (
             ci_lower_hedges_gav_central,
             ci_upper_hedges_gav_central,
@@ -670,7 +671,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_hedges_gav_mle,
             standard_error_hedges_gav_largen,
             standard_error_hedges_gav_small_n,
-        ) = self.calculate_central_ci(hedges_gav_value, sample_size, confidence_level)
+        ) = utils.central_ci_paired(hedges_gav_value, sample_size, confidence_level)
         (
             ci_lower_cohens_drm_central,
             ci_upper_cohens_drm_central,
@@ -681,7 +682,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_cohens_drm_mle,
             standard_error_cohens_drm_largen,
             standard_error_cohens_drm_small_n,
-        ) = self.calculate_central_ci(cohens_drm_value, sample_size, confidence_level)
+        ) = utils.central_ci_paired(cohens_drm_value, sample_size, confidence_level)
         (
             ci_lower_hedges_grm_central,
             ci_upper_hedges_grm_central,
@@ -692,14 +693,14 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_hedges_grm_mle,
             standard_error_hedges_grm_largen,
             standard_error_hedges_grm_small_n,
-        ) = self.calculate_central_ci(hedges_gz_value, sample_size, confidence_level)
-        ci_lower_cohens_dz_pivotal, ci_upper_cohens_dz_pivotal = self.pivotal_ci_t(
+        ) = utils.central_ci_paired(hedges_gz_value, sample_size, confidence_level)
+        ci_lower_cohens_dz_pivotal, ci_upper_cohens_dz_pivotal = utils.pivotal_ci_t(
             t_score, df, sample_size, confidence_level
         )
-        ci_lower_cohens_dav_pivotal, ci_upper_cohens_dav_pivotal = self.pivotal_ci_t(
+        ci_lower_cohens_dav_pivotal, ci_upper_cohens_dav_pivotal = utils.pivotal_ci_t(
             t_score_av, df, sample_size, confidence_level
         )
-        ci_lower_cohens_drm_pivotal, ci_upper_cohens_drm_pivotal = self.pivotal_ci_t(
+        ci_lower_cohens_drm_pivotal, ci_upper_cohens_drm_pivotal = utils.pivotal_ci_t(
             t_score, df, sample_size, confidence_level
         )
         (
@@ -712,7 +713,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_cohens_dz_mle_pooled,
             standard_error_cohens_dz_largen_pooled,
             standard_error_cohens_dz_small_n_pooled,
-        ) = self.calculate_se_pooled(
+        ) = utils.calculate_se_pooled(
             cohens_dz_value, sample_size, correlation, confidence_level
         )
         (
@@ -725,7 +726,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_hedges_gz_mle_pooled,
             standard_error_hedges_gz_largen_pooled,
             standard_error_hedges_gz_small_n_pooled,
-        ) = self.calculate_se_pooled(
+        ) = utils.calculate_se_pooled(
             hedges_gz_value, sample_size, correlation, confidence_level
         )
         (
@@ -738,7 +739,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_cohens_dav_mle_pooled,
             standard_error_cohens_dav_largen_pooled,
             standard_error_cohens_dav_small_n_pooled,
-        ) = self.calculate_se_pooled(
+        ) = utils.calculate_se_pooled(
             cohens_dav_value, sample_size, correlation, confidence_level
         )
         (
@@ -751,7 +752,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_hedges_gav_mle_pooled,
             standard_error_hedges_gav_largen_pooled,
             standard_error_hedges_gav_small_n_pooled,
-        ) = self.calculate_se_pooled(
+        ) = utils.calculate_se_pooled(
             hedges_gav_value, sample_size, correlation, confidence_level
         )
         (
@@ -764,7 +765,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_cohens_drm_mle_pooled,
             standard_error_cohens_drm_largen_pooled,
             standard_error_cohens_drm_small_n_pooled,
-        ) = self.calculate_se_pooled(
+        ) = utils.calculate_se_pooled(
             cohens_drm_value, sample_size, correlation, confidence_level
         )
         (
@@ -777,11 +778,11 @@ class TwoPairedTTests(interfaces.AbstractTest):
             standard_error_hedges_grm_mle_pooled,
             standard_error_hedges_grm_largen_pooled,
             standard_error_hedges_grm_small_n_pooled,
-        ) = self.calculate_se_pooled(
+        ) = utils.calculate_se_pooled(
             hedges_gz_value, sample_size, correlation, confidence_level
         )
 
-        lower_ci_tprime_dav, upper_ci_tprime_dav = self.ci_t_prime(
+        lower_ci_tprime_dav, upper_ci_tprime_dav = utils.ci_t_prime(
             cohens_dav_value,
             float(sample_sd_1),
             float(sample_sd_2),
@@ -794,7 +795,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             upper_ci_tprime_dav * correction,
         )
         lower_ci_lambda_prime_dav, upper_ci_lambda_prime_dav = (
-            self.ci_adjusted_lambda_prime(
+            utils.ci_adjusted_lambda_prime(
                 cohens_dav_value,
                 float(sample_sd_1),
                 float(sample_sd_2),
@@ -807,7 +808,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             lower_ci_lambda_prime_dav * correction,
             upper_ci_lambda_prime_dav * correction,
         )
-        lower_ci_mag_dav, upper_ci_mag_dav = self.ci_mag(
+        lower_ci_mag_dav, upper_ci_mag_dav = utils.ci_mag(
             cohens_dav_value,
             float(sample_sd_1),
             float(sample_sd_2),
@@ -819,7 +820,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
             lower_ci_mag_dav * correction,
             upper_ci_mag_dav * correction,
         )
-        lower_ci_morris_dav, upper_ci_morris_dav = self.ci_morris(
+        lower_ci_morris_dav, upper_ci_morris_dav = utils.ci_morris(
             cohens_dav_value, sample_size, correlation, confidence_level
         )
         lower_ci_morris_gav, upper_ci_morris_gav = (
@@ -838,7 +839,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
         ) / sample_size
         standard_error_of_means_ratio = np.sqrt(variance_of_means_ratio)
         degrees_of_freedom_means_ratio = sample_size - 1
-        t_critical_value = t.ppf(
+        t_critical_value = stats.t.ppf(
             confidence_level + ((1 - confidence_level) / 2),
             degrees_of_freedom_means_ratio,
         )
@@ -849,37 +850,37 @@ class TwoPairedTTests(interfaces.AbstractTest):
             np.log(ratio_of_means) + t_critical_value * np.sqrt(variance_of_means_ratio)
         )
 
-        cohens_dz = res.CohenD(
+        cohens_dz = es.CohenD(
             value=cohens_dz_value,
             ci_lower=ci_lower_cohens_dz_central,
             ci_upper=ci_upper_cohens_dz_central,
             standard_error=standard_error_cohens_dz_true,
         )
-        hedges_gz = res.HedgesG(
+        hedges_gz = es.HedgesG(
             value=hedges_gz_value,
             ci_lower=ci_lower_hedges_gz_central,
             ci_upper=ci_upper_hedges_gz_central,
             standard_error=standard_error_hedges_gz_true,
         )
-        cohens_dav = res.CohensDav(
+        cohens_dav = es.CohensDav(
             value=cohens_dav_value,
             ci_lower=ci_lower_cohens_dav_central,
             ci_upper=ci_upper_cohens_dav_central,
             standard_error=standard_error_cohens_dav_true,
         )
-        hedges_gav = res.HedgesGav(
+        hedges_gav = es.HedgesGav(
             value=hedges_gav_value,
             ci_lower=ci_lower_hedges_gav_central,
             ci_upper=ci_upper_hedges_gav_central,
             standard_error=standard_error_hedges_gav_true,
         )
-        cohens_drm = res.CohensDrm(
+        cohens_drm = es.CohensDrm(
             value=cohens_drm_value,
             ci_lower=ci_lower_cohens_drm_central,
             ci_upper=ci_upper_cohens_drm_central,
             standard_error=standard_error_cohens_drm_true,
         )
-        hedges_grm = res.HedgesGrm(
+        hedges_grm = es.HedgesGrm(
             value=hedges_grm_value,
             ci_lower=ci_lower_hedges_grm_central,
             ci_upper=ci_upper_hedges_grm_central,
@@ -935,7 +936,7 @@ class TwoPairedTTests(interfaces.AbstractTest):
         hedges_gav.update_lambda_prime_ci(
             round(lower_ci_lambda_prime_gav, 4), round(upper_ci_lambda_prime_gav, 4)
         )
-        ratio_of_means_effect_size = res.RatioOfMeans(
+        ratio_of_means_effect_size = es.RatioOfMeans(
             value=round(ratio_of_means, 4),
             standard_error=round(standard_error_of_means_ratio, 4),
             ci_lower=round(lower_ci_means_ratio, 4),
@@ -975,351 +976,3 @@ class TwoPairedTTests(interfaces.AbstractTest):
         results.sample2 = sample2
 
         return results
-
-    def calculate_central_ci(
-        self, effect_size: float, sample_size: float, confidence_level: float
-    ) -> tuple:
-        """
-        Calculates the confidence intervals and standard errors for various effect sizes
-        """
-        df = sample_size - 1
-        correction_factor = math.exp(
-            math.lgamma(df / 2)
-            - math.log(math.sqrt(df / 2))
-            - math.lgamma((df - 1) / 2)
-        )
-        standard_error_effect_size_true = np.sqrt(
-            (
-                (df / (df - 2)) * (1 / sample_size) * (1 + effect_size**2 * sample_size)
-                - (effect_size**2 / correction_factor**2)
-            )
-        )
-        standard_error_effect_size_morris = np.sqrt(
-            (df / (df - 2)) * (1 / sample_size) * (1 + effect_size**2 * sample_size)
-            - (effect_size**2 / (1 - (3 / (4 * (df - 1) - 1))) ** 2)
-        )
-        standard_error_effect_size_hedges = np.sqrt(
-            (1 / sample_size) + effect_size**2 / (2 * df)
-        )
-        standard_error_effect_size_hedges_olkin = np.sqrt(
-            (1 / sample_size) + effect_size**2 / (2 * sample_size)
-        )
-        standard_error_effect_size_mle = np.sqrt(
-            standard_error_effect_size_hedges * ((df + 2) / df)
-        )
-        standard_error_effect_size_large_n = np.sqrt(
-            1 / sample_size * (1 + effect_size**2 / 8)
-        )
-        standard_error_effect_size_small_n = np.sqrt(
-            standard_error_effect_size_large_n * ((df + 1) / (df - 1))
-        )
-        z_critical_value = norm.ppf(confidence_level + ((1 - confidence_level) / 2))
-        ci_lower, ci_upper = (
-            effect_size - standard_error_effect_size_true * z_critical_value,
-            effect_size + standard_error_effect_size_true * z_critical_value,
-        )
-        return (
-            ci_lower,
-            ci_upper,
-            standard_error_effect_size_true,
-            standard_error_effect_size_morris,
-            standard_error_effect_size_hedges,
-            standard_error_effect_size_hedges_olkin,
-            standard_error_effect_size_mle,
-            standard_error_effect_size_large_n,
-            standard_error_effect_size_small_n,
-        )
-
-    def pivotal_ci_t(
-        self, t_score: float, df: float, sample_size: float, confidence_level: float
-    ):
-        """
-        Calculates the pivotal confidence interval for a t-distribution.
-        """
-        is_negative = False
-        if t_score < 0:
-            is_negative = True
-            t_score = abs(t_score)
-        upper_limit = 1 - (1 - confidence_level) / 2
-        lower_limit = (1 - confidence_level) / 2
-
-        lower_criterion = [-t_score, t_score / 2, t_score]
-        upper_criterion = [t_score, 2 * t_score, 3 * t_score]
-
-        while nct.cdf(t_score, df, lower_criterion[0]) < upper_limit:
-            lower_criterion = [
-                lower_criterion[0] - t_score,
-                lower_criterion[0],
-                lower_criterion[2],
-            ]
-
-        while nct.cdf(t_score, df, upper_criterion[0]) < lower_limit:
-            if nct.cdf(t_score, df) < lower_limit:
-                lower_ci = [0, nct.cdf(t_score, df)]
-                upper_criterion = [
-                    upper_criterion[0] / 4,
-                    upper_criterion[0],
-                    upper_criterion[2],
-                ]
-
-        while nct.cdf(t_score, df, upper_criterion[2]) > lower_limit:
-            upper_criterion = [
-                upper_criterion[0],
-                upper_criterion[2],
-                upper_criterion[2] + t_score,
-            ]
-
-        lower_ci = 0.0
-        diff_lower = 1
-        while diff_lower > 0.00001:
-            if nct.cdf(t_score, df, lower_criterion[1]) < upper_limit:
-                lower_criterion = [
-                    lower_criterion[0],
-                    (lower_criterion[0] + lower_criterion[1]) / 2,
-                    lower_criterion[1],
-                ]
-            else:
-                lower_criterion = [
-                    lower_criterion[1],
-                    (lower_criterion[1] + lower_criterion[2]) / 2,
-                    lower_criterion[2],
-                ]
-            diff_lower = abs(nct.cdf(t_score, df, lower_criterion[1]) - upper_limit)
-            lower_ci = lower_criterion[1] / (np.sqrt(sample_size))
-
-        upper_ci = 0.0
-        diff_upper = 1
-        while diff_upper > 0.00001:
-            if nct.cdf(t_score, df, upper_criterion[1]) < lower_limit:
-                upper_criterion = [
-                    upper_criterion[0],
-                    (upper_criterion[0] + upper_criterion[1]) / 2,
-                    upper_criterion[1],
-                ]
-            else:
-                upper_criterion = [
-                    upper_criterion[1],
-                    (upper_criterion[1] + upper_criterion[2]) / 2,
-                    upper_criterion[2],
-                ]
-            diff_upper = abs(nct.cdf(t_score, df, upper_criterion[1]) - lower_limit)
-            upper_ci = upper_criterion[1] / (np.sqrt(sample_size))
-        if is_negative:
-            return -upper_ci, -lower_ci
-        else:
-            return lower_ci, upper_ci
-
-    def calculate_se_pooled(
-        self,
-        effect_size: float,
-        sample_size: float,
-        correlation: float,
-        confidence_level: float,
-    ):
-        """
-        Calculates the standard error and confidence intervals for pooled effect sizes.
-        """
-        df = sample_size - 1
-        correction_factor = math.exp(
-            math.lgamma(df / 2)
-            - math.log(math.sqrt(df / 2))
-            - math.lgamma((df - 1) / 2)
-        )
-        A = sample_size / (2 * (1 - correlation))
-        standard_error_effect_size_true = np.sqrt(
-            (
-                (df / (df - 2)) * (1 / A) * (1 + effect_size**2 * A)
-                - (effect_size**2 / correction_factor**2)
-            )
-        )
-        standard_error_effect_size_morris = np.sqrt(
-            (df / (df - 2)) * (1 / A) * (1 + effect_size**2 * A)
-            - (effect_size**2 / (1 - (3 / (4 * (df - 1) - 1))) ** 2)
-        )
-        standard_error_effect_size_hedges = np.sqrt((1 / A) + effect_size**2 / (2 * df))
-        standard_error_effect_size_hedges_olkin = np.sqrt(
-            (1 / A) + effect_size**2 / (2 * sample_size)
-        )
-        standard_error_effect_size_mle = np.sqrt(
-            standard_error_effect_size_hedges * ((df + 2) / df)
-        )
-        standard_error_effect_size_large_n = np.sqrt(1 / A * (1 + effect_size**2 / 8))
-        standard_error_effect_size_small_n = np.sqrt(
-            standard_error_effect_size_large_n * ((df + 1) / (df - 1))
-        )
-        z_critical_value = norm.ppf(confidence_level + ((1 - confidence_level) / 2))
-        ci_lower, ci_upper = (
-            effect_size - standard_error_effect_size_true * z_critical_value,
-            effect_size + standard_error_effect_size_true * z_critical_value,
-        )
-        return (
-            ci_lower,
-            ci_upper,
-            standard_error_effect_size_true,
-            standard_error_effect_size_morris,
-            standard_error_effect_size_hedges,
-            standard_error_effect_size_hedges_olkin,
-            standard_error_effect_size_mle,
-            standard_error_effect_size_large_n,
-            standard_error_effect_size_small_n,
-        )
-
-    def ci_t_prime(
-        self,
-        effect_size: float,
-        standard_deviation_1: float,
-        standard_deviation_2: float,
-        sample_size: float,
-        correlation: float,
-        confidence_level: float,
-    ):
-        """
-        Calculates the confidence interval for the t-prime effect size.
-        """
-        corrected_correlation = correlation * (
-            gmean([standard_deviation_1**2, standard_deviation_2**2])
-            / np.mean((standard_deviation_1**2, standard_deviation_2**2))
-        )
-        df = sample_size - 1
-        df_corrected = 2 / (1 + correlation**2) * df
-        correction = math.exp(
-            math.lgamma(df_corrected / 2)
-            - math.log(math.sqrt(df_corrected / 2))
-            - math.lgamma((df_corrected - 1) / 2)
-        )
-        lambda_function = float(
-            effect_size
-            * correction
-            * np.sqrt(sample_size / (2 * (1 - corrected_correlation)))
-        )
-
-        alpha = 1 - confidence_level
-        p_lower = 0.5 - confidence_level / 2
-        p_upper = 0.5 + confidence_level / 2
-
-        dfn = 1
-        dfd = df_corrected
-
-        lower_q = ncf.ppf(p_lower, dfn, dfd, lambda_function)
-        upper_q = ncf.ppf(p_upper, dfn, dfd, lambda_function)
-
-        denominator = np.sqrt(sample_size / (2 * (1 - corrected_correlation)))
-        lower_ci_adjusted_lambda = lower_q / denominator
-        upper_ci_adjusted_lambda = upper_q / denominator
-
-        return lower_ci_adjusted_lambda, upper_ci_adjusted_lambda
-
-    def ci_adjusted_lambda_prime(
-        self,
-        effect_size: float,
-        standard_deviation_1: float,
-        standard_deviation_2: float,
-        sample_size: float,
-        correlation: float,
-        confidence_level: float,
-    ):
-        """
-        Calculates the confidence interval for the adjusted lambda prime effect size.
-        """
-        corrected_correlation = correlation * (
-            gmean([standard_deviation_1**2, standard_deviation_2**2])
-            / np.mean((standard_deviation_1**2, standard_deviation_2**2))
-        )
-        df = sample_size - 1
-        df_corrected = 2 / (1 + correlation**2) * df
-        correction1 = math.exp(
-            math.lgamma(df / 2)
-            - math.log(math.sqrt(df / 2))
-            - math.lgamma((df - 1) / 2)
-        )
-        correction2 = math.exp(
-            math.lgamma(df_corrected / 2)
-            - math.log(math.sqrt(df_corrected / 2))
-            - math.lgamma((df_corrected - 1) / 2)
-        )
-        lambda_function = float(
-            effect_size
-            * correction1
-            * np.sqrt(sample_size / (2 * (1 - corrected_correlation)))
-        )
-
-        alpha = 1 - confidence_level
-        p_lower = 0.5 - confidence_level / 2
-        p_upper = 0.5 + confidence_level / 2
-
-        dfn = 1
-        dfd = df_corrected
-
-        lower_q = ncf.ppf(p_lower, dfn, dfd, lambda_function)
-        upper_q = ncf.ppf(p_upper, dfn, dfd, lambda_function)
-
-        denominator = 2 * (1 - corrected_correlation) * correction2
-        lower_ci_adjusted_lambda = lower_q / denominator
-        upper_ci_adjusted_lambda = upper_q / denominator
-
-        return lower_ci_adjusted_lambda, upper_ci_adjusted_lambda
-
-    def ci_mag(
-        self,
-        effect_size: float,
-        standard_deviation_1: float,
-        standard_deviation_2: float,
-        sample_size: float,
-        correlation: float,
-        confidence_level: float,
-    ):
-        """
-        Calculates the confidence interval for the magnitude effect size.
-        """
-        corrected_correlation = correlation * (
-            gmean([standard_deviation_1**2, standard_deviation_2**2])
-            / np.mean((standard_deviation_1**2, standard_deviation_2**2))
-        )
-        df = sample_size - 1
-        correction = math.exp(
-            math.lgamma(df / 2)
-            - math.log(math.sqrt(df / 2))
-            - math.lgamma((df - 1) / 2)
-        )
-        lambda_function = float(
-            effect_size
-            * correction**2
-            * np.sqrt(sample_size / (2 * (1 - corrected_correlation)))
-        )
-        lower_ci_adjusted_mag = nct.ppf(
-            1 / 2 - confidence_level / 2, df=df, nc=lambda_function
-        ) / np.sqrt(sample_size / (2 * (1 - corrected_correlation)))
-        upper_ci_adjusted_mag = nct.ppf(
-            1 / 2 + confidence_level / 2, df=df, nc=lambda_function
-        ) / np.sqrt(sample_size / (2 * (1 - corrected_correlation)))
-        return lower_ci_adjusted_mag, upper_ci_adjusted_mag
-
-    def ci_morris(
-        self,
-        effect_size: float,
-        sample_size: float,
-        correlation: float,
-        confidence_level: float,
-    ):
-        """
-        Calculates the Morris confidence interval for the effect size."""
-        df = sample_size - 1
-        correction = math.exp(
-            math.lgamma(df / 2)
-            - math.log(math.sqrt(df / 2))
-            - math.lgamma((df - 1) / 2)
-        )
-        cohens_d_variance_corrected = (
-            (df / (df - 2))
-            * 2
-            * (1 - correlation)
-            / sample_size
-            * (1 + effect_size**2 * sample_size / (2 * (1 - correlation)))
-            - effect_size**2 / correction**2
-        ) * correction**2
-        z_critical_value = norm.ppf(confidence_level + ((1 - confidence_level) / 2))
-        ci_lower_morris, ci_upper_morris = (
-            effect_size - np.sqrt(cohens_d_variance_corrected) * z_critical_value,
-            effect_size + np.sqrt(cohens_d_variance_corrected) * z_critical_value,
-        )
-        return ci_lower_morris, ci_upper_morris
