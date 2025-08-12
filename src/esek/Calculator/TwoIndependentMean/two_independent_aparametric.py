@@ -7,10 +7,9 @@ The results are encapsulated in a dataclass for easy access and manipulation.
 from dataclasses import dataclass
 from typing import Optional
 from collections import Counter
-import math
 import numpy as np
-from scipy.stats import norm, rankdata, mannwhitneyu
-from ...utils import interfaces, res
+from scipy import stats
+from ...utils import interfaces, res, utils, es
 
 
 @dataclass
@@ -24,9 +23,9 @@ class TwoIndependentAparametricResults:
     exact_inferential: Optional[res.InferentialStatistics] = None
     inferential: Optional[res.InferentialStatistics] = None
     corrected_inferential: Optional[res.InferentialStatistics] = None
-    rank_biserial_correlation: Optional[res.Biserial] = None
-    z_based_rank_biserial_correlation: Optional[res.Biserial] = None
-    z_based_rank_biserial_correlation_corrected: Optional[res.Biserial] = None
+    rank_biserial_correlation: Optional[es.Biserial] = None
+    z_based_rank_biserial_correlation: Optional[es.Biserial] = None
+    z_based_rank_biserial_correlation_corrected: Optional[es.Biserial] = None
 
 
 class TwoIndependentAparametricTests(interfaces.AbstractTest):
@@ -71,8 +70,9 @@ class TwoIndependentAparametricTests(interfaces.AbstractTest):
             "from_parameters method is not implemented for TwoIndependentAparametric."
         )
 
+    @staticmethod
     def from_data(
-        self, columns: list, confidence_level: float = 0.95
+        columns: list, confidence_level: float = 0.95
     ) -> TwoIndependentAparametricResults:
         """
         Create results from data columns.
@@ -99,7 +99,7 @@ class TwoIndependentAparametricTests(interfaces.AbstractTest):
         sample_size = sample_size_1 + sample_size_2
 
         merged_samples = np.append(column_1, column_2)
-        ranks = rankdata(merged_samples, method="average")
+        ranks = stats.rankdata(merged_samples, method="average")
         sum_ranks_1 = np.sum(ranks[:sample_size_1])
         sum_ranks_2 = np.sum(ranks[sample_size_1:])
         mean_ranks_1 = np.mean(ranks[:sample_size_1])
@@ -123,8 +123,10 @@ class TwoIndependentAparametricTests(interfaces.AbstractTest):
         z_score = abs(sum_ranks_1 - mean_w_1) / np.sqrt(variance)
         z_score_corrected = (abs(sum_ranks_1 - mean_w_1) - 0.5) / np.sqrt(variance)
 
-        p_value = min(float(norm.sf((abs(z_score))) * 2), 0.99999)
-        p_value_corrected = min(float(norm.sf((abs(z_score_corrected))) * 2), 0.99999)
+        p_value = min(float(stats.norm.sf((abs(z_score))) * 2), 0.99999)
+        p_value_corrected = min(
+            float(stats.norm.sf((abs(z_score_corrected))) * 2), 0.99999
+        )
 
         rank_biserial_correlation = (u_statistic_1 - u_statistic_2) / (
             u_statistic_1 + u_statistic_2
@@ -134,27 +136,27 @@ class TwoIndependentAparametricTests(interfaces.AbstractTest):
             sample_size
         )
 
-        exact_p_value = mannwhitneyu(column_1, column_2, method="exact")[1]
+        exact_p_value = stats.mannwhitneyu(column_1, column_2, method="exact")[1]
 
         standard_error_rbc = np.sqrt(
             (sample_size_1 + sample_size_2 + 1) / (3 * sample_size_1 + sample_size_2)
         )
         z_critical_value = float(
-            norm.ppf((1 - confidence_level) + ((confidence_level) / 2))
+            stats.norm.ppf((1 - confidence_level) + ((confidence_level) / 2))
         )
 
         lower_ci_rank_biserial_correlation, upper_ci_rank_biserial_correlation = (
-            self.compute_confidence_interval(
+            utils.compute_fisher_confidence_interval(
                 rank_biserial_correlation, standard_error_rbc, (z_critical_value)
             )
         )
 
-        lower_ci_z_based, upper_ci_z_based = self.compute_confidence_interval(
+        lower_ci_z_based, upper_ci_z_based = utils.compute_fisher_confidence_interval(
             rosenthal_rank_biserial_correlation_z, standard_error_rbc, z_critical_value
         )
 
         lower_ci_z_based_corrected, upper_ci_z_based_corrected = (
-            self.compute_confidence_interval(
+            utils.compute_fisher_confidence_interval(
                 rosenthal_rank_biserial_correlation_z_corrected,
                 standard_error_rbc,
                 z_critical_value,
@@ -194,21 +196,21 @@ class TwoIndependentAparametricTests(interfaces.AbstractTest):
             p_value=round(exact_p_value, 6),
         )
 
-        rank_biserial_correlation_result = res.Biserial(
+        rank_biserial_correlation_result = es.Biserial(
             name="Rank Biserial Correlation",
             value=round(rank_biserial_correlation, 4),
             ci_lower=lower_ci_rank_biserial_correlation,
             ci_upper=upper_ci_rank_biserial_correlation,
             standard_error=standard_error_rbc,
         )
-        z_based_rank_biserial_correlation_result = res.Biserial(
+        z_based_rank_biserial_correlation_result = es.Biserial(
             name="Z Based Rank Biserial Correlation",
             value=round(rosenthal_rank_biserial_correlation_z, 4),
             ci_lower=lower_ci_z_based,
             ci_upper=upper_ci_z_based,
             standard_error=standard_error_rbc,
         )
-        z_based_rank_biserial_correlation_corrected_result = res.Biserial(
+        z_based_rank_biserial_correlation_corrected_result = es.Biserial(
             name="Z Based Rank Biserial Correlation (Corrected)",
             value=round(rosenthal_rank_biserial_correlation_z_corrected, 6),
             ci_lower=lower_ci_z_based_corrected,
@@ -231,24 +233,3 @@ class TwoIndependentAparametricTests(interfaces.AbstractTest):
         )
 
         return results
-
-    def compute_confidence_interval(
-        self, correlation: float, standard_error: float, z_critical: float
-    ) -> tuple[float, float]:
-        """
-        Compute the lower and upper confidence intervals for a given correlation using Fisher's z-transformation.
-
-        Args:
-            correlation (float): The correlation coefficient (e.g., rank-biserial).
-            standard_error (float): The standard error of the correlation.
-            z_critical (float): The z-value for the desired confidence level (e.g., 1.96 for 95%).
-
-        Returns:
-            tuple[float, float]: The lower and upper confidence interval, bounded to [-1, 1].
-        """
-        safe_corr = max(min(correlation, 0.999999), -0.999999)
-        fisher_z = math.atanh(safe_corr)
-        margin = z_critical * standard_error
-        lower = max(math.tanh(fisher_z - margin), -1)
-        upper = min(math.tanh(fisher_z + margin), 1)
-        return lower, upper
