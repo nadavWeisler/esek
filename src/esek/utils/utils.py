@@ -200,6 +200,8 @@ def ci_from_cohens_paired(
     cohens_d: float, sample_size: int, confidence_level: float
 ) -> tuple[float, float, float]:
     df = sample_size - 1
+    if df == 2:
+        raise ValueError("Degrees of freedom must be greater than 2.")
     correction_factor = math.exp(
         math.lgamma(df / 2) - math.log(math.sqrt(df / 2)) - math.lgamma((df - 1) / 2)
     )

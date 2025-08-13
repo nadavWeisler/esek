@@ -273,3 +273,29 @@ class GlassDeltaUnbiased(EffectSize):
         super().__init__(value, ci_lower, ci_upper, standard_error)
         self.effect_size_name: str = "Glass's Delta Unbiased"
         self.update_statistical_line()
+
+
+class AokiEpsilon(EffectSize):
+    """
+    A class to store Aoki's Epsilon effect size values.
+    """
+
+    def __init__(
+        self, value: float, ci_lower: float, ci_upper: float, standard_error: float
+    ) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Aoki's Epsilon"
+        self.update_statistical_line()
+
+
+class AokiEpsilonUnbiased(EffectSize):
+    """
+    A class to store Aoki's Epsilon Unbiased effect size values.
+    """
+
+    def __init__(
+        self, value: float, ci_lower: float, ci_upper: float, standard_error: float
+    ) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name: str = "Aoki's Epsilon Unbiased"
+        self.update_statistical_line()
