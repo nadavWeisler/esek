@@ -1,5 +1,6 @@
 """
-TODO: add docstring
+This module implements the TwoIndependentControlGroupTests class, which provides methods
+for conducting statistical tests on two independent control groups.
 """
 
 from dataclasses import dataclass
@@ -13,7 +14,7 @@ from ...utils import interfaces, res, utils, es
 @dataclass
 class TwoIndependentControlGroupResults:
     """
-    TODO: add docstring
+    This class holds the results of the two independent control group tests.
     """
 
     inferential: Optional[res.InferentialStatistics] = None
@@ -25,7 +26,13 @@ class TwoIndependentControlGroupResults:
 
 class TwoIndependentControlGroupTests(interfaces.AbstractTest):
     """
-    TODO: add docstring
+    This class provides methods for conducting statistical tests on two independent control groups.
+
+    Methods:
+        - from_score: Not implemented.
+        - from_parameters: Creates test results from the given parameters.
+        - from_data: Creates test results from the given data.
+
     """
 
     @utils.not_implemented(
@@ -53,7 +60,20 @@ class TwoIndependentControlGroupTests(interfaces.AbstractTest):
         confidence_level: float = 0.95,
     ) -> TwoIndependentControlGroupResults:
         """
-        TODO: add docstring
+        Creates test results from the given parameters.
+
+        Args:
+            sample_mean_experimental (float): The mean of the experimental group.
+            sample_mean_control (float): The mean of the control group.
+            sample_sd_experimental (float): The standard deviation of the experimental group.
+            sample_sd_control (float): The standard deviation of the control group.
+            sample_size_experimental (int): The sample size of the experimental group.
+            sample_size_control (int): The sample size of the control group.
+            population_mean_diff (float, optional): The population mean difference. Defaults to 0.
+            confidence_level (float, optional): The confidence level for the tests. Defaults to 0.95.
+
+        Returns:
+            TwoIndependentControlGroupResults: The results of the tests.
         """
         sample_size = sample_size_experimental + sample_size_control
         df = sample_size - 2
@@ -147,7 +167,18 @@ class TwoIndependentControlGroupTests(interfaces.AbstractTest):
         columns: list[list], population_mean_diff: float, confidence_level: float = 0.95
     ) -> TwoIndependentControlGroupResults:
         """
-        TODO: add docstring
+        Creates test results from the given data.
+
+        Args:
+            columns (list[list]): The data columns for the control and experimental groups.
+            population_mean_diff (float): The population mean difference.
+            confidence_level (float): The confidence level for the tests. Defaults to 0.95.
+
+        Returns:
+            TwoIndependentControlGroupResults: The results of the tests.
+
+        Raises:
+            ValueError: If columns length is not 2.
         """
         if len(columns) != 2:
             raise ValueError("Expected two columns of data.")
