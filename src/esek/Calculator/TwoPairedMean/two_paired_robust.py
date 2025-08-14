@@ -88,7 +88,7 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
         upper_bound = stats.norm.ppf(1 - trimming_level)
 
         area = utils.area_under_function(
-            lambda x: float(np.array(x) ** 2 * stats.norm.pdf(np.array(x))),
+            utils.density,
             float(lower_bound),
             float(upper_bound),
         )

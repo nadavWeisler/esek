@@ -202,6 +202,7 @@ def ci_from_cohens_paired(
     df = sample_size - 1
     if df == 2:
         raise ValueError("Degrees of freedom must be greater than 2.")
+        raise ValueError("Degrees of freedom must be greater than 2.")
     correction_factor = math.exp(
         math.lgamma(df / 2) - math.log(math.sqrt(df / 2)) - math.lgamma((df - 1) / 2)
     )
@@ -215,6 +216,20 @@ def ci_from_cohens_paired(
         cohens_d + standard_error_es * z_critical_value,
     )
     return ci_lower, ci_upper, standard_error_es
+
+
+def density(x: float) -> float:
+    """
+    Density function for the normal distribution.
+
+    Args:
+        x (float): The input value.
+
+    Returns:
+        float: The density of the normal distribution at x.
+    """
+
+    return float(np.array(x) ** 2 * stats.norm.pdf(np.array(x)))
 
 
 def area_under_function(
