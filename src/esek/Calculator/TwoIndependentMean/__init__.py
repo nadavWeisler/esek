@@ -22,6 +22,11 @@ from .two_independent_t import (
     TwoIndependentTResults,
 )
 
+from .two_independent_z import (
+    TwoIndependentZTests,
+    TwoIndependentZResults,
+)
+
 __all__ = [
     "TwoIndependentAparametricTests",
     "TwoIndependentAparametricResults",
@@ -33,4 +38,6 @@ __all__ = [
     "TwoIndependentRobustResults",
     "TwoIndependentTTests",
     "TwoIndependentTResults",
+    "TwoIndependentZTests",
+    "TwoIndependentZResults",
 ]

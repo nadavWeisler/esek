@@ -374,6 +374,19 @@ def ci_from_cohens_d_t_test(
     )
 
 
+def ci_from_cohens_d_two_samples(
+    cohens_d: float, sample_size_1: int, sample_size_2: int, confidence_level: float
+) -> tuple[float, float, float]:
+    standard_error_es = np.sqrt(
+        ((sample_size_1 + sample_size_2) / (sample_size_1 * sample_size_2))
+        + ((cohens_d**2 / (2 * (sample_size_1 + sample_size_2))))
+    )
+    z_critical_value = stats.norm.ppf(confidence_level + ((1 - confidence_level) / 2))
+    ci_lower = cohens_d - standard_error_es * z_critical_value
+    ci_upper = cohens_d + standard_error_es * z_critical_value
+    return ci_lower, ci_upper, standard_error_es
+
+
 def central_ci_paired(
     effect_size: float, sample_size: float, confidence_level: float
 ) -> tuple:
