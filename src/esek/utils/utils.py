@@ -322,6 +322,58 @@ def winsorized_correlation(x: list[float], y: list[float], trimming_level=0.2) -
     }
 
 
+def ci_from_cohens_d_t_test(
+    effect_size: float, sample_size_1: int, sample_size_2: int, confidence_level: float
+) -> tuple:
+    sample_size = sample_size_1 + sample_size_2
+    df = sample_size - 2
+    if df <= 2:
+        raise ValueError("Degrees of freedom must be greater than 2.")
+
+    correction_factor = math.exp(
+        math.lgamma(df / 2) - math.log(math.sqrt(df / 2)) - math.lgamma((df - 1) / 2)
+    )
+    harmonic_sample_size = 2 / (1 / sample_size_1 + 1 / sample_size_2)
+    a = harmonic_sample_size / 2
+    standard_error_effect_size_true = np.sqrt(
+        (
+            (df / (df - 2)) * (1 / a) * (1 + effect_size**2 * a)
+            - (effect_size**2 / correction_factor**2)
+        )
+    )
+    standard_error_effect_size_morris = np.sqrt(
+        (df / (df - 2)) * (1 / a) * (1 + effect_size**2 * a)
+        - (effect_size**2 / (1 - (3 / (4 * (df - 1) - 1))) ** 2)
+    )
+    standard_error_effect_size_hedges = np.sqrt((1 / a) + effect_size**2 / (2 * df))
+    standard_error_effect_size_hedges_olkin = np.sqrt(
+        (1 / a) + effect_size**2 / (2 * sample_size)
+    )
+    standard_error_effect_size_mle = np.sqrt(
+        standard_error_effect_size_hedges * ((df + 2) / df)
+    )
+    standard_error_effect_size_large_n = np.sqrt(1 / a * (1 + effect_size**2 / 8))
+    standard_error_effect_size_small_n = np.sqrt(
+        standard_error_effect_size_large_n * ((df + 1) / (df - 1))
+    )
+    z_critical_value = stats.norm.ppf(confidence_level + ((1 - confidence_level) / 2))
+    ci_lower, ci_upper = (
+        effect_size - standard_error_effect_size_true * z_critical_value,
+        effect_size + standard_error_effect_size_true * z_critical_value,
+    )
+    return (
+        ci_lower,
+        ci_upper,
+        standard_error_effect_size_true,
+        standard_error_effect_size_morris,
+        standard_error_effect_size_hedges,
+        standard_error_effect_size_hedges_olkin,
+        standard_error_effect_size_mle,
+        standard_error_effect_size_large_n,
+        standard_error_effect_size_small_n,
+    )
+
+
 def central_ci_paired(
     effect_size: float, sample_size: float, confidence_level: float
 ) -> tuple:

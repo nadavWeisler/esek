@@ -17,6 +17,11 @@ from .two_independent_robust import (
     TwoIndependentRobustResults,
 )
 
+from .two_independent_t import (
+    TwoIndependentTTests,
+    TwoIndependentTResults,
+)
+
 __all__ = [
     "TwoIndependentAparametricTests",
     "TwoIndependentAparametricResults",
@@ -26,4 +31,6 @@ __all__ = [
     "TwoIndependentUnequalVarResults",
     "TwoIndependentRobustTests",
     "TwoIndependentRobustResults",
+    "TwoIndependentTTests",
+    "TwoIndependentTResults",
 ]
