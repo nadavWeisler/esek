@@ -8,7 +8,7 @@ from typing import Optional
 import math
 import numpy as np
 from scipy import stats
-from ...utils import interfaces, res, utils, es
+from ...utils import interfaces, res, utils, es, texts
 
 
 @dataclass
@@ -181,7 +181,7 @@ class TwoIndependentControlGroupTests(interfaces.AbstractTest):
             ValueError: If columns length is not 2.
         """
         if len(columns) != 2:
-            raise ValueError("Expected two columns of data.")
+            raise ValueError(texts.Errors.columns_must_be_two)
 
         column_1 = columns[0]
         column_2 = columns[1]

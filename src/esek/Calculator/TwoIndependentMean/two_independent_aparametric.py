@@ -9,7 +9,7 @@ from typing import Optional
 from collections import Counter
 import numpy as np
 from scipy import stats
-from ...utils import interfaces, res, utils, es
+from ...utils import interfaces, res, utils, es, texts
 
 
 @dataclass
@@ -86,7 +86,7 @@ class TwoIndependentAparametricTests(interfaces.AbstractTest):
             ValueError: If the length of columns is not 2.
         """
         if len(columns) != 2:
-            raise ValueError("Exactly two columns are required.")
+            raise ValueError(texts.Errors.columns_must_be_two)
 
         column_1 = columns[0]
         column_2 = columns[1]

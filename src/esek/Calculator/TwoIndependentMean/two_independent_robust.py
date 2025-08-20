@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 from scipy import stats
-from ...utils import interfaces, res, utils, es
+from ...utils import interfaces, res, utils, es, texts
 
 
 @dataclass
@@ -93,9 +93,7 @@ class TwoIndependentRobustTests(interfaces.AbstractTest):
         """
 
         if len(columns) != 2:
-            raise ValueError(
-                "TwoIndependentRobustTests requires exactly two columns of data."
-            )
+            raise ValueError(texts.Errors.columns_must_be_two)
         column_1 = columns[0]
         column_2 = columns[1]
         sample_size_1 = len(column_1)
