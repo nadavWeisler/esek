@@ -8,6 +8,30 @@ from typing import Any, Callable
 import numpy as np
 from numpy.typing import NDArray
 from scipy import stats
+from .interfaces import MethodType
+
+
+def not_implemented(method_type: MethodType, stats_test_type: str):
+    """
+    Decorator to mark a class method as not implemented.
+
+    Args:
+        method_type (MethodType): Type of the method (e.g., 'from_score', 'from_parameters', 'from_data').
+        stats_test_type (str): The statistical test type.
+
+    Returns:
+        function: A decorated function that always raises NotImplementedError.
+    """
+
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            raise NotImplementedError(
+                f"{method_type} method is not implemented for {stats_test_type}"
+            )
+
+        return wrapper
+
+    return decorator
 
 
 def convert_results_to_dict(dataclass_instance: Any) -> dict:
@@ -64,13 +88,13 @@ def ci_from_cohens_simple(
     we estimate it based on the sample using the Hedges and Olkin (1985) formula
     to estimate the standard deviation of the effect size.
     """
-    Standard_error_es = np.sqrt((1 / sample_size) + ((cohens_d**2 / (2 * sample_size))))
+    standard_error_es = np.sqrt((1 / sample_size) + ((cohens_d**2 / (2 * sample_size))))
     z_critical_value = stats.norm.ppf(confidence_level + ((1 - confidence_level) / 2))
     ci_lower, ci_upper = (
-        cohens_d - Standard_error_es * z_critical_value,
-        cohens_d + Standard_error_es * z_critical_value,
+        cohens_d - standard_error_es * z_critical_value,
+        cohens_d + standard_error_es * z_critical_value,
     )
-    return ci_lower, ci_upper, Standard_error_es
+    return ci_lower, ci_upper, standard_error_es
 
 
 def compute_fisher_confidence_interval(
@@ -176,6 +200,9 @@ def ci_from_cohens_paired(
     cohens_d: float, sample_size: int, confidence_level: float
 ) -> tuple[float, float, float]:
     df = sample_size - 1
+    if df == 2:
+        raise ValueError("Degrees of freedom must be greater than 2.")
+        raise ValueError("Degrees of freedom must be greater than 2.")
     correction_factor = math.exp(
         math.lgamma(df / 2) - math.log(math.sqrt(df / 2)) - math.lgamma((df - 1) / 2)
     )
@@ -189,6 +216,20 @@ def ci_from_cohens_paired(
         cohens_d + standard_error_es * z_critical_value,
     )
     return ci_lower, ci_upper, standard_error_es
+
+
+def density(x: float) -> float:
+    """
+    Density function for the normal distribution.
+
+    Args:
+        x (float): The input value.
+
+    Returns:
+        float: The density of the normal distribution at x.
+    """
+
+    return float(np.array(x) ** 2 * stats.norm.pdf(np.array(x)))
 
 
 def area_under_function(
@@ -279,6 +320,71 @@ def winsorized_correlation(x: list[float], y: list[float], trimming_level=0.2) -
         "n": sample_size,
         "test_statistic": test_statistic,
     }
+
+
+def ci_from_cohens_d_t_test(
+    effect_size: float, sample_size_1: int, sample_size_2: int, confidence_level: float
+) -> tuple:
+    sample_size = sample_size_1 + sample_size_2
+    df = sample_size - 2
+    if df <= 2:
+        raise ValueError("Degrees of freedom must be greater than 2.")
+
+    correction_factor = math.exp(
+        math.lgamma(df / 2) - math.log(math.sqrt(df / 2)) - math.lgamma((df - 1) / 2)
+    )
+    harmonic_sample_size = 2 / (1 / sample_size_1 + 1 / sample_size_2)
+    a = harmonic_sample_size / 2
+    standard_error_effect_size_true = np.sqrt(
+        (
+            (df / (df - 2)) * (1 / a) * (1 + effect_size**2 * a)
+            - (effect_size**2 / correction_factor**2)
+        )
+    )
+    standard_error_effect_size_morris = np.sqrt(
+        (df / (df - 2)) * (1 / a) * (1 + effect_size**2 * a)
+        - (effect_size**2 / (1 - (3 / (4 * (df - 1) - 1))) ** 2)
+    )
+    standard_error_effect_size_hedges = np.sqrt((1 / a) + effect_size**2 / (2 * df))
+    standard_error_effect_size_hedges_olkin = np.sqrt(
+        (1 / a) + effect_size**2 / (2 * sample_size)
+    )
+    standard_error_effect_size_mle = np.sqrt(
+        standard_error_effect_size_hedges * ((df + 2) / df)
+    )
+    standard_error_effect_size_large_n = np.sqrt(1 / a * (1 + effect_size**2 / 8))
+    standard_error_effect_size_small_n = np.sqrt(
+        standard_error_effect_size_large_n * ((df + 1) / (df - 1))
+    )
+    z_critical_value = stats.norm.ppf(confidence_level + ((1 - confidence_level) / 2))
+    ci_lower, ci_upper = (
+        effect_size - standard_error_effect_size_true * z_critical_value,
+        effect_size + standard_error_effect_size_true * z_critical_value,
+    )
+    return (
+        ci_lower,
+        ci_upper,
+        standard_error_effect_size_true,
+        standard_error_effect_size_morris,
+        standard_error_effect_size_hedges,
+        standard_error_effect_size_hedges_olkin,
+        standard_error_effect_size_mle,
+        standard_error_effect_size_large_n,
+        standard_error_effect_size_small_n,
+    )
+
+
+def ci_from_cohens_d_two_samples(
+    cohens_d: float, sample_size_1: int, sample_size_2: int, confidence_level: float
+) -> tuple[float, float, float]:
+    standard_error_es = np.sqrt(
+        ((sample_size_1 + sample_size_2) / (sample_size_1 * sample_size_2))
+        + ((cohens_d**2 / (2 * (sample_size_1 + sample_size_2))))
+    )
+    z_critical_value = stats.norm.ppf(confidence_level + ((1 - confidence_level) / 2))
+    ci_lower = cohens_d - standard_error_es * z_critical_value
+    ci_upper = cohens_d + standard_error_es * z_critical_value
+    return ci_lower, ci_upper, standard_error_es
 
 
 def central_ci_paired(
