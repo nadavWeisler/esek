@@ -6,11 +6,10 @@ It also provides a data class to store the results of these tests.
 """
 
 from dataclasses import dataclass
-from typing import Optional, Callable
+from typing import Optional
 import numpy as np
-from scipy.stats import t, norm, trim_mean
-from ...utils import interfaces
-from ...utils import res
+from scipy import stats
+from ...utils import interfaces, res, utils, es
 
 
 @dataclass
@@ -23,8 +22,8 @@ class TwoPairedRobustResults:
     sample1: Optional[res.Sample] = None
     sample2: Optional[res.Sample] = None
     inferential: Optional[res.InferentialStatistics] = None
-    robust_akp: Optional[res.RobustAKP] = None
-    robust_explanatory: Optional[res.RobustExplanatory] = None
+    robust_akp: Optional[es.RobustAKP] = None
+    robust_explanatory: Optional[es.RobustExplanatory] = None
     yuen_robust_t: Optional[float] = None
     winsorized_pearson_correlation: Optional[float] = None
     winsorized_pearson_correlation_p_value: Optional[float] = None
@@ -40,10 +39,6 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
                 - from_score: Not implemented.
                 - from_parameters: Not implemented.
                 - from_data: Calculates robust statistics from two paired samples.
-                - density: Calculates the density function for a given input.
-                - area_under_function: Computes the area under a given function between two points.
-                - winsorized_variance: Computes the winsorized variance of a sample.
-                - winsorized_correlation: Computes the winsorized Pearson correlation between two samples.
     """
 
     @staticmethod
@@ -71,9 +66,9 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
             "from_parameters method is not implemented for TwoPairedRobust."
         )
 
+    @staticmethod
     def from_data(
-        self,
-        columns: list,
+        columns: list[list[float]],
         reps: int,
         confidence_level: float,
         trimming_level: float = 0.2,
@@ -88,26 +83,30 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
 
         difference = np.array(column_1) - np.array(column_2)
         sample_size = len(column_1)
-        correction = np.sqrt(
-            float(
-                self.area_under_function(
-                    self.density,
-                    float(norm.ppf(trimming_level)),
-                    float(norm.ppf(1 - trimming_level)),
-                )
-            )
-            + 2 * (norm.ppf(trimming_level) ** 2) * trimming_level
+
+        lower_bound = stats.norm.ppf(trimming_level)
+        upper_bound = stats.norm.ppf(1 - trimming_level)
+
+        area = utils.area_under_function(
+            utils.density,
+            float(lower_bound),
+            float(upper_bound),
         )
-        trimmed_mean_1 = trim_mean(column_1, trimming_level)
-        trimmed_mean_2 = trim_mean(column_2, trimming_level)
-        winsorized_standard_deviation_1 = np.sqrt(self.winsorized_variance(column_1))
-        winsorized_standard_deviation_2 = np.sqrt(self.winsorized_variance(column_2))
-        winsorized = self.winsorized_correlation(column_1, column_2, trimming_level)
+
+        tail_correction = 2 * (lower_bound**2) * trimming_level
+
+        correction = np.sqrt(area + tail_correction)
+
+        trimmed_mean_1 = stats.trim_mean(column_1, trimming_level)
+        trimmed_mean_2 = stats.trim_mean(column_2, trimming_level)
+        winsorized_standard_deviation_1 = np.sqrt(utils.winsorized_variance(column_1))
+        winsorized_standard_deviation_2 = np.sqrt(utils.winsorized_variance(column_2))
+        winsorized = utils.winsorized_correlation(column_1, column_2, trimming_level)
         winsorized_correlation = winsorized["cor"]
         winsorized_correlation_p_value = winsorized["p.value"]
 
-        standardizer = np.sqrt(self.winsorized_variance(difference, trimming_level))
-        trimmed_mean = trim_mean(difference, trimming_level)
+        standardizer = np.sqrt(utils.winsorized_variance(difference, trimming_level))
+        trimmed_mean = stats.trim_mean(difference, trimming_level)
         akp_effect_size = (
             correction * (trimmed_mean - population_difference) / standardizer
         )
@@ -119,12 +118,12 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
             )
             bootstrap_samples_difference.append(difference_bootstrap)
 
-        trimmed_means_of_bootstrap = trim_mean(
+        trimmed_means_of_bootstrap = stats.trim_mean(
             bootstrap_samples_difference, trimming_level, axis=1
         )
         standardizer_of_bootstrap = np.sqrt(
             [
-                self.winsorized_variance(array, trimming_level)
+                utils.winsorized_variance(array, trimming_level)
                 for array in bootstrap_samples_difference
             ]
         )
@@ -142,11 +141,11 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
             ((confidence_level) + ((1 - confidence_level) / 2)) * 100,
         )
 
-        sort_values = np.concatenate((column_1, column_2))
+        sort_values = [float(item) for item in np.concatenate((column_1, column_2))]
         variance_between_trimmed_means = (
             np.std(np.array([trimmed_mean_1, trimmed_mean_2]), ddof=1)
         ) ** 2
-        winsorized_variance_value = self.winsorized_variance(
+        winsorized_variance_value = utils.winsorized_variance(
             sort_values, trimming_level
         )
         explained_variance = variance_between_trimmed_means / (
@@ -167,10 +166,10 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
             for x, y in zip(bootstrap_samples_x, bootstrap_samples_y)
         ]
         trimmed_means_of_bootstrap_sample_1 = np.array(
-            (trim_mean(bootstrap_samples_x, trimming_level, axis=1))
+            (stats.trim_mean(bootstrap_samples_x, trimming_level, axis=1))
         )
         trimmed_means_of_bootstrap_sample_2 = np.array(
-            (trim_mean(bootstrap_samples_y, trimming_level, axis=1))
+            (stats.trim_mean(bootstrap_samples_y, trimming_level, axis=1))
         )
         variance_between_trimmed_means_bootstrap = [
             (np.std(np.array([x, y]), ddof=1)) ** 2
@@ -179,7 +178,7 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
             )
         ]
         winsorized_variances_bootstrap = [
-            self.winsorized_variance(arr, trimming_level)
+            utils.winsorized_variance(arr, trimming_level)
             for arr in concatenated_samples
         ]
         explained_variance_bootstrapping = np.array(
@@ -211,7 +210,7 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
         )
         difference_trimmed_means = trimmed_mean_1 - trimmed_mean_2
         yuen_statistic = difference_trimmed_means / yuen_standard_error
-        yuen_p_value = 2 * (1 - t.cdf(np.abs(yuen_statistic), df))
+        yuen_p_value = 2 * (1 - stats.t.cdf(np.abs(yuen_statistic), df))
 
         sample1 = res.Sample(
             mean=round(trimmed_mean_1, 4),
@@ -232,13 +231,13 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
         inferential.degrees_of_freedom = round(df, 4)
         inferential.means_difference = round(difference_trimmed_means, 4)
 
-        robust_akp = res.RobustAKP(
+        robust_akp = es.RobustAKP(
             value=round(akp_effect_size, 4),
             ci_lower=float(round(lower_ci_akp_boot, 4)),
             ci_upper=float(round(upper_ci_akp_boot, 4)),
             standard_error=round(yuen_standard_error, 4),
         )
-        robust_explanatory = res.RobustExplanatory(
+        robust_explanatory = es.RobustExplanatory(
             value=round(explanatory_power_effect_size, 4),
             ci_lower=float(round(lower_ci_e_pow_boot, 4)),
             ci_upper=round(min(float(upper_ci_e_pow_boot), 1.0), 4),
@@ -258,91 +257,3 @@ class TwoPairedRobustTests(interfaces.AbstractTest):
         )
 
         return results
-
-    def density(self, x):
-        x = np.array(x)
-        return x**2 * norm.pdf(x)
-
-    def area_under_function(
-        self,
-        f: Callable,
-        a,
-        b,
-        *args,
-        function_a=None,
-        function_b=None,
-        limit=10,
-        eps=1e-5,
-    ):
-        if function_a is None:
-            function_a = f(a, *args)
-        if function_b is None:
-            function_b = f(b, *args)
-        midpoint = (a + b) / 2
-        f_midpoint = f(midpoint, *args)
-        area_trapezoidal = ((function_a + function_b) * (b - a)) / 2
-        area_simpson = ((function_a + 4 * f_midpoint + function_b) * (b - a)) / 6
-        if abs(area_trapezoidal - area_simpson) < eps or limit == 0:
-            return area_simpson
-        return self.area_under_function(
-            f,
-            a,
-            midpoint,
-            *args,
-            function_a=function_a,
-            function_b=f_midpoint,
-            limit=limit - 1,
-            eps=eps,
-        ) + self.area_under_function(
-            f,
-            midpoint,
-            b,
-            *args,
-            function_a=f_midpoint,
-            function_b=function_b,
-            limit=limit - 1,
-            eps=eps,
-        )
-
-    def winsorized_variance(self, x, trimming_level=0.2):
-        y = np.sort(x)
-        n = len(x)
-        ibot = int(np.floor(trimming_level * n)) + 1
-        itop = n - ibot + 1
-        xbot = y[ibot - 1]
-        xtop = y[itop - 1]
-        y = np.where(y <= xbot, xbot, y)
-        y = np.where(y >= xtop, xtop, y)
-        winvar = np.std(y, ddof=1) ** 2
-        return winvar
-
-    def winsorized_correlation(self, x, y, trimming_level=0.2):
-        sample_size = len(x)
-        x_sorted = np.sort(x)
-        y_sorted = np.sort(y)
-        trimming_size = int(np.floor(trimming_level * sample_size)) + 1
-        x_lower = x_sorted[trimming_size - 1]
-        x_upper = x_sorted[sample_size - trimming_size]
-        y_lower = y_sorted[trimming_size - 1]
-        y_upper = y_sorted[sample_size - trimming_size]
-        x_winsorized = np.clip(x, x_lower, x_upper)
-        y_winsorized = np.clip(y, y_lower, y_upper)
-        winsorized_correlation = np.corrcoef(x_winsorized, y_winsorized)[0, 1]
-        winsorized_covariance = np.cov(x_winsorized, y_winsorized)[0, 1]
-        test_statistic = winsorized_correlation * np.sqrt(
-            (sample_size - 2) / (1 - winsorized_correlation**2)
-        )
-        number_of_trimmed_values = int(np.floor(trimming_level * sample_size))
-        p_value = 2 * (
-            1
-            - t.cdf(
-                np.abs(test_statistic), sample_size - 2 * number_of_trimmed_values - 2
-            )
-        )
-        return {
-            "cor": winsorized_correlation,
-            "cov": winsorized_covariance,
-            "p.value": p_value,
-            "n": sample_size,
-            "test_statistic": test_statistic,
-        }
