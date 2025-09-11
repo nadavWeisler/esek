@@ -20,25 +20,17 @@ from typing import Optional
 from dataclasses import dataclass
 import numpy as np
 from scipy.stats import norm, nct, t, trim_mean
-from ...utils import interfaces
-from ...utils import res
+from ...utils import interfaces, res, es
 
 
 @dataclass
 class OneSampleCLESResults:
     """Class for storing one-sample CLES test results"""
 
-    sample_size: Optional[int] = None
-    population_mean: Optional[float] = None
-    sample_mean: Optional[float] = None
-    sample_sd: Optional[float] = None
-    standard_error: Optional[float] = None
-    difference_between_means: Optional[float] = None
-    t_score: Optional[float] = None
-    degrees_of_freedom: Optional[float] = None
-    p_value: Optional[float] = None
-    cohens_d = res.CohensDCLES
-    hedges_g = res.HedgesGCLES
+    sample: Optional[res.Sample] = None
+    inferential: Optional[res.InferentialStatistics] = None
+    cohens_d: Optional[es.CohenD] = None
+    hedges_g: Optional[es.HedgesG] = None
     robust_t: Optional[res.YuensRobustT] = None
 
 
@@ -537,41 +529,52 @@ class OneSampleClesTest(interfaces.AbstractTest):
         )
         # Create results object
         results = OneSampleCLESResults()
-        results.sample_size = sample_size
-        results.population_mean = population_mean
-        results.sample_mean = sample_mean
-        results.sample_sd = sample_sd
-        results.standard_error = standard_error
-        results.difference_between_means = sample_mean - population_mean
-        results.t_score = t_score
-        results.degrees_of_freedom = df
-        results.p_value = p_value
-        results.cohens_d = res.CohensDCLES(
+        sample: res.Sample = res.Sample(
+            size=sample_size, mean=sample_mean, standard_deviation=sample_sd
+        )
+        sample.population_mean = population_mean
+
+        inferential: res.InferentialStatistics = res.InferentialStatistics(
+            score=round(t_score),
+            p_value=round(p_value),
+        )
+        inferential.degrees_of_freedom = df
+        inferential.standard_error = standard_error
+        inferential.means_difference = sample_mean - population_mean
+
+        cohens_d: es.CohenD = es.CohenD(
             value=cles_d,
-            lower_central_ci_lower=norm.cdf(ci_lower_cohens_d_central) * 100,
-            central_ci_upper=norm.cdf(ci_upper_cohens_d_central) * 100,
-            non_central_ci_lower=norm.cdf(ci_lower_cohens_d_ncp) * 100,
-            non_central_ci_upper=norm.cdf(ci_upper_cohens_d_ncp) * 100,
+            ci_lower=ci_lower_cohens_d_central,
+            ci_upper=ci_upper_cohens_d_central,
             standard_error=standrat_error_cohens_d,
         )
-        results.hedges_g = res.HedgesGCLES(
-            value=cles_g,
-            central_ci_lower=norm.cdf(ci_lower_hedges_g_central) * 100,
-            central_ci_upper=norm.cdf(ci_upper_hedges_g_central) * 100,
-            non_central_ci_lower=norm.cdf(ci_lower_hedges_g_ncp) * 100,
-            non_central_ci_upper=norm.cdf(ci_upper_hedges_g_ncp) * 100,
-            standard_error=standrat_error_hedges_g,
+        cohens_d.non_central_ci = res.ConfidenceInterval(
+            lower=ci_lower_cohens_d_ncp, upper=ci_upper_cohens_d_ncp
         )
 
+        hedges_g: es.HedgesG = es.HedgesG(
+            value=cles_g,
+            ci_lower=ci_lower_hedges_g_central,
+            ci_upper=ci_upper_hedges_g_central,
+            standard_error=standrat_error_hedges_g,
+        )
+        hedges_g.non_central_ci = res.ConfidenceInterval(
+            lower=ci_lower_hedges_g_ncp, upper=ci_upper_hedges_g_ncp
+        )
+
+        results.sample = sample
+        results.inferential = inferential
+        results.cohens_d = cohens_d
+        results.hedges_g = hedges_g
         return results
 
     @staticmethod
     def from_data(
-        column_1: list,
+        columns: list,
         population_mean: float,
         confidence_level: float = 0.95,
         trimming_level: float = 0.2,
-        reps=1000
+        reps=1000,
     ) -> OneSampleCLESResults:
         """
         Calculate the one-sample CLES test results from given sample data.
@@ -595,6 +598,7 @@ class OneSampleClesTest(interfaces.AbstractTest):
         OneSampleCLESResults
             An instance of OneSampleCLESResults containing the results of the one-sample CLES test.
         """
+        column_1 = columns[0]
         sample_mean = np.mean(column_1)
         sample_sd = np.std(column_1, ddof=1)
         sample_size = len(column_1)
@@ -646,10 +650,14 @@ class OneSampleClesTest(interfaces.AbstractTest):
             + 2 * (norm.ppf(trimming_level) ** 2) * trimming_level
         )
         trimmed_mean_1 = trim_mean(column_1, trimming_level)
-        winsorized_standard_deviation_1 = np.sqrt(calculate_winsorized_variance(column_1))
+        winsorized_standard_deviation_1 = np.sqrt(
+            calculate_winsorized_variance(column_1)
+        )
 
         # Algina, Penfield, Kesselman robust effect size (AKP)
-        standardizer = np.sqrt(calculate_winsorized_variance(difference, trimming_level))
+        standardizer = np.sqrt(
+            calculate_winsorized_variance(difference, trimming_level)
+        )
         trimmed_mean = trim_mean(difference, trimming_level)
         akp_effect_size = correction * (trimmed_mean - population_mean) / standardizer
 
@@ -699,42 +707,53 @@ class OneSampleClesTest(interfaces.AbstractTest):
 
         # Create results object
         results = OneSampleCLESResults()
+        sample: res.Sample = res.Sample(
+            size=sample_size, mean=sample_mean, standard_deviation=sample_sd
+        )
+        sample.population_mean = population_mean
 
-        results.sample_size = sample_size
-        results.population_mean = population_mean
-        results.sample_mean = sample_mean
-        results.sample_sd = sample_sd
-        results.standard_error = standard_error
-        results.difference_between_means = sample_mean - population_mean
-        results.t_score = t_score
-        results.degrees_of_freedom = df
-        results.p_value = p_value
-        results.cohens_d = res.CohensDCLES(
+        inferential: res.InferentialStatistics = res.InferentialStatistics(
+            score=t_score,
+            p_value=p_value,
+        )
+        inferential.degrees_of_freedom = df
+        inferential.standard_error = standard_error
+        inferential.means_difference = sample_mean - population_mean
+
+        cohens_d: es.CohenD = es.CohenD(
             value=cles_d,
-            lower_central_ci_lower=norm.cdf(ci_lower_cohens_d_central) * 100,
-            central_ci_upper=norm.cdf(ci_upper_cohens_d_central) * 100,
-            non_central_ci_lower=norm.cdf(ci_lower_cohens_d_ncp) * 100,
-            non_central_ci_upper=norm.cdf(ci_upper_cohens_d_ncp) * 100,
+            ci_lower=ci_lower_cohens_d_central,
+            ci_upper=ci_upper_cohens_d_central,
             standard_error=standrat_error_cohens_d,
         )
-        results.hedges_g = res.HedgesGCLES(
+        cohens_d.non_central_ci = res.ConfidenceInterval(
+            lower=ci_lower_cohens_d_ncp, upper=ci_upper_cohens_d_ncp
+        )
+
+        hedges_g: es.HedgesG = es.HedgesG(
             value=cles_g,
-            central_ci_lower=norm.cdf(ci_lower_hedges_g_central) * 100,
-            central_ci_upper=norm.cdf(ci_upper_hedges_g_central) * 100,
-            non_central_ci_lower=norm.cdf(ci_lower_hedges_g_ncp) * 100,
-            non_central_ci_upper=norm.cdf(ci_upper_hedges_g_ncp) * 100,
+            ci_lower=ci_lower_hedges_g_central,
+            ci_upper=ci_upper_hedges_g_central,
             standard_error=standrat_error_hedges_g,
         )
-        results.robust_t = res.YuensRobustT(
-            value=akp_effect_size,
-            lower_ci_robust_akp=lower_ci_akp_boot,
-            upper_ci_robust_akp=upper_ci_akp_boot,
-            trimmed_mean=trimmed_mean_1,
-            winsorized_mean=winsorized_standard_deviation_1,
-            robust_apk_value=correction,
-            degrees_of_freedom=df,
-            p_value=yuen_p_value,
-            standard_error=yuen_standard_error,
+        hedges_g.non_central_ci = res.ConfidenceInterval(
+            lower=ci_lower_hedges_g_ncp,
+            upper=ci_upper_hedges_g_ncp,
         )
+        robust_t: res.YuensRobustT = res.YuensRobustT(
+            score=yuen_statistic,
+            p_value=yuen_p_value,
+            trimming_level=trimming_level,
+            standard_error=yuen_standard_error,
+            effect_size=akp_effect_size,
+            ci_lower=lower_ci_akp_boot,
+            ci_upper=upper_ci_akp_boot,
+            reps=reps,
+        )
+        results.sample = sample
+        results.inferential = inferential
+        results.cohens_d = cohens_d
+        results.hedges_g = hedges_g
+        results.robust_t = robust_t
 
         return results

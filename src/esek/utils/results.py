@@ -423,6 +423,7 @@ class Sample(DescriptiveStatistics):
         self.diff_mean: float | None = None
         self.diff_sd: float | None = None
         self.population_sd_diff: float | None = None
+        self.population_mean: float | None = None
 
 
 class Group(DescriptiveStatistics):
