@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 from scipy.stats import norm, rankdata, median_abs_deviation
-from ...utils import interfaces, res
+from ...utils import interfaces, res, es
 
 
 # Create results class
@@ -34,63 +34,14 @@ class OneSampleAparametricResults:
     - Pratt test statistics (considering ties)
     """
 
-    sample_size: Optional[int] = None
-    median: Optional[int | float] = None
-    median_of_absolute_deviation: Optional[int | float] = None
-    mean: Optional[int | float] = None
-    standard_deviation: Optional[int | float] = None
-
-    how_many_times_sample_is_larger: Optional[int | float] = None
-    how_many_times_sample_is_smaller: Optional[int | float] = None
-    how_many_ties: Optional[int | float] = None
-    sample_size: Optional[int | float] = None
-    sample_size_of_non_ties: Optional[int | float] = None
-
-    wilcoxon_matched_pairs_rank_biserial_z_score: Optional[int | float] = None
-    wilcoxon_matched_pairs_rank_biserial_p_value: Optional[int | float] = None
-    wilcoxon_matched_pairs_rank_biserial_effect_size: Optional[int | float] = None
-    wilcoxon_matched_pairs_rank_biserial_confidence_interval: Optional[
-        tuple[int | float, int | float]
-    ] = None
-
-    wilcoxon_z_based_rank_biserial_correlation_z_score: Optional[int | float] = None
-    wilcoxon_z_based_rank_biserial_correlation_p_value: Optional[int | float] = None
-    wilcoxon_z_based_rank_biserial_correlation_effect_size: Optional[int | float] = None
-    wilcoxon_z_based_rank_biserial_correlation_confidence_interval: Optional[
-        tuple[int | float, int | float]
-    ] = None
-
-    wilcoxon_z_based_corrected_rank_biserial_correlation_z_score: Optional[
-        int | float
-    ] = None
-    wilcoxon_z_based_corrected_rank_biserial_correlation_p_value: Optional[
-        int | float
-    ] = None
-    wilcoxon_z_based_corrected_rank_biserial_correlation_effect_size: Optional[
-        int | float
-    ] = None
-    wilcoxon_z_based_corrected_rank_biserial_correlation_confidence_interval: Optional[res.ConfidenceInterval] = None
-
-    pratt_matched_pairs_rank_biserial_z_score: Optional[int | float] = None
-    pratt_matched_pairs_rank_biserial_p_value: Optional[int | float] = None
-    pratt_matched_pairs_rank_biserial_effect_size: Optional[int | float] = None
-    pratt_matched_pairs_rank_biserial_confidence_interval: Optional[res.ConfidenceInterval] = None
-
-    pratt_z_based_rank_biserial_correlation_z_score: Optional[int | float] = None
-    pratt_z_based_rank_biserial_correlation_p_value: Optional[int | float] = None
-    pratt_z_based_rank_biserial_correlation_effect_size: Optional[int | float] = None
-    pratt_z_based_rank_biserial_correlation_confidence_interval: Optional[res.ConfidenceInterval] = None
-
-    pratt_z_based_corrected_rank_biserial_correlation_z_score: Optional[int | float] = (
-        None
-    )
-    pratt_z_based_corrected_rank_biserial_correlation_p_value: Optional[int | float] = (
-        None
-    )
-    pratt_z_based_corrected_rank_biserial_correlation_effect_size: Optional[
-        int | float
-    ] = None
-    pratt_z_based_corrected_rank_biserial_correlation_confidence_interval: Optional[res.ConfidenceInterval] = None
+    group: Optional[res.Group] = None
+    wilcoxon_signed_rank: Optional[res.WilcoxonSignedRank] = None
+    wilcoxon_matched_pairs_rank_biserial: Optional[es.Biserial] = None
+    wilcoxon_z_based_rank_biserial_correlation: Optional[es.Biserial] = None
+    wilcoxon_z_based_corrected_rank_biserial_correlation: Optional[es.Biserial] = None
+    pratt_matched_pairs_rank_biserial_z_score: Optional[es.Biserial] = None
+    pratt_z_based_rank_biserial_correlation: Optional[es.Biserial] = None
+    pratt_z_based_corrected_rank_biserial_correlation: Optional[es.Biserial] = None
 
 
 class OneSampleAparametric(interfaces.AbstractTest):
@@ -100,6 +51,7 @@ class OneSampleAparametric(interfaces.AbstractTest):
     This class contains methods to calculate the Aparametric effect size for one sample
     and returns the results in a structured format.
     """
+
     @staticmethod
     def from_score() -> OneSampleAparametricResults:
         """
@@ -369,86 +321,110 @@ class OneSampleAparametric(interfaces.AbstractTest):
         )
 
         results = OneSampleAparametricResults()
-        results.sample_size = sample_size
-        results.median = sample_median
-        results.median_of_absolute_deviation = median_absolute_deviation
-        results.mean = sample_mean
-        results.standard_deviation = sample_standard_deviation_1
-
-        results.how_many_times_sample_is_larger = positive_n
-        results.how_many_times_sample_is_smaller = negative_n
-        results.how_many_ties = zero_n
-        results.sample_size_of_non_ties = len(difference_no_ties)
-
-        results.wilcoxon_matched_pairs_rank_biserial_z_score = z_adjusted_wilcoxon
-        results.wilcoxon_matched_pairs_rank_biserial_p_value = p_value_adjusted_wilcoxon
-        results.wilcoxon_matched_pairs_rank_biserial_effect_size = (
-            matched_pairs_rank_biserial_correlation_ignoring_ties
+        group = res.Group(
+            sample_size=sample_size,
+            median=sample_median,
+            median_absolute_deviation=median_absolute_deviation,
+            mean=sample_mean,
+            standard_deviation=sample_standard_deviation_1,
+        )
+        wilcoxon_signed_rank = res.WilcoxonSignedRank(
+            times_group1_larger=positive_n,
+            times_group2_larger=negative_n,
+            ties=zero_n,
+            num_of_pairs=len(difference_no_ties),
+            num_of_non_tied_pairs=len(difference_no_ties),
         )
 
-        results.wilcoxon_matched_pairs_rank_biserial_confidence_interval = res.ConfidenceInterval(
-            lower_ci_matched_pairs_wilcoxon,
-            upper_ci_matched_pairs_wilcoxon,
+        wilcoxon_matched_pairs_rank_biserial = es.Biserial(
+            name="Matched Pairs Rank Biserial Correlation (Ignoring Ties)",
+            value=matched_pairs_rank_biserial_correlation_ignoring_ties,
+            ci_lower=lower_ci_matched_pairs_wilcoxon,
+            ci_upper=upper_ci_matched_pairs_wilcoxon,
+            standard_error=standard_error_match_pairs_rank_biserial_correlation_no_ties,
         )
-        results.wilcoxon_z_based_rank_biserial_correlation_z_score = (
-            z_based_rank_biserial_correlation_no_ties
+        wilcoxon_matched_pairs_rank_biserial.z_score = z_adjusted_wilcoxon
+        wilcoxon_matched_pairs_rank_biserial.p_value = p_value_adjusted_wilcoxon
+
+        wilcoxon_z_based_rank_biserial_correlation = es.Biserial(
+            name="Z Based Rank Biserial Correlation (Ignoring Ties)",
+            value=z_based_rank_biserial_correlation_no_ties,
+            ci_lower=lower_ci_z_based_wilcoxon,
+            ci_upper=upper_ci_z_based_wilcoxon,
+            standard_error=standard_error_match_pairs_rank_biserial_correlation_no_ties,
         )
-        results.wilcoxon_z_based_rank_biserial_correlation_p_value = (
-            p_value_adjusted_wilcoxon
+        wilcoxon_z_based_rank_biserial_correlation.z_score = z_adjusted_wilcoxon
+        wilcoxon_z_based_rank_biserial_correlation.p_value = p_value_adjusted_wilcoxon
+
+        wilcoxon_z_based_corrected_rank_biserial_correlation = es.Biserial(
+            name="Z Based Corrected Rank Biserial Correlation (Ignoring Ties)",
+            value=z_based_rank_biserial_correlation_corrected_no_ties,
+            ci_lower=lower_ci_z_based_corrected_wilcoxon,
+            ci_upper=upper_ci_z_based_corrected_wilcoxon,
+            standard_error=standard_error_match_pairs_rank_biserial_correlation_no_ties,
         )
-        results.wilcoxon_z_based_rank_biserial_correlation_effect_size = (
-            z_based_rank_biserial_correlation_no_ties
+        wilcoxon_z_based_corrected_rank_biserial_correlation.z_score = (
+            z_adjusted_normal_approximation_wilcoxon
         )
-        results.wilcoxon_z_based_rank_biserial_correlation_confidence_interval = res.ConfidenceInterval(
-            lower_ci_z_based_wilcoxon,
-            upper_ci_z_based_wilcoxon
-        )
-        results.wilcoxon_z_based_corrected_rank_biserial_correlation_z_score = (
-            z_based_rank_biserial_correlation_corrected_no_ties
-        )
-        results.wilcoxon_z_based_corrected_rank_biserial_correlation_p_value = (
+        wilcoxon_z_based_corrected_rank_biserial_correlation.p_value = (
             p_value_adjusted_normal_approximation_wilcoxon
         )
-        results.wilcoxon_z_based_corrected_rank_biserial_correlation_effect_size = (
-            z_based_rank_biserial_correlation_corrected_no_ties
+
+        pratt_matched_pairs_rank_biserial = es.Biserial(
+            name="Matched Pairs Rank Biserial Correlation (Considering Ties)",
+            value=matched_pairs_rank_biserial_correlation_considering_ties,
+            ci_lower=lower_ci_matched_pairs_pratt,
+            ci_upper=upper_ci_matched_pairs_pratt,
+            standard_error=standard_error_match_pairs_rank_biserial_correlation_with_ties,
         )
-        results.wilcoxon_z_based_corrected_rank_biserial_correlation_confidence_interval = res.ConfidenceInterval(
-            lower_ci_z_based_corrected_wilcoxon,
-            upper_ci_z_based_corrected_wilcoxon,
-        )
-        results.pratt_matched_pairs_rank_biserial_z_score = z_adjusted_pratt
-        results.pratt_matched_pairs_rank_biserial_p_value = p_value_adjusted_pratt
-        results.pratt_matched_pairs_rank_biserial_effect_size = (
-            matched_pairs_rank_biserial_correlation_considering_ties
-        )
-        results.pratt_matched_pairs_rank_biserial_confidence_interval = res.ConfidenceInterval(
-            lower_ci_matched_pairs_pratt,
-            upper_ci_matched_pairs_pratt,
-        )
-        results.pratt_z_based_rank_biserial_correlation_z_score = (
-            z_based_rank_biserial_correlation_with_ties
+        pratt_matched_pairs_rank_biserial.z_score = z_adjusted_pratt
+        pratt_matched_pairs_rank_biserial.p_value = p_value_adjusted_pratt
+
+        pratt_z_based_rank_biserial_correlation = es.Biserial(
+            name="Z Based Rank Biserial Correlation (Considering Ties)",
+            value=z_based_rank_biserial_correlation_with_ties,
+            ci_lower=lower_ci_z_based_pratt,
+            ci_upper=upper_ci_z_based_pratt,
+            standard_error=standard_error_match_pairs_rank_biserial_correlation_with_ties,
         )
 
-        results.pratt_z_based_rank_biserial_correlation_p_value = p_value_adjusted_pratt
-        results.pratt_z_based_rank_biserial_correlation_effect_size = (
-            z_based_rank_biserial_correlation_with_ties
+        pratt_z_based_rank_biserial_correlation.z_score = z_adjusted_pratt
+        pratt_z_based_rank_biserial_correlation.p_value = p_value_adjusted_pratt
+
+        pratt_z_based_corrected_rank_biserial_correlation = es.Biserial(
+            name="Z Based Corrected Rank Biserial Correlation (Considering Ties)",
+            value=z_based_rank_biserial_correlation_corrected_with_ties,
+            ci_lower=lower_ci_z_based_corrected_pratt,
+            ci_upper=upper_ci_z_based_corrected_pratt,
+            standard_error=standard_error_match_pairs_rank_biserial_correlation_with_ties,
         )
-        results.pratt_z_based_rank_biserial_correlation_confidence_interval = (
-            lower_ci_z_based_pratt,
-            upper_ci_z_based_pratt,
+        pratt_z_based_corrected_rank_biserial_correlation.z_score = (
+            z_adjusted_normal_approximation_pratt
         )
-        results.pratt_z_based_corrected_rank_biserial_correlation_z_score = (
-            z_based_rank_biserial_correlation_corrected_with_ties
-        )
-        results.pratt_z_based_corrected_rank_biserial_correlation_p_value = (
+        pratt_z_based_corrected_rank_biserial_correlation.p_value = (
             p_value_adjusted_normal_approximation_pratt
         )
-        results.pratt_z_based_corrected_rank_biserial_correlation_effect_size = (
-            z_based_rank_biserial_correlation_corrected_with_ties
+
+
+        results.group = group
+        results.wilcoxon_signed_rank = wilcoxon_signed_rank
+        results.wilcoxon_matched_pairs_rank_biserial = (
+            wilcoxon_matched_pairs_rank_biserial
         )
-        results.pratt_z_based_corrected_rank_biserial_correlation_confidence_interval = res.ConfidenceInterval(
-            lower_ci_z_based_corrected_pratt,
-            upper_ci_z_based_corrected_pratt,
+        results.wilcoxon_z_based_rank_biserial_correlation = (
+            wilcoxon_z_based_rank_biserial_correlation
+        )
+        results.wilcoxon_z_based_corrected_rank_biserial_correlation = (
+            wilcoxon_z_based_corrected_rank_biserial_correlation
+        )
+        results.pratt_matched_pairs_rank_biserial_z_score = (
+            pratt_matched_pairs_rank_biserial
+        )
+        results.pratt_z_based_rank_biserial_correlation = (
+            pratt_z_based_rank_biserial_correlation
+        )
+        results.pratt_z_based_corrected_rank_biserial_correlation = (
+            pratt_z_based_corrected_rank_biserial_correlation
         )
 
         return results
