@@ -100,10 +100,33 @@ class OneSampleAparametric(interfaces.AbstractTest):
     This class contains methods to calculate the Aparametric effect size for one sample
     and returns the results in a structured format.
     """
+    @staticmethod
+    def from_score() -> OneSampleAparametricResults:
+        """
+        A static method to create results from a score.
+        This method is not implemented and will raise a NotImplementedError.
+        Raises:
+            NotImplementedError: This method is not implemented for OneSampleAparametric.
+        """
+        raise NotImplementedError(
+            "from_score method is not implemented for OneSampleAparametric."
+        )
+
+    @staticmethod
+    def from_parameters() -> OneSampleAparametricResults:
+        """
+        A static method to create results from parameters.
+        This method is not implemented and will raise a NotImplementedError.
+        Raises:
+            NotImplementedError: This method is not implemented for OneSampleAparametric.
+        """
+        raise NotImplementedError(
+            "from_parameters method is not implemented for OneSampleAparametric."
+        )
 
     @staticmethod
     def from_data(
-        column: list, population_mean: float, confidence_level: float = 0.95
+        columns: list, population_mean: float, confidence_level: float = 0.95
     ) -> OneSampleAparametricResults:
         """
         Calculate the Aparametric effect size using the sign test for one sample from data.
@@ -116,11 +139,12 @@ class OneSampleAparametric(interfaces.AbstractTest):
         Returns:
         OneSampleAparametricResults: An instance of OneSampleAparametricResults containing the results.
         """
+        column_1 = columns[0]
         # General Summary Statistics
-        sample_median = np.median(column)
+        sample_median = np.median(column_1)
         sample_mean = np.mean(population_mean)
-        sample_standard_deviation_1 = float(np.std(column, ddof=1))
-        difference = column - population_mean
+        sample_standard_deviation_1 = float(np.std(column_1, ddof=1))
+        difference = column_1 - population_mean
         # How many times sample is greater than population value
         positive_n = difference[difference > 0].shape[0]
         # How many times sample is lower than population value
