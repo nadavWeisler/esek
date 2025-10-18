@@ -3,7 +3,6 @@ from src.esek.Calculator.TwoPairedMean.two_paired_aparametric import (
     TwoPairedAparametricTests,
 )
 
-
 def test_two_paired_aparametric_from_score():
     assert True, "Method not implemented yet"
 

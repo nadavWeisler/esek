@@ -52,6 +52,19 @@ class HedgesGav(EffectSize):
         self.effect_size_name: str = "Hedge's gav"
         self.update_statistical_line()
 
+class CohenH(EffectSize):
+    """Cohen's h for proportions (2*arcsin(sqrt(p1)) - 2*arcsin(sqrt(p0)))."""
+    def __init__(self, value: float, ci_lower: float, ci_upper: float, standard_error: float) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name = "Cohen's h"
+        self.update_statistical_line()
+        
+class CohenG(EffectSize):
+    """Cohen's g for proportions (|p1 - p0|)."""
+    def __init__(self, value: float, ci_lower: float, ci_upper: float, standard_error: float) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name = "Cohen's g"
+        self.update_statistical_line()
 
 class CohensDrm(EffectSize):
     """
@@ -65,6 +78,12 @@ class CohensDrm(EffectSize):
         self.effect_size_name: str = "Cohen's drm"
         self.update_statistical_line()
 
+class CohenW(EffectSize):
+    """Cohen's w for 2x2 (sqrt(chi2/N))."""
+    def __init__(self, value: float, ci_lower: float = 0.0, ci_upper: float = 0.0, standard_error: float = float("nan")) -> None:
+        super().__init__(value, ci_lower, ci_upper, standard_error)
+        self.effect_size_name = "Cohen's w"
+        self.update_statistical_line()
 
 class HedgesGrm(EffectSize):
     """
