@@ -312,3 +312,16 @@ class AokiEpsilonUnbiased(EffectSize):
         super().__init__(value, ci_lower, ci_upper, standard_error)
         self.effect_size_name: str = "Aoki's Epsilon Unbiased"
         self.update_statistical_line()
+        
+class CohensG():
+    """
+    A class to store Cohen's g effect size values.
+    """
+
+    def __init__(
+        self, value: float, relative_risk: float, odds_ratio: float
+    ) -> None:
+        self.value: float = value
+        self.relative_risk: float = relative_risk
+        self.odds_ratio: float = odds_ratio
+        self.effect_size_name: str = "Cohen's g"

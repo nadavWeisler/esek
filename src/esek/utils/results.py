@@ -202,6 +202,19 @@ class Group(DescriptiveStatistics):
         self.sd_diff: float | None = None
 
 
+class Proportion:
+    """
+    A class to store descriptive statistics for a proportion.
+    """
+
+    def __init__(
+        self, sample_proportion: float, population_proportion: float, sample_size: int
+    ) -> None:
+        self.sample_proportion: float = sample_proportion
+        self.population_proportion: float = population_proportion
+        self.sample_size: int = sample_size
+
+
 class WilcoxonSignedRank(DescriptiveStatistics):
     """
     A class to store descriptive statistics from the Wilcoxon Signed-Rank test.
