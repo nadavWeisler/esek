@@ -1,14 +1,18 @@
 """
-This module provides functionality for calculating the Common Language Effect Size (CLES) for one sample t-tests.
+This module provides functionality for calculating the Common Language
+Effect Size (CLES) for one sample t-tests.
 
 Classes:
     OneSampleCLESResults: A class containing results from CLES calculations
-    OneSampleTTest: A class containing static methods for calculating the Common Language Effect Size (CLES) and other related statistics.
+    OneSampleTTest: A class containing static methods for calculating the Common
+    Language Effect Size (CLES) and other related statistics.
 
 Methods:
     pivotal_ci_t: Calculate the pivotal confidence intervals for a t-score.
-    calculate_central_ci_from_cohens_d_one_sample_t_test: Calculate the central confidence intervals for Cohen's d in a one-sample t-test.
-    CI_NCP_one_Sample: Calculate the Non-Central Parameter (NCP) confidence intervals for a one-sample t-test.
+    calculate_central_ci_from_cohens_d_one_sample_t_test: Calculate the central confidence
+        intervals for Cohen's d in a one-sample t-test.
+    CI_NCP_one_Sample: Calculate the Non-Central Parameter (NCP) confidence intervals for
+        a one-sample t-test.
     density: Calculate the density function for a given value.
     area_under_function: Calculate the area under a given function using numerical integration.
     WinsorizedVariance: Calculate the Winsorized variance of a sample.
@@ -126,8 +130,7 @@ def pivotal_ci_t(t_score, df, sample_size, confidence_level):
         upper_ci = upper_criterion[1] / (np.sqrt(sample_size))
     if is_negative:
         return -upper_ci, -lower_ci
-    else:
-        return lower_ci, upper_ci
+    return lower_ci, upper_ci
 
 
 def calculate_central_ci_from_cohens_d_one_sample_t_test(
@@ -186,37 +189,37 @@ def ci_ncp_one_sample(effect_size, sample_size, confidence_level):
     -------
     tuple
         A tuple containing:
-        - CI_NCP_low (float): Lower bound of the NCP confidence interval.
-        - CI_NCP_High (float): Upper bound of the NCP confidence interval.
+        - ci_ncp_low (float): Lower bound of the NCP confidence interval.
+        - ci_ncp_high (float): Upper bound of the NCP confidence interval.
     """
-    NCP_value = effect_size * math.sqrt(sample_size)
-    CI_NCP_low = (
+    ncp_value = effect_size * math.sqrt(sample_size)
+    ci_ncp_low = (
         (
             nct.ppf(
                 1 / 2 - confidence_level / 2,
                 (sample_size - 1),
                 loc=0,
                 scale=1,
-                nc=NCP_value,
+                nc=ncp_value,
             )
         )
-        / NCP_value
+        / ncp_value
         * effect_size
     )
-    CI_NCP_High = (
+    ci_ncp_high = (
         (
             nct.ppf(
                 1 / 2 + confidence_level / 2,
                 (sample_size - 1),
                 loc=0,
                 scale=1,
-                nc=NCP_value,
+                nc=ncp_value,
             )
         )
-        / NCP_value
+        / ncp_value
         * effect_size
     )
-    return CI_NCP_low, CI_NCP_High
+    return ci_ncp_low, ci_ncp_high
 
 
 def density(x):
@@ -342,7 +345,8 @@ def calculate_winsorized_correlation(x, y, trimming_level=0.2):
     Returns
     -------
     dict
-        A dictionary containing the Winsorized correlation, covariance, p-value, sample size, and test statistic.
+        A dictionary containing the Winsorized correlation, covariance,
+        p-value, sample size, and test statistic.
     """
     sample_size = len(x)
     x_sorted = np.sort(x)
@@ -359,10 +363,10 @@ def calculate_winsorized_correlation(x, y, trimming_level=0.2):
     test_statistic = winsorized_correlation * np.sqrt(
         (sample_size - 2) / (1 - winsorized_correlation**2)
     )
-    Number_of_trimmed_values = int(np.floor(trimming_level * sample_size))
+    number_of_trimmed_values = int(np.floor(trimming_level * sample_size))
     p_value = 2 * (
         1
-        - t.cdf(np.abs(test_statistic), sample_size - 2 * Number_of_trimmed_values - 2)
+        - t.cdf(np.abs(test_statistic), sample_size - 2 * number_of_trimmed_values - 2)
     )
     return {
         "cor": winsorized_correlation,
@@ -375,7 +379,8 @@ def calculate_winsorized_correlation(x, y, trimming_level=0.2):
 
 class OneSampleClesTest(interfaces.AbstractTest):
     """
-    A class containing static methods for calculating the Common Language Effect Size (CLES) and other related statistics.
+    A class containing static methods for calculating the Common Language
+    Effect Size (CLES) and other related statistics.
 
     This class includes the following static methods:
     - one_sample_from_t_score: Calculate the one-sample t-test results from a given t-score.
@@ -385,7 +390,9 @@ class OneSampleClesTest(interfaces.AbstractTest):
     """
 
     @staticmethod
-    def from_score(t_score: float, sample_size: int, confidence_level: float = 0.95):
+    def from_score(
+        t_score: float, sample_size: int, confidence_level: float = 0.95
+    ) -> OneSampleCLESResults:
         """
         Calculate the one-sample CLES test results from a given t-score.
         This method computes the Common Language Effect Size (CLES) for a one-sample t-test,
@@ -580,7 +587,9 @@ class OneSampleClesTest(interfaces.AbstractTest):
         Calculate the one-sample CLES test results from given sample data.
         This method computes the Common Language Effect Size (CLES) for a one-sample t-test,
         including Cohen's d, Hedges' g, and the t-score.
-        It also calculates confidence intervals for the effect sizes and performs robust calculations.
+        It also calculates confidence intervals for the effect sizes and performs
+        robust calculations.
+
         Parameters
         ----------
         column_1 : list
@@ -592,7 +601,8 @@ class OneSampleClesTest(interfaces.AbstractTest):
         trimming_level : float, optional
             The trimming level for robust calculations (default is 0.2).
         reps : int, optional
-            The number of bootstrap repetitions for robust effect size calculations (default is 1000).
+            The number of bootstrap repetitions for robust effect size
+            calculations (default is 1000).
         Returns
         -------
         OneSampleCLESResults

@@ -1,6 +1,4 @@
-###############################################
-# Effect Size for One Sample Proportion #######
-###############################################
+"""Module for one-sample proportion tests and CIs."""
 
 # ===== Standard library =====
 import math
@@ -16,8 +14,11 @@ from statsmodels.stats.proportion import proportion_confint
 # ===== Internal (ESEK utils) =====
 from ...utils import res, es, interfaces
 
+
 @dataclass
 class OneSampleProportionResults:
+    """Results for one-sample proportion tests and CIs."""
+
     descriptive_statistics: Optional[res.DescriptiveStatistics] = None
 
     # Z tests (score test uses p0 in SE; Wald uses p̂ in SE). Corrected = continuity correction.
@@ -51,7 +52,7 @@ class OneSampleProportionResults:
     confidence_level: Optional[float] = None
 
 
-def blakersCI(
+def blakers_ci(
     x: int, n: int, conf_level: float = 0.95, tol: float = 1e-5
 ) -> list[float]:
     """Blaker's exact CI for a binomial proportion."""
@@ -94,8 +95,11 @@ def calculate_midp(x: int, n: int, conf_level: float) -> tuple[float, float]:
 
 
 class OneSampleProportions(interfaces.AbstractTest):
+    """One-sample proportion tests and CIs."""
+
     @staticmethod
     def from_score():
+        """Calculate results from score"""
         raise NotImplementedError("This method is not implemented yet.")
 
     @staticmethod
@@ -105,6 +109,8 @@ class OneSampleProportions(interfaces.AbstractTest):
         population_proportion: float,
         confidence_level: float = 0.95,
     ) -> OneSampleProportionResults:
+        """Calculate results from parameters."""
+
         n = int(sample_size)
         p_hat = float(proportion_sample)
         p0 = float(population_proportion)
@@ -267,7 +273,7 @@ class OneSampleProportions(interfaces.AbstractTest):
         pratt_hi = float(min(1 / e if e not in (0.0, float("inf")) else 1.0, 1.0))
 
         # 11) Blaker
-        bl_lo, bl_hi = blakersCI(int(round(x)), n, df_cl)
+        bl_lo, bl_hi = blakers_ci(int(round(x)), n, df_cl)
 
         # 12) Mid-p
         midp_lo, midp_hi = calculate_midp(int(round(x)), n, df_cl)
@@ -326,6 +332,8 @@ class OneSampleProportions(interfaces.AbstractTest):
         defined_sucess_value: float,
         confidence_level: float = 0.95,
     ) -> OneSampleProportionResults:
+        """Calculate results from data."""
+
         col = columns[0]
         n = len(col)
         x = int(np.count_nonzero(col == defined_sucess_value))
@@ -341,6 +349,8 @@ class OneSampleProportions(interfaces.AbstractTest):
         sample_size: int,
         confidence_level: float = 0.95,
     ) -> OneSampleProportionResults:
+        """Calculate results from frequency data."""
+
         p_hat = number_of_successes / sample_size
         return OneSampleProportions.from_parameters(
             p_hat, sample_size, population_proportion, confidence_level
@@ -373,7 +383,9 @@ class OneSampleProportions(interfaces.AbstractTest):
         # SE for π (delta method form you used)
         # guard against p_correct == 0 or 1
         denom = (
-            math.sqrt(p_correct * (1 - p_correct)) if 0 < p_correct < 1 else float("inf")
+            math.sqrt(p_correct * (1 - p_correct))
+            if 0 < p_correct < 1
+            else float("inf")
         )
         se_pi = (
             (1 / math.sqrt(n)) * ((pi * (1 - pi)) / denom)

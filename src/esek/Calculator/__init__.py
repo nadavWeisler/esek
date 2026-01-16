@@ -1,3 +1,5 @@
-from . import OneSampleMean, TwoPairedMean, TwoIndependentMean
+"""Initialization for the Calculator module."""
 
-__all__ = ["OneSampleMean", "TwoPairedMean", "TwoIndependentMean"]
+from . import one_sample_mean, two_paired_mean, two_independent_mean
+
+__all__ = ["one_sample_mean", "two_paired_mean", "two_independent_mean"]

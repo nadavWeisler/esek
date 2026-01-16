@@ -1,3 +1,8 @@
+"""
+This module provides the public API for the Esek library.
+It includes classes and functions for performing various statistical tests on two paired samples.
+"""
+
 from .two_paired_z import TwoPairedZTests, TwoPairedZResults
 from .two_paired_t import TwoPairedTTests, TwoPairedTResults
 from .two_paired_aparametric import (

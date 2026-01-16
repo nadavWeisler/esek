@@ -1,4 +1,4 @@
-# src/esek/Calculator/MultipleProportions/multiple_proportions.py
+"""Module for multiple proportions tests: Cochran's Q and goodness-of-fit."""
 
 from __future__ import annotations
 
@@ -45,8 +45,8 @@ class GoodnessOfFitResults:
 
 class MultipleProportions(interfaces.AbstractTest):
     """
-    - Cochran's Q (wide, binary 0/1 data per subject)
-    - One-way categorical goodness-of-fit (from a 1D vector of labels + optional expectations)
+    Cochran's Q (wide, binary 0/1 data per subject)
+    One-way categorical goodness-of-fit (from a 1D vector of labels + optional expectations)
     """
 
     # ---------- Cochran's Q ----------

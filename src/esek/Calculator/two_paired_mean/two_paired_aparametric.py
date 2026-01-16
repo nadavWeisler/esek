@@ -85,7 +85,8 @@ class TwoPairedAparametricTests(interfaces.AbstractTest):
 
         Returns:
             TwoPairedAparametricResults: An instance containing the results of the tests,
-            including group statistics, Wilcoxon signed-rank results, and rank biserial correlations.
+            including group statistics, Wilcoxon signed-rank results,
+            and rank biserial correlations.
         """
         column_1 = columns[0]
         column_2 = columns[1]

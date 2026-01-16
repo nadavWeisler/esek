@@ -1,0 +1,8 @@
+[MASTER]
+disable=
+    E0402, #Attempted relative import beyond top-level package
+    R0902, #Too many instance attributes
+    R0912, #Too many branches
+    R0913, #Too many arguments
+    R0914, #Too many local variables
+    R0915 #Too many statements

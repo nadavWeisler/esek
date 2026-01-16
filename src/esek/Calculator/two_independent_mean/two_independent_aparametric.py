@@ -1,6 +1,8 @@
 """
-TwoIndependentAparametric module provides functionality for performing two independent aparametric tests.
-It includes methods for calculating statistics such as U-statistic, mean ranks, and rank-biserial correlation.
+TwoIndependentAparametric module provides functionality for performing two independent
+aparametric tests.
+It includes methods for calculating statistics such as U-statistic, mean ranks,
+and rank-biserial correlation.
 The results are encapsulated in a dataclass for easy access and manipulation.
 """
 
@@ -78,10 +80,13 @@ class TwoIndependentAparametricTests(interfaces.AbstractTest):
         Create results from data columns.
 
         Args:
-            columns (list): A list containing two numpy arrays or lists representing the two independent samples.
-            confidence_level (float): The confidence level for the confidence intervals, default is 0.95.
+            columns (list): A list containing two numpy arrays or lists representing the
+                two independent samples.
+            confidence_level (float): The confidence level for the confidence intervals,
+                default is 0.95.
         Returns:
-            TwoIndependentAparametricResults: An instance containing the results of the two independent aparametric tests.
+            TwoIndependentAparametricResults: An instance containing the results of the
+            two independent aparametric tests.
         Raises:
             ValueError: If the length of columns is not 2.
         """
@@ -92,8 +97,6 @@ class TwoIndependentAparametricTests(interfaces.AbstractTest):
         column_2 = columns[1]
         sample_median_1 = np.median(column_1)
         sample_median_2 = np.median(column_2)
-        sample_mean_1 = np.mean(column_1)
-        sample_mean_2 = np.mean(column_2)
         sample_size_1 = len(column_1)
         sample_size_2 = len(column_2)
         sample_size = sample_size_1 + sample_size_2

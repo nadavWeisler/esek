@@ -19,7 +19,6 @@ from scipy.stats import norm, rankdata, median_abs_deviation
 from ...utils import interfaces, res, es
 
 
-# Create results class
 @dataclass
 class OneSampleAparametricResults:
     """
@@ -89,7 +88,8 @@ class OneSampleAparametric(interfaces.AbstractTest):
         confidence_level (float): The confidence level as a decimal (default is 0.95).
 
         Returns:
-        OneSampleAparametricResults: An instance of OneSampleAparametricResults containing the results.
+        OneSampleAparametricResults: An instance of OneSampleAparametricResults
+        containing the results.
         """
         column_1 = columns[0]
         # General Summary Statistics
@@ -183,14 +183,19 @@ class OneSampleAparametric(interfaces.AbstractTest):
             (positive_sum_ranks_no_ties - negative_sum_ranks_no_ties)
             / np.sum(ranked_no_ties),
             0.99999999,
-        )  # This is the match paired rank biserial correlation using kerby formula that is not considering ties (Kerby, 2014)
+        )
+        # This is the match paired rank biserial correlation using
+        # kerby formula that is not considering ties (Kerby, 2014)
         matched_pairs_rank_biserial_correlation_considering_ties = min(
             (positive_sum_ranks_with_ties - negative_sum_ranks_with_ties)
             / np.sum(ranked_with_ties),
             0.999999999,
-        )  # this is the Kerby 2014 Formula - (With ties one can apply either Kerby or King Minium Formulae but not cureton - King's Formula is the most safe)
+        )
+        # this is the Kerby 2014 Formula - (With ties one can apply either
+        # Kerby or King Minium Formulae but not cureton - King's Formula is the most safe)
 
-        # Z-based Rank Biserial Correlation (Note that since the Wilcoxon method is ignoring ties the sample size should actually be the number of the non tied pairs)
+        # Z-based Rank Biserial Correlation (Note that since the Wilcoxon method is
+        # ignoring ties the sample size should actually be the number of the non tied pairs)
         z_based_rank_biserial_correlation_no_ties = z_adjusted_wilcoxon / np.sqrt(
             len(ranked_no_ties)
         )
@@ -404,7 +409,6 @@ class OneSampleAparametric(interfaces.AbstractTest):
         pratt_z_based_corrected_rank_biserial_correlation.p_value = (
             p_value_adjusted_normal_approximation_pratt
         )
-
 
         results.group = group
         results.wilcoxon_signed_rank = wilcoxon_signed_rank

@@ -1,24 +1,27 @@
-from src.esek.Calculator.TwoPairedMean.two_paired_common_lang import (
+"""Tests for the Two Paired Common Language calculator."""
+
+from src.esek.Calculator.two_paired_mean.two_paired_common_lang import (
     TwoPairedCommonLangResults,
     TwoPairedCommonLangTests,
 )
 
 
 def test_two_paired_common_lang_from_score():
+    """Test Two Paired Common Language from t-score."""
+
     data = {
         "t_score": 1.96,
         "sample_size": 30,
         "confidence_level": 0.95,
     }
-    try:
-        results = TwoPairedCommonLangTests.from_score(**data)
-    except Exception as e:
-        assert False, f"Unexpected error: {e}"
+    results = TwoPairedCommonLangTests.from_score(**data)
 
     assert isinstance(results, TwoPairedCommonLangResults)
 
 
 def test_two_paired_common_lang_from_parameters():
+    """Test Two Paired Common Language from parameters."""
+
     data = {
         "sample_mean_1": 100,
         "sample_mean_2": 75,
@@ -29,25 +32,19 @@ def test_two_paired_common_lang_from_parameters():
         "correlation": 0.8,
         "confidence_level": 0.95,
     }
-    try:
-        results = TwoPairedCommonLangTests.from_parameters(**data)
-    except Exception as e:
-        assert False, f"Unexpected error: {e}"
+    results = TwoPairedCommonLangTests.from_parameters(**data)
 
     assert isinstance(results, TwoPairedCommonLangResults)
 
 
 def test_two_paired_common_lang_from_data():
-    assert True, "Return division by zero error"
-    return
+    """Test Two Paired Common Language from data."""
+
     data = {
         "column": [[1, 2, 3], [4, 5, 6]],
         "reps": 1000,
         "confidence_level": 0.95,
     }
-    try:
-        results = TwoPairedCommonLangTests.from_data(**data)
-    except Exception as e:
-        assert False, f"Unexpected error: {e}"
+    results = TwoPairedCommonLangTests.from_data(**data)
 
     assert isinstance(results, TwoPairedCommonLangResults)
