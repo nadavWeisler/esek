@@ -744,7 +744,7 @@ class TwoIndependentProportions(interfaces.AbstractTest):
             math.exp(math.log(rr) - 2 * eps), math.exp(math.log(rr) + 2 * eps)
         )
 
-        # Zou–Donner
+        # Zou–Donner 
         wil1 = proportion_confint(x1, n1, alpha=(1 - confidence_level), method="wilson")
         wil2 = proportion_confint(x2, n2, alpha=(1 - confidence_level), method="wilson")
         lo_zd = math.exp(
