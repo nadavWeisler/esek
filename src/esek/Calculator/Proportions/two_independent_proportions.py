@@ -189,7 +189,7 @@ class TwoIndependentProportions(interfaces.AbstractTest):
         sample_size_2: int,
         confidence_level: float = 0.95,
         difference_in_population: float = 0.0,
-    ) -> TwoIndProportionsResults:
+    ) -> TwoIndependentProportionsResults:
 
         # Normalize inputs
         p1 = float(np.clip(proportion_sample_1, 0.0, 1.0))
@@ -200,7 +200,7 @@ class TwoIndependentProportions(interfaces.AbstractTest):
         diff = p1 - p2
         zcrit = norm.ppf(1 - (1 - confidence_level) / 2)
 
-        out = TwoIndProportionsResults(
+        out = TwoIndependentProportionsResults(
             n1=n1,
             n2=n2,
             x1=x1,
@@ -774,7 +774,7 @@ class TwoIndependentProportions(interfaces.AbstractTest):
         defined_success_value: float,
         confidence_level: float = 0.95,
         difference_in_population: float = 0.0,
-    ) -> TwoIndProportionsResults:
+    ) -> TwoIndependentProportionsResults:
         n1 = int(len(column_1))
         n2 = int(len(column_2))
         x1 = int(np.count_nonzero(column_1 == defined_success_value))
@@ -793,7 +793,7 @@ class TwoIndependentProportions(interfaces.AbstractTest):
         sample_size_2: int,
         confidence_level: float = 0.95,
         difference_in_population: float = 0.0,
-    ) -> TwoIndProportionsResults:
+    ) -> TwoIndependentProportionsResults:
         x1 = int(number_of_successes_1)
         x2 = int(number_of_successes_2)
         n1 = int(sample_size_1)
