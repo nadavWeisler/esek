@@ -19,59 +19,19 @@ import math
 from typing import Optional
 from dataclasses import dataclass
 import numpy as np
-import numpy.typing as npt
 from scipy.stats import norm, nct, t, trim_mean
+from ...utils import interfaces, res, es
 
 
 @dataclass
 class OneSampleCLESResults:
     """Class for storing one-sample CLES test results"""
 
-    # Common Language Effect Sizes
-    cles_d: Optional[npt.NDArray[np.float16]] = (
-        None  # McGraw & Wong Common Language Effect Size
-    )
-    cles_g: Optional[npt.NDArray[np.float16]] = (
-        None  # McGraw & Wong Unbiased Common Language Effect Size
-    )
-
-    # Test Statistics
-    t_score: Optional[npt.NDArray[np.float16]] = None
-    df: Optional[npt.NDArray[np.float16]] = None
-    p_value: Optional[npt.NDArray[np.float16]] = None
-
-    # Central CI's
-    lower_central_ci_cld: Optional[npt.NDArray[np.float16]] = None
-    upper_central_ci_cld: Optional[npt.NDArray[np.float16]] = None
-    lower_central_ci_clg: Optional[npt.NDArray[np.float16]] = None
-    upper_central_ci_clg: Optional[npt.NDArray[np.float16]] = None
-
-    # Non-Central CI's
-    lower_ncp_ci_cld: Optional[npt.NDArray[np.float16]] = None
-    upper_ncp_ci_cld: Optional[npt.NDArray[np.float16]] = None
-    lower_ncp_ci_clg: Optional[npt.NDArray[np.float16]] = None
-    upper_ncp_ci_clg: Optional[npt.NDArray[np.float16]] = None
-
-    # Pivotal CI's
-    lower_pivotal_ci_cld: Optional[npt.NDArray[np.float16]] = None
-    upper_pivotal_ci_cld: Optional[npt.NDArray[np.float16]] = None
-    lower_pivotal_ci_clg: Optional[npt.NDArray[np.float16]] = None
-    upper_pivotal_ci_clg: Optional[npt.NDArray[np.float16]] = None
-
-    # Robust Statistics
-    robust_effect_size_akp: Optional[npt.NDArray[np.float16]] = None
-    lower_ci_robust_akp: Optional[npt.NDArray[np.float16]] = None
-    upper_ci_robust_akp: Optional[npt.NDArray[np.float16]] = None
-    trimmed_mean: Optional[npt.NDArray[np.float16] | float] = None
-    winsorized_sd: Optional[npt.NDArray[np.float16]] = None
-    yuens_t: Optional[npt.NDArray[np.float16]] = None
-    robust_df: Optional[npt.NDArray[np.float16]] = None
-    robust_p_value: Optional[npt.NDArray[np.float16]] = None
-    mean_difference: Optional[npt.NDArray[np.float16]] = None
-    standard_error: Optional[npt.NDArray[np.float16]] = None
-    statistical_line_robust_akp: Optional[str] = None
-    statistical_line_cld: Optional[str] = None
-    statistical_line_clg: Optional[str] = None
+    sample: Optional[res.Sample] = None
+    inferential: Optional[res.InferentialStatistics] = None
+    cohens_d: Optional[es.CohenD] = None
+    hedges_g: Optional[es.HedgesG] = None
+    robust_t: Optional[res.YuensRobustT] = None
 
 
 def pivotal_ci_t(t_score, df, sample_size, confidence_level):
@@ -338,7 +298,7 @@ def area_under_function(
     )
 
 
-def WinsorizedVariance(x, trimming_level=0.2):
+def calculate_winsorized_variance(x, trimming_level=0.2):
     """
     Calculate the Winsorized variance of a sample.
 
@@ -366,7 +326,7 @@ def WinsorizedVariance(x, trimming_level=0.2):
     return winvar
 
 
-def WinsorizedCorrelation(x, y, trimming_level=0.2):
+def calculate_winsorized_correlation(x, y, trimming_level=0.2):
     """
     Calculate the Winsorized correlation between two samples.
 
@@ -413,7 +373,7 @@ def WinsorizedCorrelation(x, y, trimming_level=0.2):
     }
 
 
-class OneSampleTTest:
+class OneSampleClesTest(interfaces.AbstractTest):
     """
     A class containing static methods for calculating the Common Language Effect Size (CLES) and other related statistics.
 
@@ -425,35 +385,25 @@ class OneSampleTTest:
     """
 
     @staticmethod
-    def one_sample_from_t_score(params: dict) -> OneSampleCLESResults:
+    def from_score(t_score: float, sample_size: int, confidence_level: float = 0.95):
         """
-        Calculate the one-sample t-test results from a given t-score.
-
+        Calculate the one-sample CLES test results from a given t-score.
+        This method computes the Common Language Effect Size (CLES) for a one-sample t-test,
+        including Cohen's d, Hedges' g, and the t-score.
         Parameters
         ----------
-        params : dict
-            A dictionary containing the following keys:
-            - "t score" (float): The t-score value.
-            - "Sample Size" (int): The size of the sample.
-            - "Confidence Level" (float): The confidence level as a percentage (e.g., 95 for 95%).
-
+        t_score : float
+            The t-score value.
+        sample_size : int
+            The size of the sample.
+        confidence_level : float, optional
+            The confidence level for the confidence intervals (default is 0.95).
         Returns
         -------
         OneSampleCLESResults
-            An object containing all calculated statistics and results
+            An instance of OneSampleCLESResults containing the results of the one-sample CLES test.
         """
-        # Get params
-        t_score = params["t score"]
-        sample_size = params["Sample Size"]
-        confidence_level_percentages = params["Confidence Level"]
-
-        # Create results object
-        results = OneSampleCLESResults()
-
-        # Calculation
-        confidence_level = confidence_level_percentages / 100
         df = sample_size - 1
-        p_value = min(float(t.sf((abs(t_score)), df) * 2), 0.99999)
         cohens_d = t_score / np.sqrt(
             df
         )  # This is Cohen's d and it is calculated based on the sample's standard deviation
@@ -480,12 +430,6 @@ class OneSampleTTest:
         ) = calculate_central_ci_from_cohens_d_one_sample_t_test(
             hedges_g, sample_size, confidence_level
         )
-        ci_lower_cohens_d_pivotal, ci_upper_cohens_d_pivotal = pivotal_ci_t(
-            t_score, df, sample_size, confidence_level
-        )
-        ci_lower_hedges_g_pivotal, ci_upper_hedges_g_pivotal = pivotal_ci_t(
-            t_score, df, sample_size, confidence_level
-        )
         ci_lower_cohens_d_ncp, ci_upper_cohens_d_ncp = ci_ncp_one_sample(
             cohens_d, sample_size, confidence_level
         )
@@ -493,103 +437,57 @@ class OneSampleTTest:
             hedges_g, sample_size, confidence_level
         )
 
-        # Set results
-        results.cles_d = np.around(cles_d, 4)
-        results.cles_g = np.around(cles_g, 4)
-        results.t_score = np.around(t_score, 4)
-        results.df = np.around(df, 4)
-        results.p_value = np.around(p_value, 4)
-
-        results.lower_central_ci_cld = np.around(
-            norm.cdf(ci_lower_cohens_d_central) * 100, 4
+        results = OneSampleCLESResults()
+        results.cohens_d = res.CohensDCLES(
+            value=cles_d,
+            lower_central_ci_lower=norm.cdf(ci_lower_cohens_d_central) * 100,
+            central_ci_upper=norm.cdf(ci_upper_cohens_d_central) * 100,
+            non_central_ci_lower=norm.cdf(ci_lower_cohens_d_ncp) * 100,
+            non_central_ci_upper=norm.cdf(ci_upper_cohens_d_ncp) * 100,
+            standard_error=standrat_error_cohens_d,
         )
-        results.upper_central_ci_cld = np.around(
-            norm.cdf(ci_upper_cohens_d_central) * 100, 4
-        )
-        results.lower_central_ci_clg = np.around(
-            norm.cdf(ci_lower_hedges_g_central) * 100, 4
-        )
-        results.upper_central_ci_clg = np.around(
-            norm.cdf(ci_upper_hedges_g_central) * 100, 4
-        )
-
-        results.lower_ncp_ci_cld = np.around(norm.cdf(ci_lower_cohens_d_ncp) * 100, 4)
-        results.upper_ncp_ci_cld = np.around(norm.cdf(ci_upper_cohens_d_ncp) * 100, 4)
-        results.lower_ncp_ci_clg = np.around(norm.cdf(ci_lower_hedges_g_ncp) * 100, 4)
-        results.upper_ncp_ci_clg = np.around(norm.cdf(ci_upper_hedges_g_ncp) * 100, 4)
-
-        results.lower_pivotal_ci_cld = np.around(
-            norm.cdf(ci_lower_cohens_d_pivotal) * 100, 4
-        )
-        results.upper_pivotal_ci_cld = np.around(
-            norm.cdf(ci_upper_cohens_d_pivotal) * 100, 4
-        )
-        results.lower_pivotal_ci_clg = np.around(
-            norm.cdf(ci_lower_hedges_g_pivotal * correction) * 100, 4
-        )
-        results.upper_pivotal_ci_clg = np.around(
-            norm.cdf(ci_upper_hedges_g_pivotal * correction) * 100, 4
-        )
-        formatted_p_value = (
-            "{:.3f}".format(p_value).lstrip("0")
-            if p_value >= 0.001
-            else "\033[3mp\033[0m < .001"
-        )
-        results.statistical_line_cld = "\033[3mt\033[0m({}) = {:.3f}, {}{}, CLd = {:.3f}, {}% CI(pivotal) [{:.3f}, {:.3f}]".format(
-            df,
-            t_score,
-            "\033[3mp = \033[0m" if p_value >= 0.001 else "",
-            formatted_p_value,
-            cles_d,
-            confidence_level_percentages,
-            np.around(norm.cdf(ci_lower_cohens_d_pivotal) * 100, 3),
-            np.around(norm.cdf(ci_upper_cohens_d_pivotal) * 100, 3),
-        )
-        results.statistical_line_clg = "\033[3mt\033[0m({}) = {:.3f}, {}{}, CLg = {:.3f}, {}% CI(pivotal) [{:.3f}, {:.3f}]".format(
-            df,
-            t_score,
-            "\033[3mp = \033[0m" if p_value >= 0.001 else "",
-            formatted_p_value,
-            cles_g,
-            confidence_level_percentages,
-            np.around(norm.cdf(ci_lower_hedges_g_pivotal * correction) * 100, 3),
-            np.around(norm.cdf(ci_upper_hedges_g_pivotal * correction) * 100, 3),
+        results.hedges_g = res.HedgesGCLES(
+            value=cles_g,
+            central_ci_lower=norm.cdf(ci_lower_hedges_g_central) * 100,
+            central_ci_upper=norm.cdf(ci_upper_hedges_g_central) * 100,
+            non_central_ci_lower=norm.cdf(ci_lower_hedges_g_ncp) * 100,
+            non_central_ci_upper=norm.cdf(ci_upper_hedges_g_ncp) * 100,
+            standard_error=standrat_error_hedges_g,
         )
 
         return results
 
     @staticmethod
-    def one_sample_from_params(params: dict) -> OneSampleCLESResults:
+    def from_params(
+        population_mean: float,
+        sample_size: int,
+        sample_sd: float,
+        sample_mean: float,
+        confidence_level: float = 0.95,
+    ) -> OneSampleCLESResults:
         """
-        Calculate the one-sample t-test results from given parameters.
-
+        Calculate the one-sample CLES test results from given population and sample parameters.
+        This method computes the Common Language Effect Size (CLES) for a one-sample t-test,
+        including Cohen's d, Hedges' g, and the t-score.
+        It also calculates confidence intervals for the effect sizes.
         Parameters
         ----------
-        params : dict
-            A dictionary containing the following keys:
-            - "Population Mean" (float): The population mean value.
-            - "Mean Sample" (float): The mean of the sample.
-            - "Standard Deviation Sample" (float): The standard deviation of the sample.
-            - "Sample Size" (int): The size of the sample.
-            - "Confidence Level" (float): The confidence level as a percentage (e.g., 95 for 95%).
-
+        population_mean : float
+            The mean of the population.
+        sample_size : int
+            The size of the sample.
+        sample_sd : float
+            The standard deviation of the sample.
+        sample_mean : float
+            The mean of the sample.
+        confidence_level : float, optional
+            The confidence level for the confidence intervals (default is 0.95).
         Returns
         -------
         OneSampleCLESResults
-            An object containing all calculated statistics and results
+            An instance of OneSampleCLESResults containing the results of the one-sample CLES test.
         """
-        # Set params
-        population_mean = params["Population Mean"]
-        sample_mean = params["Mean Sample"]
-        sample_sd = params["Standard Deviation Sample"]
-        sample_size = params["Sample Size"]
-        confidence_level_percentages = params["Confidence Level"]
-
-        # Create results object
-        results = OneSampleCLESResults()
-
         # Calculation
-        confidence_level = confidence_level_percentages / 100
         df = sample_size - 1
         standard_error = sample_sd / np.sqrt(
             df
@@ -623,130 +521,84 @@ class OneSampleTTest:
         ) = calculate_central_ci_from_cohens_d_one_sample_t_test(
             hedges_g, sample_size, confidence_level
         )
-        ci_lower_cohens_d_pivotal, ci_upper_cohens_d_pivotal = pivotal_ci_t(
-            t_score, df, sample_size, confidence_level
-        )
-        ci_lower_hedges_g_pivotal, ci_upper_hedges_g_pivotal = pivotal_ci_t(
-            t_score, df, sample_size, confidence_level
-        )
         ci_lower_cohens_d_ncp, ci_upper_cohens_d_ncp = ci_ncp_one_sample(
             cohens_d, sample_size, confidence_level
         )
         ci_lower_hedges_g_ncp, ci_upper_hedges_g_ncp = ci_ncp_one_sample(
             hedges_g, sample_size, confidence_level
         )
+        # Create results object
+        results = OneSampleCLESResults()
+        sample: res.Sample = res.Sample(
+            size=sample_size, mean=sample_mean, standard_deviation=sample_sd
+        )
+        sample.population_mean = population_mean
 
-        # Set results
-        results.cles_d = np.around(cles_d, 4)
-        results.cles_g = np.around(cles_g, 4)
-        results.t_score = np.around(t_score, 4)
-        results.df = np.around(df, 4)
-        results.p_value = np.around(p_value, 4)
+        inferential: res.InferentialStatistics = res.InferentialStatistics(
+            score=round(t_score),
+            p_value=round(p_value),
+        )
+        inferential.degrees_of_freedom = df
+        inferential.standard_error = standard_error
+        inferential.means_difference = sample_mean - population_mean
 
-        results.lower_central_ci_cld = np.around(
-            norm.cdf(ci_lower_cohens_d_central) * 100, 4
+        cohens_d: es.CohenD = es.CohenD(
+            value=cles_d,
+            ci_lower=ci_lower_cohens_d_central,
+            ci_upper=ci_upper_cohens_d_central,
+            standard_error=standrat_error_cohens_d,
         )
-        results.upper_central_ci_cld = np.around(
-            norm.cdf(ci_upper_cohens_d_central) * 100, 4
-        )
-        results.lower_central_ci_clg = np.around(
-            norm.cdf(ci_lower_hedges_g_central) * 100, 4
-        )
-        results.upper_central_ci_clg = np.around(
-            norm.cdf(ci_upper_hedges_g_central) * 100, 4
-        )
-
-        results.lower_ncp_ci_cld = np.around(norm.cdf(ci_lower_cohens_d_ncp) * 100, 4)
-        results.upper_ncp_ci_cld = np.around(norm.cdf(ci_upper_cohens_d_ncp) * 100, 4)
-        results.lower_ncp_ci_clg = np.around(norm.cdf(ci_lower_hedges_g_ncp) * 100, 4)
-        results.upper_ncp_ci_clg = np.around(norm.cdf(ci_upper_hedges_g_ncp) * 100, 4)
-
-        results.lower_pivotal_ci_cld = np.around(
-            norm.cdf(ci_lower_cohens_d_pivotal) * 100, 4
-        )
-        results.upper_pivotal_ci_cld = np.around(
-            norm.cdf(ci_upper_cohens_d_pivotal) * 100, 4
-        )
-        results.lower_pivotal_ci_clg = np.around(
-            norm.cdf(ci_lower_hedges_g_pivotal * correction) * 100, 4
-        )
-        results.upper_pivotal_ci_clg = np.around(
-            norm.cdf(ci_upper_hedges_g_pivotal * correction) * 100, 4
-        )
-        formatted_p_value = (
-            "{:.3f}".format(p_value).lstrip("0")
-            if p_value >= 0.001
-            else "\033[3mp\033[0m < .001"
-        )
-        results.statistical_line_cld = "\033[3mt\033[0m({}) = {:.3f}, {} {}, CLd = {:.3f}, {}% CI(pivotal) [{:.3f}, {:.3f}]".format(
-            int(df),
-            t_score,
-            "\033[3mp = \033[0m" if p_value >= 0.001 else "",
-            formatted_p_value,
-            cles_d,
-            confidence_level_percentages,
-            np.around(norm.cdf(ci_lower_cohens_d_pivotal) * 100, 3),
-            np.around(norm.cdf(ci_upper_cohens_d_pivotal) * 100, 3),
-        )
-        results.statistical_line_clg = "\033[3mt\033[0m({}) = {:.3f}, {} {}, CLg = {:.3f}, {}% CI(pivotal) [{:.3f}, {:.3f}]".format(
-            int(df),
-            t_score,
-            "\033[3mp = \033[0m" if p_value >= 0.001 else "",
-            formatted_p_value,
-            cles_g,
-            confidence_level_percentages,
-            np.around(norm.cdf(ci_lower_hedges_g_pivotal * correction) * 100, 3),
-            np.around(norm.cdf(ci_upper_hedges_g_pivotal * correction) * 100, 3),
+        cohens_d.non_central_ci = res.ConfidenceInterval(
+            lower=ci_lower_cohens_d_ncp, upper=ci_upper_cohens_d_ncp
         )
 
+        hedges_g: es.HedgesG = es.HedgesG(
+            value=cles_g,
+            ci_lower=ci_lower_hedges_g_central,
+            ci_upper=ci_upper_hedges_g_central,
+            standard_error=standrat_error_hedges_g,
+        )
+        hedges_g.non_central_ci = res.ConfidenceInterval(
+            lower=ci_lower_hedges_g_ncp, upper=ci_upper_hedges_g_ncp
+        )
+
+        results.sample = sample
+        results.inferential = inferential
+        results.cohens_d = cohens_d
+        results.hedges_g = hedges_g
         return results
 
     @staticmethod
-    def one_sample_from_data(params: dict) -> OneSampleCLESResults:
+    def from_data(
+        columns: list,
+        population_mean: float,
+        confidence_level: float = 0.95,
+        trimming_level: float = 0.2,
+        reps=1000,
+    ) -> OneSampleCLESResults:
         """
-        Calculate the one-sample t-test results from given sample data.
-
+        Calculate the one-sample CLES test results from given sample data.
+        This method computes the Common Language Effect Size (CLES) for a one-sample t-test,
+        including Cohen's d, Hedges' g, and the t-score.
+        It also calculates confidence intervals for the effect sizes and performs robust calculations.
         Parameters
         ----------
-        params : dict
-            A dictionary containing the following keys:
-            - "column 1" (array-like): The sample data.
-            - "Population's Mean" (float): The population mean value.
-            - "Confidence Level" (float): The confidence level as a percentage (e.g., 95 for 95%).
-
+        column_1 : list
+            The sample data as a list of numerical values.
+        population_mean : float
+            The mean of the population.
+        confidence_level : float, optional
+            The confidence level for the confidence intervals (default is 0.95).
+        trimming_level : float, optional
+            The trimming level for robust calculations (default is 0.2).
+        reps : int, optional
+            The number of bootstrap repetitions for robust effect size calculations (default is 1000).
         Returns
         -------
-        dict
-            A dictionary containing the calculated results:
-            - "Mcgraw & Wong, Common Language Effect Size (CLd)" (float): The Common Language Effect Size (CLd).
-            - "Mcgraw & Wong, Unbiased Common Language Effect Size (CLg)" (float): The Unbiased Common Language Effect Size (CLg).
-            - "t-score" (float): The t-score value.
-            - "degrees of freedom" (float): The degrees of freedom.
-            - "p-value" (float): The p-value.
-            - "Lower Central CI's CLd" (float): Lower bound of the central confidence interval for CLd.
-            - "Upper Central CI's CLd" (float): Upper bound of the central confidence interval for CLd.
-            - "Lower Central CI's CLg" (float): Lower bound of the central confidence interval for CLg.
-            - "Upper Central CI's CLg" (float): Upper bound of the central confidence interval for CLg.
-            - "Lower Non-Central CI's CLd" (float): Lower bound of the non-central confidence interval for CLd.
-            - "Upper Non-Central CI's CLd" (float): Upper bound of the non-central confidence interval for CLd.
-            - "Lower Non-Central CI's CLg" (float): Lower bound of the non-central confidence interval for CLg.
-            - "Upper Non-Central CI's CLg" (float): Upper bound of the non-central confidence interval for CLg.
-            - "Lower Pivotal CI's CLd" (float): Lower bound of the pivotal confidence interval for CLd.
-            - "Upper Pivotal CI's CLd" (float): Upper bound of the pivotal confidence interval for CLd.
-            - "Lower Pivotal CI's CLg" (float): Lower bound of the pivotal confidence interval for CLg.
-            - "Upper Pivotal CI's CLg" (float): Upper bound of the pivotal confidence interval for CLg.
-            - "Statistical Line CLd" (str): A formatted string with the statistical results for CLd.
-            - "Statistical Line CLg" (str): A formatted string with the statistical results for CLg.
+        OneSampleCLESResults
+            An instance of OneSampleCLESResults containing the results of the one-sample CLES test.
         """
-        # Set params
-        column_1 = params["column 1"]
-        population_mean = params[
-            "Population's Mean"
-        ]  # Default should be 0 if not mentioned
-        confidence_level_percentages = params["Confidence Level"]
-
-        # Calculation
-        confidence_level = confidence_level_percentages / 100
+        column_1 = columns[0]
         sample_mean = np.mean(column_1)
         sample_sd = np.std(column_1, ddof=1)
         sample_size = len(column_1)
@@ -781,12 +633,6 @@ class OneSampleTTest:
         ) = calculate_central_ci_from_cohens_d_one_sample_t_test(
             hedges_g, sample_size, confidence_level
         )
-        ci_lower_cohens_d_pivotal, ci_upper_cohens_d_pivotal = pivotal_ci_t(
-            t_score, df, sample_size, confidence_level
-        )
-        ci_lower_hedges_g_pivotal, ci_upper_hedges_g_pivotal = pivotal_ci_t(
-            t_score, df, sample_size, confidence_level
-        )
         ci_lower_cohens_d_ncp, ci_upper_cohens_d_ncp = ci_ncp_one_sample(
             cohens_d, sample_size, confidence_level
         )
@@ -796,91 +642,6 @@ class OneSampleTTest:
         cles_d = norm.cdf(cohens_d) * 100
         cles_g = norm.cdf(hedges_g) * 100
 
-        # Non Parametric Common Language Effect Sizes
-        # Consider Adding Common language effect size to test the probability of a sample value to be larger than the median in the population...(as in matlab mes package)
-
-        # Create results object
-        results = OneSampleCLESResults()
-
-        # Set results
-        results.cles_d = np.around(cles_d, 4)
-        results.cles_g = np.around(cles_g, 4)
-        results.t_score = np.around(t_score, 4)
-        results.df = np.around(df, 4)
-        results.p_value = np.around(p_value, 4)
-
-        results.lower_central_ci_cld = np.around(
-            norm.cdf(ci_lower_cohens_d_central) * 100, 4
-        )
-        results.upper_central_ci_cld = np.around(
-            norm.cdf(ci_upper_cohens_d_central) * 100, 4
-        )
-        results.lower_central_ci_clg = np.around(
-            norm.cdf(ci_lower_hedges_g_central) * 100, 4
-        )
-        results.upper_central_ci_clg = np.around(
-            norm.cdf(ci_upper_hedges_g_central) * 100, 4
-        )
-
-        results.lower_ncp_ci_cld = np.around(norm.cdf(ci_lower_cohens_d_ncp) * 100, 4)
-        results.upper_ncp_ci_cld = np.around(norm.cdf(ci_upper_cohens_d_ncp) * 100, 4)
-        results.lower_ncp_ci_clg = np.around(norm.cdf(ci_lower_hedges_g_ncp) * 100, 4)
-        results.upper_ncp_ci_clg = np.around(norm.cdf(ci_upper_hedges_g_ncp) * 100, 4)
-
-        results.lower_pivotal_ci_cld = np.around(
-            norm.cdf(ci_lower_cohens_d_pivotal) * 100, 4
-        )
-        results.upper_pivotal_ci_cld = np.around(
-            norm.cdf(ci_upper_cohens_d_pivotal) * 100, 4
-        )
-        results.lower_pivotal_ci_clg = np.around(
-            norm.cdf(ci_lower_hedges_g_pivotal * correction) * 100, 4
-        )
-        results.upper_pivotal_ci_clg = np.around(
-            norm.cdf(ci_upper_hedges_g_pivotal * correction) * 100, 4
-        )
-
-        return results
-
-    @staticmethod
-    def robust_one_sample(params: dict) -> OneSampleCLESResults:
-        """
-        Calculate the robust one-sample t-test results.
-
-        Parameters
-        ----------
-        params : dict
-            A dictionary containing the following keys:
-            - "column 1" (array-like): The sample data.
-            - "Trimming Level" (float): The trimming level.
-            - "Population Mean" (float): The population mean value.
-            - "Number of Bootstrap Samples" (int): The number of bootstrap samples.
-            - "Confidence Level" (float): The confidence level as a percentage (e.g., 95 for 95%).
-        Returns
-        -------
-        OneSampleCLESResults
-            An object containing all calculated statistics and results:
-            - robust_effect_size_akp (float): The robust effect size (AKP)
-            - lower_ci_robust_akp (float): Lower bound of the confidence interval for the robust effect size (AKP)
-            - upper_ci_robust_akp (float): Upper bound of the confidence interval for the robust effect size (AKP)
-            - trimmed_mean (float): The trimmed mean of the sample
-            - winsorized_sd (float): The Winsorized standard deviation of the sample
-            - yuens_t (float): The Yuen's T statistic
-            - robust_df (float): The degrees of freedom
-            - robust_p_value (float): The p-value
-            - mean_difference (float): The difference between means
-            - standard_error (float): The standard error
-        """
-        # Set Parameters
-        column_1 = params["column 1"]
-        trimming_level = params["Trimming Level"]  # The default should be 0.2
-        population_mean = params["Population Mean"]  # The default should be 0.2
-        reps = params["Number of Bootstrap Samples"]
-        confidence_level_percentages = params["Confidence Level"]
-
-        # Calculation
-        confidence_level = confidence_level_percentages / 100
-        sample_size = len(column_1)
         difference = np.array(column_1) - population_mean
         correction = np.sqrt(
             area_under_function(
@@ -889,10 +650,14 @@ class OneSampleTTest:
             + 2 * (norm.ppf(trimming_level) ** 2) * trimming_level
         )
         trimmed_mean_1 = trim_mean(column_1, trimming_level)
-        winsorized_standard_deviation_1 = np.sqrt(WinsorizedVariance(column_1))
+        winsorized_standard_deviation_1 = np.sqrt(
+            calculate_winsorized_variance(column_1)
+        )
 
         # Algina, Penfield, Kesselman robust effect size (AKP)
-        standardizer = np.sqrt(WinsorizedVariance(difference, trimming_level))
+        standardizer = np.sqrt(
+            calculate_winsorized_variance(difference, trimming_level)
+        )
         trimmed_mean = trim_mean(difference, trimming_level)
         akp_effect_size = correction * (trimmed_mean - population_mean) / standardizer
 
@@ -910,7 +675,7 @@ class OneSampleTTest:
         )
         standardizers_of_bootstrap = np.sqrt(
             [
-                WinsorizedVariance(array, trimming_level)
+                calculate_winsorized_variance(array, trimming_level)
                 for array in bootstrap_difference
             ]
         )
@@ -940,27 +705,55 @@ class OneSampleTTest:
         yuen_statistic = difference_trimmed_means / yuen_standard_error
         yuen_p_value = 2 * (1 - t.cdf(np.abs(yuen_statistic), df))
 
-        # Set results
+        # Create results object
         results = OneSampleCLESResults()
+        sample: res.Sample = res.Sample(
+            size=sample_size, mean=sample_mean, standard_deviation=sample_sd
+        )
+        sample.population_mean = population_mean
 
-        results.robust_effect_size_akp = round(akp_effect_size, 4)
-        results.lower_ci_robust_akp = round(lower_ci_akp_boot, 4)
-        results.upper_ci_robust_akp = round(upper_ci_akp_boot, 4)
+        inferential: res.InferentialStatistics = res.InferentialStatistics(
+            score=t_score,
+            p_value=p_value,
+        )
+        inferential.degrees_of_freedom = df
+        inferential.standard_error = standard_error
+        inferential.means_difference = sample_mean - population_mean
 
-        # Descriptive Statistics
-        results.trimmed_mean = round(trimmed_mean_1, 4)
-        results.winsorized_sd = round(winsorized_standard_deviation_1, 4)
+        cohens_d: es.CohenD = es.CohenD(
+            value=cles_d,
+            ci_lower=ci_lower_cohens_d_central,
+            ci_upper=ci_upper_cohens_d_central,
+            standard_error=standrat_error_cohens_d,
+        )
+        cohens_d.non_central_ci = res.ConfidenceInterval(
+            lower=ci_lower_cohens_d_ncp, upper=ci_upper_cohens_d_ncp
+        )
 
-        # Inferential Statistics
-        results.yuens_t = round(yuen_statistic, 4)
-        results.robust_df = round(df, 4)
-        results.robust_p_value = np.around(yuen_p_value, 4)
-        results.mean_difference = round(difference_trimmed_means, 4)
-        results.standard_error = round(yuen_standard_error, 4)
+        hedges_g: es.HedgesG = es.HedgesG(
+            value=cles_g,
+            ci_lower=ci_lower_hedges_g_central,
+            ci_upper=ci_upper_hedges_g_central,
+            standard_error=standrat_error_hedges_g,
+        )
+        hedges_g.non_central_ci = res.ConfidenceInterval(
+            lower=ci_lower_hedges_g_ncp,
+            upper=ci_upper_hedges_g_ncp,
+        )
+        robust_t: res.YuensRobustT = res.YuensRobustT(
+            score=yuen_statistic,
+            p_value=yuen_p_value,
+            trimming_level=trimming_level,
+            standard_error=yuen_standard_error,
+            effect_size=akp_effect_size,
+            ci_lower=lower_ci_akp_boot,
+            ci_upper=upper_ci_akp_boot,
+            reps=reps,
+        )
+        results.sample = sample
+        results.inferential = inferential
+        results.cohens_d = cohens_d
+        results.hedges_g = hedges_g
+        results.robust_t = robust_t
 
         return results
-
-    # Things to consider
-    # 1. Consider adding a robust one-sample measures here
-    # 2. Consider adding the z value transformed option
-    # 3. Consider adding the mes matlab package for one sample CLES
