@@ -1,6 +1,6 @@
 """Tests for the Two Independent T calculator."""
 
-from src.esek.Calculator.two_independent_mean.two_independent_t import (
+from src.esek.calculator.two_independent_mean.two_independent_t import (
     TwoIndependentTResults,
     TwoIndependentTTests,
 )

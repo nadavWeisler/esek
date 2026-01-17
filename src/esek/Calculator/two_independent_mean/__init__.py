@@ -1,3 +1,5 @@
+"""Two Independent Mean calculators package."""
+
 from .two_independent_aparametric import (
     TwoIndependentAparametricTests,
     TwoIndependentAparametricResults,

@@ -1,5 +1,6 @@
-""""Tests for One Sample Z Test."""
-from src.esek.Calculator.one_sample_mean.one_sample_z import (
+""" "Tests for One Sample Z Test."""
+
+from src.esek.calculator.one_sample_mean.one_sample_z import (
     OneSampleZResults,
     OneSampleZTests,
 )
@@ -13,6 +14,11 @@ def test_one_sample_z_from_score():
         "confidence_level": 0.95,
     }
     results = OneSampleZTests.from_score(**data)
+    experced_results = OneSampleZResults()
+    experced_results.z_score = 1.96
+    experced_results.sample_size = 30
+    experced_results.p_value = 0.025
+    experced_results.cohens_d = 0.025
 
     assert isinstance(results, OneSampleZResults)
 

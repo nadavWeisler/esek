@@ -1,5 +1,6 @@
 """Tests for One Sample T Test."""
-from src.esek.Calculator.one_sample_mean.one_sample_t import (
+
+from src.esek.calculator.one_sample_mean.one_sample_t import (
     OneSampleTResults,
     OneSampleTTest,
 )

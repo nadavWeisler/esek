@@ -1,6 +1,6 @@
 """Tests for the Two Independent Aparametric calculator."""
 
-from src.esek.Calculator.two_independent_mean.two_independent_aparametric import (
+from src.esek.calculator.two_independent_mean.two_independent_aparametric import (
     TwoIndependentAparametricResults,
     TwoIndependentAparametricTests,
 )

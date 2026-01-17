@@ -1,5 +1,6 @@
 """Tests for the Two Independent Control Group calculator."""
-from src.esek.Calculator.two_independent_mean.two_independent_control_group import (
+
+from src.esek.calculator.two_independent_mean.two_independent_control_group import (
     TwoIndependentControlGroupResults,
     TwoIndependentControlGroupTests,
 )

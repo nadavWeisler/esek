@@ -1,6 +1,6 @@
 """Tests for the Two Independent Unequal Variance calculator."""
 
-from src.esek.Calculator.two_independent_mean.two_independent_unequal_var import (
+from src.esek.calculator.two_independent_mean.two_independent_unequal_var import (
     TwoIndependentUnequalVarResults,
     TwoIndependentUnequalVarTests,
 )

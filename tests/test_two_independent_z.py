@@ -1,6 +1,6 @@
 """Tests for the Two Independent Z calculator."""
 
-from src.esek.Calculator.two_independent_mean.two_independent_z import (
+from src.esek.calculator.two_independent_mean.two_independent_z import (
     TwoIndependentZResults,
     TwoIndependentZTests,
 )

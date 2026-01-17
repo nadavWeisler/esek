@@ -1,6 +1,6 @@
 """Tests for the Two Paired Z calculator."""
 
-from src.esek.Calculator.two_paired_mean.two_paired_z import (
+from src.esek.calculator.two_paired_mean.two_paired_z import (
     TwoPairedZResults,
     TwoPairedZTests,
 )

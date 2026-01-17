@@ -1,6 +1,6 @@
 """Tests for the Two Paired Aparametric calculator."""
 
-from src.esek.Calculator.two_paired_mean.two_paired_aparametric import (
+from src.esek.calculator.two_paired_mean.two_paired_aparametric import (
     TwoPairedAparametricResults,
     TwoPairedAparametricTests,
 )
