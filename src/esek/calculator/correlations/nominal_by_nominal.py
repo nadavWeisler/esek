@@ -753,7 +753,7 @@ class NominalByNominal:
         ----------
         params : dict
             Keys:
-            - ``"Chi Sqaure Score"`` : float, observed chi-square statistic.
+            - ``"Chi Square Score"`` : float, observed chi-square statistic.
             - ``"Sample Size"`` : int, total sample size.
             - ``"Degrees of Freedom"`` : int.
             - ``"Confidence Level"`` : float, percentage (e.g. 95).
@@ -763,7 +763,7 @@ class NominalByNominal:
         dict
             Dictionary of effect sizes and confidence intervals.
         """
-        chi_sq = params["Chi Sqaure Score"]
+        chi_sq = params["Chi Square Score"]
         n = params["Sample Size"]
         df = params["Degrees of Freedom"]
         cl_pct = params["Confidence Level"]

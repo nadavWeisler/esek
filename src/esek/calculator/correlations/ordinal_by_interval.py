@@ -373,10 +373,10 @@ def _ginis_gamma(x, y, confidence_level=0.95):
     upper = gamma + ase * zcrit
 
     results = {
-        "Ginni's Gamma": gamma,
-        "Ginni's Gamma p-value": p_value,
-        "Ginni's Gamma Standard Error": ase,
-        "Ginni's Gamma CI's": [lower, upper],
+        "Gini's Gamma": gamma,
+        "Gini's Gamma p-value": p_value,
+        "Gini's Gamma Standard Error": ase,
+        "Gini's Gamma CI's": [lower, upper],
     }
     return "\n".join([f"{k}: {v}" for k, v in results.items()])
 
@@ -428,7 +428,7 @@ class OrdinalByInterval:
             "Contingency Table": table,
             "Skipped Correlation": _skipped_correlation(var1, var2, cl),
             "Gaussian Rank Correlation": _gaussian_rank_correlation(var1, var2, cl),
-            "Ginni's Gamma": _ginis_gamma(var1, var2, cl),
+            "Gini's Gamma": _ginis_gamma(var1, var2, cl),
             "Shepherd's Pi": _shepherd(var1, var2, n_boot, cl),
             "Spearman Correlation": _spearman_correlation(var1, var2, cl),
         }
@@ -460,7 +460,7 @@ class OrdinalByInterval:
         return {
             "Skipped Correlation": _skipped_correlation(var1, var2, cl),
             "Gaussian Rank Correlation": _gaussian_rank_correlation(var1, var2, cl),
-            "Ginni's Gamma": _ginis_gamma(var1, var2, cl),
+            "Gini's Gamma": _ginis_gamma(var1, var2, cl),
             "Shepherd's Pi": _shepherd(var1, var2, n_boot, cl),
             "Spearman Correlation": _spearman_correlation(var1, var2, cl),
         }

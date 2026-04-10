@@ -21,7 +21,7 @@ def test_from_data_returns_dict():
     assert "Spearman Correlation" in result
     assert "Gaussian Rank Correlation" in result
     assert "Skipped Correlation" in result
-    assert "Ginni's Gamma" in result
+    assert "Gini's Gamma" in result
     assert "Shepherd's Pi" in result
 
 
@@ -45,5 +45,5 @@ def test_from_contingency_table_returns_dict():
     assert "Contingency Table" in result
     assert "Spearman Correlation" in result
     assert "Gaussian Rank Correlation" in result
-    assert "Ginni's Gamma" in result
+    assert "Gini's Gamma" in result
     assert "Shepherd's Pi" in result

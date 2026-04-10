@@ -9,7 +9,7 @@ from esek.calculator.correlations.nominal_by_nominal import NominalByNominal
 def test_from_chi_score_returns_dict():
     """NominalByNominal.from_chi_score returns a dict with expected keys."""
     params = {
-        "Chi Sqaure Score": 9.5,
+        "Chi Square Score": 9.5,
         "Sample Size": 100,
         "Degrees of Freedom": 2,
         "Confidence Level": 95,
@@ -25,7 +25,7 @@ def test_from_chi_score_returns_dict():
 def test_from_chi_score_values():
     """NominalByNominal.from_chi_score produces correct Cramér's V."""
     params = {
-        "Chi Sqaure Score": 10.0,
+        "Chi Square Score": 10.0,
         "Sample Size": 100,
         "Degrees of Freedom": 1,
         "Confidence Level": 95,

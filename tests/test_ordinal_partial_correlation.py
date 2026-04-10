@@ -15,7 +15,7 @@ def _make_data(n=20, seed=42):
     return pd.DataFrame(
         {
             "independent_variable": x,
-            "dependnent_variable": y,
+            "dependent_variable": y,
             "covariate": cov,
         }
     )

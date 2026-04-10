@@ -13,8 +13,7 @@ class OrdinalPartialCorrelation:
     dependent variable while controlling for one or more covariates.
 
     The input DataFrame must contain columns named ``"independent_variable"``
-    and ``"dependnent_variable"`` (note: spelling preserved from the original
-    source for API compatibility); all remaining columns are treated as
+    and ``"dependent_variable"``; all remaining columns are treated as
     covariates.
     """
 
@@ -27,7 +26,7 @@ class OrdinalPartialCorrelation:
         params : dict
             Keys:
             - ``"Data"`` : pandas DataFrame with columns
-              ``"independent_variable"``, ``"dependnent_variable"``,
+              ``"independent_variable"``, ``"dependent_variable"``,
               and any number of covariate columns.
             - ``"Confidence Level"`` : float, confidence level as a
               percentage (e.g. 95 for 95%).
@@ -45,14 +44,14 @@ class OrdinalPartialCorrelation:
 
         covar_cols = [
             c for c in data.columns
-            if c not in ("independent_variable", "dependnent_variable")
+            if c not in ("independent_variable", "dependent_variable")
         ]
 
         # Partial correlation
         pc_out = pg.partial_corr(
             data,
             x="independent_variable",
-            y="dependnent_variable",
+            y="dependent_variable",
             covar=covar_cols,
             method="spearman",
         )
@@ -69,7 +68,7 @@ class OrdinalPartialCorrelation:
         spc_out = pg.partial_corr(
             data,
             x="independent_variable",
-            y="dependnent_variable",
+            y="dependent_variable",
             x_covar=covar_cols,
             method="spearman",
         )

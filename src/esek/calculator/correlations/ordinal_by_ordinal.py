@@ -31,38 +31,38 @@ def _gamma_family_measures(column_1, column_2, confidence_level):
     str
         Formatted results string.
     """
-    data = pd.DataFrame({"coloumn_1": column_1, "coloumn_2": column_2})
-    ct = pd.crosstab(data["coloumn_1"], data["coloumn_2"])
+    data = pd.DataFrame({"column_1": column_1, "column_2": column_2})
+    ct = pd.crosstab(data["column_1"], data["column_2"])
     n = np.sum(np.sum(ct, axis=1))
     n_rows, n_cols = ct.shape
     q = min(n_rows, n_cols)
 
-    final = ct.reset_index().melt(id_vars="coloumn_1", var_name="coloumn_2", value_name="Nij")
-    final["Ni"] = final["coloumn_1"].map(data["coloumn_1"].value_counts())
-    final["Nj"] = final["coloumn_2"].map(data["coloumn_2"].value_counts())
+    final = ct.reset_index().melt(id_vars="column_1", var_name="column_2", value_name="Nij")
+    final["Ni"] = final["column_1"].map(data["column_1"].value_counts())
+    final["Nj"] = final["column_2"].map(data["column_2"].value_counts())
     final["Concordant Pairs"] = 0
-    final["Disconcordant Pairs"] = 0
+    final["Discordant Pairs"] = 0
 
     for i, row in final.iterrows():
-        x_val = row["coloumn_1"]
-        y_val = row["coloumn_2"]
+        x_val = row["column_1"]
+        y_val = row["column_2"]
         concordant = 0
         discordant = 0
-        for _, other in final[final["coloumn_1"] != x_val].iterrows():
+        for _, other in final[final["column_1"] != x_val].iterrows():
             count = other["Nij"]
-            if (x_val > other["coloumn_1"] and y_val > other["coloumn_2"]) or (
-                x_val < other["coloumn_1"] and y_val < other["coloumn_2"]
+            if (x_val > other["column_1"] and y_val > other["column_2"]) or (
+                x_val < other["column_1"] and y_val < other["column_2"]
             ):
                 concordant += count
-            if (x_val > other["coloumn_1"] and y_val < other["coloumn_2"]) or (
-                x_val < other["coloumn_1"] and y_val > other["coloumn_2"]
+            if (x_val > other["column_1"] and y_val < other["column_2"]) or (
+                x_val < other["column_1"] and y_val > other["column_2"]
             ):
                 discordant += count
         final.at[i, "Concordant Pairs"] = concordant
-        final.at[i, "Disconcordant Pairs"] = discordant
+        final.at[i, "Discordant Pairs"] = discordant
         final.at[i, "(C-D)^2*Nij"] = (concordant - discordant) ** 2 * row["Nij"]
         final.at[i, "Concordant Pairs * Frequency"] = concordant * row["Nij"]
-        final.at[i, "Disconcordant Pairs * Frequency"] = discordant * row["Nij"]
+        final.at[i, "Discordant Pairs * Frequency"] = discordant * row["Nij"]
         final.at[i, "P"] = concordant * row["Nij"]
         final.at[i, "Q"] = discordant * row["Nij"]
         final.at[i, "Cij - Dij"] = concordant - discordant
@@ -103,14 +103,14 @@ def _gamma_family_measures(column_1, column_2, confidence_level):
         - term5
     )
     ase1_tau_c = ((2 * q) / ((q - 1) * n ** 2)) * np.sqrt(
-        np.sum(final["Nij"] * (final["Disconcordant Pairs"] - final["Concordant Pairs"]) ** 2)
+        np.sum(final["Nij"] * (final["Discordant Pairs"] - final["Concordant Pairs"]) ** 2)
         - (1 / n * (P - Q) ** 2)
     )
 
     ase0_tau_a = ase1_tau_a
     ase0_tau_b = np.sqrt(
         (
-            np.sum(final["Nij"] * (final["Disconcordant Pairs"] - final["Concordant Pairs"]) ** 2)
+            np.sum(final["Nij"] * (final["Discordant Pairs"] - final["Concordant Pairs"]) ** 2)
             - (1 / n * (P - Q) ** 2)
         )
         / (d_var1 * d_var2)
@@ -121,7 +121,7 @@ def _gamma_family_measures(column_1, column_2, confidence_level):
     somers_v1 = (P - Q) / d_var1
     somers_v2 = (P - Q) / d_var2
 
-    _common_sq = np.sum(final["Nij"] * (final["Disconcordant Pairs"] - final["Concordant Pairs"]) ** 2) - (
+    _common_sq = np.sum(final["Nij"] * (final["Discordant Pairs"] - final["Concordant Pairs"]) ** 2) - (
         1 / n * (P - Q) ** 2
     )
     ase0_delta_sym = (4 / (d_var1 + d_var2)) * np.sqrt(_common_sq)
@@ -132,7 +132,7 @@ def _gamma_family_measures(column_1, column_2, confidence_level):
     ase1_delta_v2 = (2 / d_var2 ** 2) * np.sqrt(
         np.sum(
             final["Nij"]
-            * (d_var2 * (final["Concordant Pairs"] - final["Disconcordant Pairs"]) - (P - Q) * (n - final["Nj"])) ** 2
+            * (d_var2 * (final["Concordant Pairs"] - final["Discordant Pairs"]) - (P - Q) * (n - final["Nj"])) ** 2
         )
     )
 
@@ -141,7 +141,7 @@ def _gamma_family_measures(column_1, column_2, confidence_level):
         np.sum(
             final["Nij"]
             * np.float64(
-                (final["Disconcordant Pairs"] * P - final["Concordant Pairs"] * Q) ** 2
+                (final["Discordant Pairs"] * P - final["Concordant Pairs"] * Q) ** 2
             )
         )
     )
@@ -151,17 +151,17 @@ def _gamma_family_measures(column_1, column_2, confidence_level):
         2
         * (
             np.sum(final["Concordant Pairs"] * final["Nij"] / 2)
-            - np.sum(final["Disconcordant Pairs"] * final["Nij"] / 2)
+            - np.sum(final["Discordant Pairs"] * final["Nij"] / 2)
         )
         / (n ** 2 - np.sum(np.sum(ct ** 2)))
     )
     ase_wilson_term1 = (
-        4 * np.sum(final["Nij"] * (final["Concordant Pairs"] - final["Disconcordant Pairs"]) ** 2)
+        4 * np.sum(final["Nij"] * (final["Concordant Pairs"] - final["Discordant Pairs"]) ** 2)
         - 4
         / n
         * (
             np.sum(final["Concordant Pairs"] * final["Nij"]) / 2
-            - np.sum(final["Disconcordant Pairs"] * final["Nij"]) / 2
+            - np.sum(final["Discordant Pairs"] * final["Nij"]) / 2
         )
         ** 2
     )
@@ -197,9 +197,9 @@ def _gamma_family_measures(column_1, column_2, confidence_level):
     ci_wilson = [wilsons_e - zcrit * ase_wilson, wilsons_e + zcrit * ase_wilson]
 
     results = {
-        "Sommer's Delta Symmetric": np.array([somers_sym, ase1_delta_sym, ase0_delta_sym]),
-        "Sommer's Delta Variable 1": np.array([somers_v1, ase1_delta_v1, ase0_delta_v1]),
-        "Sommer's Delta Variable 2": np.array([somers_v2, ase1_delta_v2, ase0_delta_v2]),
+        "Somers' Delta Symmetric": np.array([somers_sym, ase1_delta_sym, ase0_delta_sym]),
+        "Somers' Delta Variable 1": np.array([somers_v1, ase1_delta_v1, ase0_delta_v1]),
+        "Somers' Delta Variable 2": np.array([somers_v2, ase1_delta_v2, ase0_delta_v2]),
         "Kendall's Tau A": np.array([tau_a, ase1_tau_a, ase1_tau_a]),
         "Kendall's Tau B": np.array([tau_b, ase1_tau_b, ase0_tau_b]),
         "Stuart Tau C": np.array([tau_c, ase1_tau_c, ase0_tau_c]),
@@ -284,7 +284,7 @@ class OrdinalByOrdinal:
             "Contingency Table": table,
             "Skipped Correlation": _skipped_correlation(var1, var2, cl),
             "Gaussian Rank Correlation": _gaussian_rank_correlation(var1, var2, cl),
-            "Ginni's Gamma": _ginis_gamma(var1, var2, cl),
+            "Gini's Gamma": _ginis_gamma(var1, var2, cl),
             "Shepherd's Pi": _shepherd(var1, var2, n_boot, cl),
             "The Gamma Family Measures": _gamma_family_measures(var1, var2, cl),
             "Spearman Correlation": _spearman_correlation(var1, var2, cl),
@@ -318,7 +318,7 @@ class OrdinalByOrdinal:
         return {
             "Skipped Correlation": _skipped_correlation(var1, var2, cl),
             "Gaussian Rank Correlation": _gaussian_rank_correlation(var1, var2, cl),
-            "Ginni's Gamma": _ginis_gamma(var1, var2, cl),
+            "Gini's Gamma": _ginis_gamma(var1, var2, cl),
             "Shepherd's Pi": _shepherd(var1, var2, n_boot, cl),
             "The Gamma Family Measures": _gamma_family_measures(var1, var2, cl),
             "Spearman Correlation": _spearman_correlation(var1, var2, cl),
