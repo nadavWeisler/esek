@@ -267,8 +267,8 @@ class TwoPairedCommonLangTests(interfaces.AbstractTest):
         if len(column) != 2:
             raise ValueError("Input must be a list with two columns of data.")
 
-        column_1 = column[0]
-        column_2 = column[1]
+        column_1 = np.array(column[0])
+        column_2 = np.array(column[1])
 
         sample_1_mean = np.mean(column_1)
         sample_2_mean = np.mean(column_2)
