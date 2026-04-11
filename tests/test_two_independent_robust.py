@@ -1,6 +1,6 @@
 """Tests for the Two Independent Robust calculator."""
 
-from src.esek.calculator.two_independent_mean.two_independent_robust import (
+from esek.Calculator.two_independent_mean.two_independent_robust import (
     TwoIndependentRobustResults,
     TwoIndependentRobustTests,
 )
