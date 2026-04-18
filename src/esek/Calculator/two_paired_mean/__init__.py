@@ -1,16 +1,14 @@
-"""
-This module provides the public API for the Esek library.
-It includes classes and functions for performing various statistical tests on two paired samples.
-"""
+"""Two Paired Mean calculators — re-exports from canonical calculator package."""
 
-from .two_paired_z import TwoPairedZTests, TwoPairedZResults
-from .two_paired_t import TwoPairedTTests, TwoPairedTResults
-from .two_paired_aparametric import (
+from ...calculator.two_paired_mean import (  # noqa: F401
+    TwoPairedZTests,
+    TwoPairedZResults,
+    TwoPairedTTests,
+    TwoPairedTResults,
     TwoPairedAparametricTests,
     TwoPairedAparametricResults,
-)
-from .two_paired_robust import TwoPairedRobustTests, TwoPairedRobustResults
-from .two_paired_common_lang import (
+    TwoPairedRobustTests,
+    TwoPairedRobustResults,
     TwoPairedCommonLangTests,
     TwoPairedCommonLangResults,
 )
