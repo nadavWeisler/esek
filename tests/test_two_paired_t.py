@@ -40,7 +40,7 @@ def test_two_paired_t_from_data():
     """Test Two Paired T from data."""
 
     data = {
-        "columns": [[1, 2, 3], [4, 5, 6]],
+        "columns": [[10, 14, 8, 12], [6, 9, 7, 11]],
         "population_mean_diff": 0.5,
         "confidence_level": 0.95,
     }

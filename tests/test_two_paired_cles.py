@@ -41,7 +41,7 @@ def test_two_paired_common_lang_from_data():
     """Test Two Paired Common Language from data."""
 
     data = {
-        "column": [[1, 2, 3], [4, 5, 6]],
+        "column": [[10, 12, 8, 14, 11], [8, 9, 11, 12, 10]],
         "reps": 1000,
         "confidence_level": 0.95,
     }
