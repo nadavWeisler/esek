@@ -1,16 +1,26 @@
-"""Two Independent Mean calculators — re-exports from canonical calculator package."""
+"""Two Independent Mean calculators package."""
 
-from ...calculator.two_independent_mean import (  # noqa: F401
+from .two_independent_aparametric import (
     TwoIndependentAparametricTests,
     TwoIndependentAparametricResults,
+)
+from .two_independent_control_group import (
     TwoIndependentControlGroupTests,
     TwoIndependentControlGroupResults,
+)
+from .two_independent_unequal_var import (
     TwoIndependentUnequalVarTests,
     TwoIndependentUnequalVarResults,
+)
+from .two_independent_robust import (
     TwoIndependentRobustTests,
     TwoIndependentRobustResults,
+)
+from .two_independent_t import (
     TwoIndependentTTests,
     TwoIndependentTResults,
+)
+from .two_independent_z import (
     TwoIndependentZTests,
     TwoIndependentZResults,
 )

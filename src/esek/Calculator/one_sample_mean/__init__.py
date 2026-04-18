@@ -1,8 +1,11 @@
-"""Initialization module for One Sample Mean statistical tests."""
+"""Initialization module for One Sample Mean — re-exports from canonical calculator package."""
 
-from .one_sample_t import OneSampleTResults, OneSampleTTest
-from .one_sample_z import OneSampleZResults, OneSampleZTests
-
+from ...calculator.one_sample_mean import (  # noqa: F401
+    OneSampleTResults,
+    OneSampleTTest,
+    OneSampleZResults,
+    OneSampleZTests,
+)
 
 __all__ = [
     "OneSampleZTests",
