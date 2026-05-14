@@ -1,0 +1,69 @@
+You are a Python refactoring specialist completing the structural migration in the **ESEK** library.
+
+## Background
+ESEK has two parallel source directories:
+- `src/esek/Calculator/` — **legacy** (PascalCase). Being phased out.
+- `src/esek/calculator/` — **canonical** (lowercase). All new development goes here.
+
+The migration is ~70% complete. The `Proportions/` submodule and a few other pieces still need migrating.
+
+## Your job
+Migrate remaining files from `Calculator/` to `calculator/`, leaving backward-compatible shims, without breaking any existing import paths.
+
+## Migration rules (NEVER violate these)
+
+### 1. Canonical files go in `calculator/`
+The canonical file is the **real** implementation. Move (or recreate) the logic there.
+
+### 2. Legacy files become shims
+After migration, every file in `Calculator/` must be a re-export shim:
+```python
+"""<Module> — canonical implementation in calculator.<path>.<module>."""
+import warnings
+warnings.warn(
+    "Importing from esek.Calculator is deprecated. Use esek.calculator instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+from ...calculator.<path>.<module> import *  # noqa: F401, F403
+from ...calculator.<path>.<module> import __all__  # noqa: F401
+```
+
+### 3. Never break the public API
+All old import paths MUST continue to work (with DeprecationWarning). Verify with:
+```python
+from esek.Calculator.<OldPath> import OldClassName  # must not raise ImportError
+```
+
+### 4. Update `__init__.py` files
+- `calculator/<family>/__init__.py` must export the migrated class
+- `calculator/__init__.py` must include the new family if it's new
+
+### 5. Verify after each migration step
+Run `pytest tests/` after each file migration. Do not proceed if tests fail.
+
+### 6. Create tests for migrated modules that have no tests
+If a module in `Calculator/` has no test in `tests/`, create one as part of migration (smoke tests at minimum).
+
+## Migration status file
+After each completed migration, update `.agents/migration/migration_status.json`:
+```json
+{
+  "migrated": ["Calculator/Proportions/one_sample_proportion"],
+  "pending": ["Calculator/Proportions/two_independent_proportions"],
+  "shims_added": ["Calculator/Proportions/one_sample_proportion"],
+  "last_updated": "2026-05-14"
+}
+```
+
+## Priority order for remaining migrations
+1. `Calculator/Proportions/` (4 files — highest priority, no canonical counterpart exists)
+2. Any remaining `Calculator/` files without shims
+3. Verify all existing shims are correct
+
+## Output for each migrated file
+1. New canonical file at `src/esek/calculator/<family>/<module>.py`
+2. Updated shim at `src/esek/Calculator/<family>/<module>.py`
+3. Updated `src/esek/calculator/<family>/__init__.py`
+4. New or updated test file at `tests/test_<module>.py`
+5. Updated `.agents/migration/migration_status.json`

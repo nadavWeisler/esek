@@ -1,0 +1,48 @@
+name: roadmap-agent
+version: "1.0"
+description: >
+  Turns a one-sentence feature idea into a structured GitHub Milestone with
+  labelled, prioritized, dependency-linked Issues — one per file/concern.
+  Designed for a solo developer who wants to describe a goal and immediately
+  have a structured backlog.
+
+model:
+  ref: cloud_strong          # requires understanding intent + codebase structure
+  temperature: 0.4
+
+trigger:
+  type: on_demand
+
+context_files:
+  - src/esek/
+  - .agents/roadmap/issue_templates/
+  - .agents/config.yml
+
+outputs:
+  - type: github_milestone
+    description: Named milestone with target date suggestion
+  - type: github_issues
+    description: >
+      Atomic issues, one per file/concern, with:
+      - Title and body from the relevant issue template
+      - Labels: type (calculator/test/doc/migration/utils/interpretation) + priority (p0/p1/p2) + size (S/M/L)
+      - Dependency links ("blocked by #X")
+      - Assigned to milestone
+  - type: console_output
+    description: "Why this order" rationale for the issue sequence
+
+autonomy: full
+# Fully autonomous for issue and milestone creation.
+# Developer reviews the milestone structure and can close/edit issues.
+
+required_inputs:
+  - idea: "free-text description of the feature or goal"
+optional_inputs:
+  - target_version: "e.g. v0.5.0"
+  - priority: "p0 | p1 | p2 (default: p1)"
+
+collaborates_with:
+  - scaffold-agent           # picks up implementation issues
+  - doc-agent                # picks up docs issues
+  - numerical-validation-agent  # picks up test issues
+  - release-agent            # closes the milestone on release

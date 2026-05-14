@@ -1,0 +1,51 @@
+name: doc-agent
+version: "1.0"
+description: >
+  Generates and maintains API documentation, NumPy-style docstrings, usage
+  examples, and a MkDocs documentation site. Also generates CHANGELOG.md
+  entries from git history and closed GitHub issues.
+
+model:
+  ref: local                 # template-heavy, low reasoning — local model suffices
+  temperature: 0.3
+
+trigger:
+  type: continuous
+  schedule: "0 6 * * 1"     # every Monday at 06:00 UTC — opens a weekly doc PR
+  also: on_demand
+
+context_files:
+  - src/esek/
+  - tests/
+  - README.md
+  - .agents/doc/docstring_style_guide.md
+
+outputs:
+  - type: file_modification
+    target_dir: src/esek/
+    description: NumPy-style docstrings added/updated on all public classes and methods
+  - type: file_creation
+    target_dir: docs/
+    description: MkDocs documentation site (mkdocstrings auto-generated API + manual guides)
+  - type: file_creation
+    target: CHANGELOG.md
+    description: Keep-a-Changelog format, generated from git tags and closed issues
+  - type: github_pr
+    draft: true
+    base_branch: main
+    title_template: "docs: weekly documentation update {date}"
+    labels:
+      - docs
+
+autonomy: semi
+# Fully autonomous for docstring generation and site build.
+# Developer reviews before merging, especially formula descriptions.
+
+optional_inputs:
+  - target_module: "specific module to document (default: all)"
+  - output_format: "mkdocs | sphinx (default: mkdocs)"
+
+collaborates_with:
+  - scaffold-agent           # receives docstring stubs for new calculators
+  - release-agent            # CHANGELOG entries per release
+  - migration-agent          # updates docs after Calculator/ → calculator/ migration

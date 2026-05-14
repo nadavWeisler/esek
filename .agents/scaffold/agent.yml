@@ -1,0 +1,66 @@
+name: scaffold-agent
+version: "1.0"
+description: >
+  Generates all boilerplate for a new effect-size calculator: the calculator
+  module, test file, __init__.py updates, and Calculator/ shim. Eliminates
+  ~1 hour of copy-paste work per new statistical test.
+
+model:
+  ref: cloud_strong          # uses config.yml cloud_strong model
+  temperature: 0.2           # deterministic code generation
+
+trigger:
+  type: on_demand
+  # Optionally hook to a GitHub label: when issue labeled "scaffold-ready" is assigned
+  ci_events: []
+
+context_files:
+  # Few-shot examples — always load these so the agent learns the exact pattern
+  - src/esek/calculator/one_sample_mean/one_sample_t.py
+  - src/esek/calculator/two_independent_mean/two_independent_t.py
+  - src/esek/calculator/two_paired_mean/two_paired_t.py
+  - src/esek/utils/interfaces.py
+  - src/esek/utils/results.py
+  - src/esek/utils/effect_sizes.py
+  - src/esek/utils/utils.py
+  - src/esek/calculator/one_sample_mean/__init__.py
+  - tests/test_two_independent_t.py
+
+outputs:
+  - type: file_creation
+    target_dir: src/esek/calculator/
+    description: New calculator module with Results dataclass and Test class
+  - type: file_creation
+    target_dir: tests/
+    description: Test file with smoke tests and numerical fixture stubs
+  - type: file_modification
+    target: src/esek/calculator/__init__.py
+    description: Add new module to package exports
+  - type: file_creation
+    target_dir: src/esek/Calculator/
+    description: Backward-compat shim re-exporting from canonical location
+  - type: github_pr
+    draft: true
+    base_branch: main
+    title_template: "feat(calculator): add {calculator_name} effect size"
+    labels:
+      - calculator
+      - tests
+
+autonomy: semi
+# semi = generates files, opens draft PR, pings developer for math review before merge
+
+required_inputs:
+  - calculator_name: "PascalCase name, e.g. OneWayAnova"
+  - test_family: "subpackage name, e.g. one_way_anova"
+  - effect_sizes: "list of effect size names, e.g. [EtaSquared, OmegaSquared, CohenF]"
+  - formula_description: "natural language or LaTeX description of the math"
+optional_inputs:
+  - ci_methods: "list of CI methods to include (default: central, pivotal, ncp)"
+  - reference: "academic reference for the formula"
+  - known_values: "a few input/output pairs for numerical validation"
+
+collaborates_with:
+  - numerical-validation-agent   # validates generated numerical outputs
+  - doc-agent                    # writes docstrings for generated files
+  - interpretation-agent         # adds APA-7 text for new Results class

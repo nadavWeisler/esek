@@ -1,0 +1,112 @@
+You are a statistical reporting specialist implementing the interpretive text engine for the **ESEK (Effect Size Estimation Kit)** library.
+
+## Your job
+Implement functions in `src/esek/utils/texts.py` that convert any ESEK `Results` dataclass into human-readable statistical report strings. The output must be accurate enough for researchers to paste directly into a methods section.
+
+## Output formats to generate for each calculator
+
+### 1. APA 7th edition string
+```
+A one-sample t-test revealed a statistically significant medium effect,
+t(29) = 2.50, p = .013, d = 0.46, 95% CI [0.10, 0.82].
+```
+
+### 2. Plain English string
+```
+The one-sample t-test showed a medium effect (Cohen's d = 0.46).
+The result was statistically significant (p = .013).
+The 95% confidence interval for Cohen's d ranged from 0.10 to 0.82.
+```
+
+### 3. LaTeX string
+```
+$t(29) = 2.50$, $p = .013$, $d = 0.46$, $95\%\ \text{CI}\ [0.10,\ 0.82]$
+```
+
+## APA 7 formatting rules (STRICTLY follow these)
+- p-values: `p = .013` (no leading zero, three decimal places); use `p < .001` when p < 0.001
+- Effect size values: two decimal places (e.g., `d = 0.46`)
+- CI values: two decimal places (e.g., `[0.10, 0.82]`)
+- Test statistics: two decimal places (e.g., `t(29) = 2.50`)
+- Degrees of freedom in parentheses: `t(29)`, `F(2, 87)`, `z = 1.96` (z has no df)
+- Confidence level: `95% CI` for the default; use actual level if different
+- Use the CI from `cohens_d.ci` (central CI) as the default CI to report
+
+## Magnitude labels (Cohen, 1988)
+For Cohen's d and Hedges' g:
+- `|d| < 0.2` → "trivial"
+- `0.2 ≤ |d| < 0.5` → "small"
+- `0.5 ≤ |d| < 0.8` → "medium"
+- `|d| ≥ 0.8` → "large"
+
+For Cohen's f (ANOVA):
+- `f < 0.10` → "trivial"; `0.10–0.25` → "small"; `0.25–0.40` → "medium"; `f ≥ 0.40` → "large"
+
+For Cohen's h (proportions):
+- `h < 0.20` → "trivial"; `0.20–0.50` → "small"; `0.50–0.80` → "medium"; `h ≥ 0.80` → "large"
+
+## Implementation structure
+
+### Return type
+```python
+from dataclasses import dataclass
+
+@dataclass
+class InterpretationResult:
+    apa_string: str
+    plain_string: str
+    latex_string: str
+    effect_size_magnitude: str        # "small" / "medium" / "large" / "trivial"
+    is_significant: bool              # p < 0.05 (or developer-specified alpha)
+    significance_statement: str       # "statistically significant" / "not statistically significant"
+```
+
+### Function signature convention
+```python
+def interpret_one_sample_t(result: OneSampleTResults, alpha: float = 0.05) -> InterpretationResult:
+    ...
+
+def interpret_two_independent_t(result: TwoIndependentTResults, alpha: float = 0.05) -> InterpretationResult:
+    ...
+```
+
+### Edge cases to handle gracefully
+- `p_value` is None → omit significance statement; do not crash
+- CI is None → omit CI from string; do not crash
+- p < .001 → always write "p < .001", never "p = 0.000"
+- Effect size is negative → include sign; magnitude uses absolute value
+- Non-central or pivotal CI available → prefer reporting the central CI but note others are available in plain string
+
+## Code quality rules
+- Never hardcode field values — always read from the Results dataclass
+- Use f-strings; no string concatenation
+- Every function must have a NumPy docstring with an example
+- Add `__all__` to `texts.py` listing all public `interpret_*` functions
+- Write at least 3 pytest tests per interpretation function: significant result, non-significant result, edge case
+
+## Example implementation skeleton
+```python
+def interpret_one_sample_t(
+    result: "OneSampleTResults", alpha: float = 0.05
+) -> InterpretationResult:
+    """
+    Generate APA 7, plain-English, and LaTeX report strings for a one-sample t-test.
+    ...
+    """
+    d = result.cohens_d
+    magnitude = _magnitude_cohens_d(abs(d.value))
+    p = result.p_value
+    sig = p < alpha if p is not None else None
+    sig_word = "statistically significant" if sig else "not statistically significant"
+
+    p_str = "p < .001" if p < .001 else f"p = {p:.3f}".replace("0.", ".")
+    ci_str = f"[{d.ci.lower:.2f}, {d.ci.upper:.2f}]" if d.ci else ""
+    df = int(result.degrees_of_freedom) if result.degrees_of_freedom is not None else "?"
+    t_str = f"t({df}) = {result.t_score:.2f}" if result.t_score is not None else ""
+
+    apa = f"A one-sample t-test revealed a {sig_word} {magnitude} effect, {t_str}, {p_str}, d = {d.value:.2f}, 95% CI {ci_str}."
+    ...
+    return InterpretationResult(apa_string=apa, plain_string=plain, latex_string=latex,
+                                 effect_size_magnitude=magnitude, is_significant=bool(sig),
+                                 significance_statement=sig_word)
+```

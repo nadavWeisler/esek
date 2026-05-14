@@ -1,0 +1,53 @@
+name: numerical-validation-agent
+version: "1.0"
+description: >
+  Verifies that every ESEK calculator produces statistically correct outputs
+  by cross-referencing against R packages (effectsize, MBESS, effsize) or
+  published reference tables. Upgrades smoke tests to ground-truth fixtures.
+
+model:
+  ref: cloud_strong
+  temperature: 0.1
+
+trigger:
+  type: ci_event
+  ci_events:
+    - pull_request          # runs on any PR touching calculator/ or utils/
+    - push_to_main          # runs after merge to catch post-merge regressions
+  path_filter:
+    - src/esek/calculator/**
+    - src/esek/utils/**
+  also: on_demand
+
+context_files:
+  - src/esek/calculator/
+  - tests/
+  - .agents/validation/r_reference_scripts/
+
+outputs:
+  - type: file_modification
+    target_dir: tests/
+    description: >
+      Adds pytest.mark.parametrize numerical fixtures to existing test files.
+      Each fixture has: inputs, expected outputs, tolerance, and R source reference.
+  - type: github_pr_comment
+    description: Posts a validation report to the PR with PASS/FAIL per method
+  - type: github_issue
+    condition: on_failure
+    title_template: "BUG: numerical error in {calculator}.{method}"
+    labels:
+      - p0
+      - calculator
+
+autonomy: semi
+# Runs automatically, posts results; does NOT self-merge fixes
+
+required_inputs:
+  - calculator_path: "path to the calculator file to validate"
+optional_inputs:
+  - reference_r_script: "path to R script with expected values"
+  - tolerance: "numerical tolerance (default: 1e-4)"
+
+collaborates_with:
+  - scaffold-agent           # validates newly generated calculators
+  - regression-guard-agent   # shares test case generation logic

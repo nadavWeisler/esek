@@ -1,0 +1,53 @@
+name: migration-agent
+version: "1.0"
+description: >
+  Completes and maintains the structural migration from src/esek/Calculator/
+  (legacy uppercase) to src/esek/calculator/ (canonical lowercase).
+  Currently the Proportions/ submodule and a few other files need migrating.
+  Leaves DeprecationWarning shims in Calculator/ to preserve backward compat.
+
+model:
+  ref: local                 # mechanical refactoring; no cloud needed
+  temperature: 0.05
+
+trigger:
+  type: on_demand
+  # Also: auto-trigger when a new file appears in Calculator/ without a
+  # corresponding file in calculator/ (detect via CI path check)
+  ci_events:
+    - push_to_main
+  path_filter:
+    - src/esek/Calculator/**
+
+context_files:
+  - src/esek/Calculator/
+  - src/esek/calculator/
+  - src/esek/utils/
+
+outputs:
+  - type: file_creation
+    target_dir: src/esek/calculator/
+    description: Canonical implementation (moved from Calculator/)
+  - type: file_modification
+    target_dir: src/esek/Calculator/
+    description: Shim file with DeprecationWarning re-exporting from calculator/
+  - type: file_modification
+    target: src/esek/calculator/__init__.py
+    description: Adds new submodule to exports
+  - type: file_creation
+    target: .agents/migration/migration_status.json
+    description: Updated migration status tracking file
+  - type: github_pr
+    draft: false
+    base_branch: main
+    title_template: "refactor: migrate {module_name} to canonical calculator/ layout"
+    labels:
+      - migration
+
+autonomy: full
+# Fully autonomous for pure structural migration (move + update imports + add shim).
+# Requires human review if any logic changes are discovered during migration.
+
+collaborates_with:
+  - scaffold-agent           # aligns on canonical structure for new modules
+  - doc-agent                # updates docs after migration completes

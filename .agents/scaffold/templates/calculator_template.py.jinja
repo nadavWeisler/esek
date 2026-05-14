@@ -1,0 +1,108 @@
+"""{{ calculator_name }} effect size calculator.
+
+References
+----------
+{{ reference }}
+"""
+import math
+from typing import Optional
+from dataclasses import dataclass
+import numpy as np
+from scipy import stats
+from ...utils import interfaces, res, es, utils
+
+
+@dataclass
+class {{ calculator_name }}Results:
+    """Results for {{ calculator_name }} tests.
+
+    Attributes
+    ----------
+    {% for es_name in effect_sizes %}
+    {{ es_name | lower }} : Optional[es.{{ es_name }}]
+        {{ es_name }} effect size with central, pivotal, and non-central CIs.
+    {% endfor %}
+    {% for field in stat_fields %}
+    {{ field.name }} : Optional[{{ field.type }}]
+        {{ field.description }}
+    {% endfor %}
+    """
+    {% for es_name in effect_sizes %}
+    {{ es_name | lower }}: Optional[es.{{ es_name }}] = None
+    {% endfor %}
+    {% for field in stat_fields %}
+    {{ field.name }}: Optional[{{ field.type }}] = None
+    {% endfor %}
+
+
+class {{ calculator_name }}Test(interfaces.AbstractTest):
+    """Calculator for {{ calculator_name }} effect sizes.
+
+    Methods
+    -------
+    from_score :
+        Calculate from a test statistic.
+    from_parameters :
+        Calculate from sample summary statistics.
+    from_data :
+        Calculate from raw data arrays.
+    """
+
+    @staticmethod
+    def from_score(
+        score: float,
+        sample_size: int,
+        confidence_level: float = 0.95,
+    ) -> {{ calculator_name }}Results:
+        """Calculate {{ calculator_name }} from a test statistic.
+
+        Parameters
+        ----------
+        score : float
+            The test statistic (t, z, F, etc.).
+        sample_size : int
+            Sample size N. Must be ≥ 2.
+        confidence_level : float, optional
+            Confidence level for interval estimates (default 0.95).
+
+        Returns
+        -------
+        {{ calculator_name }}Results
+
+        References
+        ----------
+        {{ reference }}
+
+        Examples
+        --------
+        >>> result = {{ calculator_name }}Test.from_score(score=2.5, sample_size=30)
+        """
+        # TODO: implement
+        raise NotImplementedError("from_score is not yet implemented.")
+
+    @staticmethod
+    def from_parameters(
+        confidence_level: float = 0.95,
+    ) -> {{ calculator_name }}Results:
+        """Calculate {{ calculator_name }} from summary statistics.
+
+        Parameters
+        ----------
+        confidence_level : float, optional
+            Confidence level for interval estimates (default 0.95).
+
+        Returns
+        -------
+        {{ calculator_name }}Results
+
+        Examples
+        --------
+        >>> result = {{ calculator_name }}Test.from_parameters(...)
+        """
+        # TODO: implement
+        raise NotImplementedError("from_parameters is not yet implemented.")
+
+    @staticmethod
+    @utils.not_implemented(interfaces.MethodType.FROM_DATA, "{{ calculator_name }}")
+    def from_data() -> {{ calculator_name }}Results:
+        """Calculate {{ calculator_name }} from raw data arrays."""

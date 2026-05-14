@@ -1,0 +1,49 @@
+# Global configuration for all ESEK AI agents
+# Override per-agent in each agent's agent.yml
+
+models:
+  cloud_strong:
+    provider: openai           # or: anthropic
+    name: gpt-4.1              # fallback: claude-sonnet-4-5
+    temperature: 0.2
+  cloud_fast:
+    provider: openai
+    name: gpt-4.1-mini
+    temperature: 0.1
+  local:
+    provider: ollama           # run locally: ollama pull qwen2.5-coder:7b
+    name: qwen2.5-coder:7b
+    temperature: 0.1
+
+github:
+  owner: nadavWeisler
+  repo: esek
+  default_base_branch: main
+  # Labels that must exist before roadmap-agent can create issues:
+  required_labels:
+    - calculator
+    - tests
+    - docs
+    - migration
+    - utils
+    - interpretation
+    - p0
+    - p1
+    - p2
+    - size:S
+    - size:M
+    - size:L
+
+paths:
+  calculator_src: src/esek/calculator
+  legacy_src: src/esek/Calculator
+  utils_src: src/esek/utils
+  tests: tests
+  golden: tests/golden
+  docs: docs
+  agents: .agents
+
+python:
+  min_version: "3.10"
+  test_runner: pytest
+  lint: flake8

@@ -1,0 +1,45 @@
+name: release-agent
+version: "1.0"
+description: >
+  Prepares, validates, and executes patch/minor/major releases of esek to PyPI.
+  Runs a structured release checklist, generates release notes from closed
+  issues, and requires one manual approval before tagging.
+
+model:
+  ref: local                 # follows a checklist; no deep reasoning needed
+  temperature: 0.1
+
+trigger:
+  type: on_demand
+
+context_files:
+  - pyproject.toml
+  - CHANGELOG.md
+  - .github/workflows/python-publish.yml
+  - .agents/release/release_checklist.md
+
+outputs:
+  - type: file_modification
+    target: CHANGELOG.md
+    description: New version entry in Keep-a-Changelog format
+  - type: github_release_draft
+    description: Release draft with auto-generated notes from closed milestone issues
+  - type: git_tag
+    condition: after_human_approval
+    description: Semver tag (e.g. v0.5.0) that triggers the existing PyPI publish workflow
+  - type: github_milestone_close
+    description: Closes the associated milestone with a summary comment
+
+autonomy: semi
+# Prepares everything; requires one manual approval before pushing the tag.
+
+required_inputs:
+  - bump_type: "patch | minor | major"
+optional_inputs:
+  - milestone_name: "GitHub milestone to close (auto-detected from version if omitted)"
+  - release_notes_extra: "additional notes to prepend to auto-generated release notes"
+
+collaborates_with:
+  - regression-guard-agent   # gates release on zero regressions
+  - doc-agent                # ensures CHANGELOG is complete
+  - roadmap-agent            # closes the associated milestone
