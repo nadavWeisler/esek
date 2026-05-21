@@ -33,6 +33,7 @@ from .core.exceptions import (
 )
 from .calculators.contingency_tables import ContingencyTable2x2
 from .calculators.correlations import PearsonCorrelation
+from .confidence_intervals import CohensDCI
 
 __version__ = "0.2.0"
 __author__ = "Nadav Weisler"
@@ -43,6 +44,7 @@ __all__ = [
     "StatisticToEffectSize",
     "ContingencyTable2x2",
     "PearsonCorrelation",
+    "CohensDCI",
     # Exceptions
     "EsekError",
     "InvalidInputError",

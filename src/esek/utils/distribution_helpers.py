@@ -121,6 +121,110 @@ def ci_ncp(
     return ci_low, ci_high
 
 
+def plambdap(q: float, df: float, t: float) -> float:
+    """CDF of the lambda-prime distribution (Lecoutre, 1999).
+
+    The lambda-prime distribution with parameters (df, t) is defined as::
+
+        X = Z + t * sqrt(χ²(df) / df)
+
+    where Z ~ N(0, 1) and χ²(df) are independent. It is the sampling
+    distribution of Cohen's d for a one-sample or paired-samples t-test when
+    the true population effect is ``t``.
+
+    Parameters
+    ----------
+    q:
+        Quantile at which to evaluate the CDF.
+    df:
+        Degrees of freedom (positive).
+    t:
+        Non-centrality / scaling parameter.
+
+    Returns
+    -------
+    float
+        P(X ≤ q) where X ~ lambda-prime(df, t).
+
+    References
+    ----------
+    - Lecoutre, B. (1999). Two useful distributions for Bayesian predictive
+      procedures under normal models. *Journal of Statistical Planning and
+      Inference*, 79(1), 93-105.
+    - Pav, S. E. (2015). sadists: Some Additional Distributions. R package.
+    """
+    import scipy.integrate as integrate
+    from scipy.stats import chi2, norm as _norm
+
+    def integrand(u: float) -> float:
+        return float(_norm.cdf(q - t * math.sqrt(u / df)) * chi2.pdf(u, df))
+
+    # Use finite bounds that cover essentially all mass of chi²(df).
+    # chi²(df) has mean=df, std=sqrt(2*df); use 8 std-dev upper bound.
+    upper = df + 8.0 * math.sqrt(2.0 * df)
+    result, _ = integrate.quad(integrand, 0.0, upper, limit=200)
+    return float(np.clip(result, 0.0, 1.0))
+
+
+def qlambdap(p: float, df: float, t: float) -> float:
+    """Quantile function of the lambda-prime distribution (Lecoutre, 1999).
+
+    Inverts the lambda-prime CDF using Brent's method. This is the pure-Python
+    replacement for ``qlambdap`` from the R *sadists* package.
+
+    Parameters
+    ----------
+    p:
+        Probability (0 < p < 1).
+    df:
+        Degrees of freedom (positive).
+    t:
+        Non-centrality / scaling parameter.
+
+    Returns
+    -------
+    float
+        The value x such that P(X ≤ x) = p for X ~ lambda-prime(df, t).
+
+    References
+    ----------
+    - Lecoutre, B. (1999). Two useful distributions for Bayesian predictive
+      procedures under normal models. *Journal of Statistical Planning and
+      Inference*, 79(1), 93-105.
+    """
+    from scipy.optimize import brentq
+    from scipy.stats import norm as _norm
+
+    if not (0.0 < p < 1.0):
+        raise ValueError(f"p must be in (0, 1), got {p}.")
+    if df <= 0:
+        raise ValueError(f"df must be positive, got {df}.")
+
+    # Initial bracket: mean ± wide margin based on the distribution's spread.
+    # E[X] ≈ t * sqrt(df/2) * Γ((df-1)/2) / Γ(df/2) (but approximate with
+    # normal quantile as the starting guess).
+    spread = math.sqrt(1.0 + t ** 2 * (1.0 + 2.0 / df))
+    mean_approx = t * math.sqrt(2.0 / df) * math.exp(
+        math.lgamma((df + 1) / 2) - math.lgamma(df / 2)
+    ) if df > 1 else 0.0
+    lo = mean_approx + _norm.ppf(p) * spread * 5.0 - spread * 5.0
+    hi = mean_approx + _norm.ppf(p) * spread * 5.0 + spread * 5.0
+
+    # Widen bracket until it straddles p
+    for _ in range(50):
+        if plambdap(lo, df, t) > p:
+            lo -= spread * 2.0
+        else:
+            break
+    for _ in range(50):
+        if plambdap(hi, df, t) < p:
+            hi += spread * 2.0
+        else:
+            break
+
+    return float(brentq(lambda x: plambdap(x, df, t) - p, lo, hi, xtol=1e-8))
+
+
 def compute_fisher_confidence_interval(
     correlation: float,
     standard_error: float,
