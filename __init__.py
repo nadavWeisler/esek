@@ -1,14 +1,9 @@
-"""Esek Library"""
+"""ESEK — Effect Size Estimation Kit.
 
-__title__ = "esek"
-__version__ = "0.1.0"
-__author__ = "Esek"
-__license__ = "MIT"
+This file exists for compatibility when the project is imported directly
+from the repository root (not installed). When running tests with pytest
+(which adds src/ to the path), this file is not used.
+"""
+# This module intentionally left minimal to avoid circular imports.
+# When installed, `import esek` uses src/esek/__init__.py directly.
 
-from .src.esek import Calculator
-from .src.esek import utils
-
-__all__ = [
-    "Calculator",
-    "utils",
-]

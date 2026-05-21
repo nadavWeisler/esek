@@ -5,6 +5,8 @@ from . import results as res
 from . import utils
 from . import effect_sizes as es
 from . import texts
+from . import math_helpers
+from . import distribution_helpers
 
 __all__ = [
     "interfaces",
@@ -12,4 +14,6 @@ __all__ = [
     "utils",
     "es",
     "texts",
+    "math_helpers",
+    "distribution_helpers",
 ]

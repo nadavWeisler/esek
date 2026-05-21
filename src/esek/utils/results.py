@@ -464,6 +464,26 @@ class Proportion:
         self.sample_size: int = sample_size
 
 
+class YuensRobustT:
+    """
+    A class to store Yuen's trimmed-mean robust t-test results.
+    """
+
+    def __init__(
+        self,
+        score: float,
+        p_value: float,
+        trimming_level: float,
+        standard_error: float,
+        effect_size: float,
+    ) -> None:
+        self.score: float = score
+        self.p_value: float = p_value
+        self.trimming_level: float = trimming_level
+        self.standard_error: float = standard_error
+        self.effect_size: float = effect_size
+
+
 class WilcoxonSignedRank(DescriptiveStatistics):
     """
     A class to store descriptive statistics from the Wilcoxon Signed-Rank test.
