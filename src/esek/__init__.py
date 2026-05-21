@@ -25,12 +25,14 @@ Core (validation / exceptions)::
 
 from __future__ import annotations
 
-from .converters import EffectSizeConverter
+from .converters import EffectSizeConverter, StatisticToEffectSize
 from .core.exceptions import (
     EsekError,
     InvalidInputError,
     StatisticalComputationError,
 )
+from .calculators.contingency_tables import ContingencyTable2x2
+from .calculators.correlations import PearsonCorrelation
 
 __version__ = "0.2.0"
 __author__ = "Nadav Weisler"
@@ -38,6 +40,9 @@ __author__ = "Nadav Weisler"
 __all__ = [
     # Top-level convenience
     "EffectSizeConverter",
+    "StatisticToEffectSize",
+    "ContingencyTable2x2",
+    "PearsonCorrelation",
     # Exceptions
     "EsekError",
     "InvalidInputError",

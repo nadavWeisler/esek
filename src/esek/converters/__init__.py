@@ -29,6 +29,7 @@ from .odds_ratio_conversions import (
     log_odds_ratio_to_d,
     odds_ratio_to_r,
 )
+from .statistic_to_effect_size import StatisticToEffectSize
 
 
 class EffectSizeConverter:
@@ -114,9 +115,44 @@ class EffectSizeConverter:
         """Convert an odds ratio to Pearson *r* (via *d*)."""
         return odds_ratio_to_r(or_, n1, n2)
 
+    # ------------------------------------------------------------------
+    # Statistic → effect size conversions
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def from_z_one_sample(z: float, n: int):
+        """Convert a one-sample z-score to Cohen's d."""
+        return StatisticToEffectSize.from_z_one_sample(z, n)
+
+    @staticmethod
+    def from_z_paired(z: float, n: int):
+        """Convert a paired-samples z-score to Cohen's d."""
+        return StatisticToEffectSize.from_z_paired(z, n)
+
+    @staticmethod
+    def from_z_independent(z: float, n1: int, n2: int):
+        """Convert an independent-samples z-score to Cohen's d."""
+        return StatisticToEffectSize.from_z_independent(z, n1, n2)
+
+    @staticmethod
+    def from_t_one_sample(t: float, n: int):
+        """Convert a one-sample t-statistic to Cohen's d and Hedges' g."""
+        return StatisticToEffectSize.from_t_one_sample(t, n)
+
+    @staticmethod
+    def from_t_paired(t: float, n: int):
+        """Convert a paired-samples t-statistic to Cohen's d."""
+        return StatisticToEffectSize.from_t_paired(t, n)
+
+    @staticmethod
+    def from_t_independent(t: float, n1: int, n2: int):
+        """Convert an independent-samples t-statistic to Cohen's d and Hedges' g."""
+        return StatisticToEffectSize.from_t_independent(t, n1, n2)
+
 
 __all__ = [
     "EffectSizeConverter",
+    "StatisticToEffectSize",
     "d_to_r",
     "d_to_r_equal_n",
     "d_to_odds_ratio",
