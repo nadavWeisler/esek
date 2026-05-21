@@ -10,6 +10,7 @@ from .interval_by_interval import PearsonCorrelation
 from .multiple_r_squared import MultipleRSquared, MultipleRSquaredResult, compute_adjusted_r_squared
 from .partial_pearson import PartialPearsonCorrelation, PartialCorrelationResult
 from .correlation_differences import PearsonCorrelationDifference, CorrelationDifferenceResult
+from .categorical_differences import CategoricalAssociationDifference, CategoricalDifferenceResult
 
 __all__ = [
     "NominalByNominal",
@@ -26,4 +27,6 @@ __all__ = [
     "PartialCorrelationResult",
     "PearsonCorrelationDifference",
     "CorrelationDifferenceResult",
+    "CategoricalAssociationDifference",
+    "CategoricalDifferenceResult",
 ]

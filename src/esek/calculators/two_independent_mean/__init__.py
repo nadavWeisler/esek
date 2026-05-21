@@ -20,6 +20,7 @@ from .two_independent_t import (
     TwoIndependentTTests,
     TwoIndependentTResults,
 )
+from .two_independent_cles import TwoIndependentCLES, TwoIndependentCLESResult
 from .two_independent_z import (
     TwoIndependentZTests,
     TwoIndependentZResults,
@@ -36,6 +37,8 @@ __all__ = [
     "TwoIndependentRobustResults",
     "TwoIndependentTTests",
     "TwoIndependentTResults",
+    "TwoIndependentCLES",
+    "TwoIndependentCLESResult",
     "TwoIndependentZTests",
     "TwoIndependentZResults",
 ]

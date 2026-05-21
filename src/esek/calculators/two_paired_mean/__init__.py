@@ -11,6 +11,7 @@ from .two_paired_common_lang import (
     TwoPairedCommonLangTests,
     TwoPairedCommonLangResults,
 )
+from .two_paired_control_group import TwoPairedControlGroup, PrePostControlGroupResult
 
 __all__ = [
     "TwoPairedZTests",
@@ -23,4 +24,6 @@ __all__ = [
     "TwoPairedRobustResults",
     "TwoPairedCommonLangTests",
     "TwoPairedCommonLangResults",
+    "TwoPairedControlGroup",
+    "PrePostControlGroupResult",
 ]

@@ -17,6 +17,12 @@ from .ci_odds_ratio import log_scale_ci
 from .ci_eta_squared import EtaSquaredCI
 from .ci_cohens_d import CohensDCI, CohensDCIResult
 from .ci_dispersion import mad_ci, sd_ci, MADCIResult, SDCIResult
+from .ci_proportions import (
+    ProportionCI,
+    ProportionCIResult,
+    PairedProportionCIResult,
+    IndependentProportionCIResult,
+)
 
 __all__ = [
     "central_ci_one_sample",
@@ -36,5 +42,9 @@ __all__ = [
     "sd_ci",
     "MADCIResult",
     "SDCIResult",
+    "ProportionCI",
+    "ProportionCIResult",
+    "PairedProportionCIResult",
+    "IndependentProportionCIResult",
 ]
 
