@@ -7,6 +7,8 @@ from .ordinal_by_interval import OrdinalByInterval
 from .ordinal_by_ordinal import OrdinalByOrdinal
 from .ordinal_partial_correlation import OrdinalPartialCorrelation
 from .interval_by_interval import PearsonCorrelation
+from .multiple_r_squared import MultipleRSquared, MultipleRSquaredResult, compute_adjusted_r_squared
+from .partial_pearson import PartialPearsonCorrelation, PartialCorrelationResult
 
 __all__ = [
     "NominalByNominal",
@@ -16,4 +18,9 @@ __all__ = [
     "OrdinalByOrdinal",
     "OrdinalPartialCorrelation",
     "PearsonCorrelation",
+    "MultipleRSquared",
+    "MultipleRSquaredResult",
+    "compute_adjusted_r_squared",
+    "PartialPearsonCorrelation",
+    "PartialCorrelationResult",
 ]
