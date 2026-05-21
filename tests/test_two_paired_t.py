@@ -1,6 +1,6 @@
 """Tests for the Two Paired T calculator."""
 
-from src.esek.calculator.two_paired_mean.two_paired_t import (
+from esek.Calculator.two_paired_mean.two_paired_t import (
     TwoPairedTResults,
     TwoPairedTTests,
 )

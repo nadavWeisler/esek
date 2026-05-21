@@ -1,6 +1,6 @@
 """ "Tests for One Sample Z Test."""
 
-from src.esek.calculator.one_sample_mean.one_sample_z import (
+from esek.Calculator.one_sample_mean.one_sample_z import (
     OneSampleZResults,
     OneSampleZTests,
 )
