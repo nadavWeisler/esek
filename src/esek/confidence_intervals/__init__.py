@@ -12,8 +12,9 @@ from .ci_mean_difference import (
     ncp_ci_one_sample,
     multiple_se_ci_two_samples,
 )
-from .ci_correlations import fisher_z_ci
+from .ci_correlations import fisher_z_ci, spearman_ci, cramer_v_ci
 from .ci_odds_ratio import log_scale_ci
+from .ci_eta_squared import EtaSquaredCI
 
 __all__ = [
     "central_ci_one_sample",
@@ -23,5 +24,9 @@ __all__ = [
     "ncp_ci_one_sample",
     "multiple_se_ci_two_samples",
     "fisher_z_ci",
+    "spearman_ci",
+    "cramer_v_ci",
     "log_scale_ci",
+    "EtaSquaredCI",
 ]
+
