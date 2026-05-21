@@ -1,7 +1,7 @@
 """Confidence-interval methods for effect sizes.
 
-All public functions return ``(ci_lower, ci_upper)`` tuples. For
-structured results use :class:`~esek.results.base.ConfidenceIntervalResult`.
+This package exposes both tuple-returning numeric helpers and typed result
+APIs such as :class:`.CohensDCI` and :class:`.EtaSquaredCI`.
 """
 
 from .ci_mean_difference import (
@@ -15,6 +15,8 @@ from .ci_mean_difference import (
 from .ci_correlations import fisher_z_ci, spearman_ci, cramer_v_ci
 from .ci_odds_ratio import log_scale_ci
 from .ci_eta_squared import EtaSquaredCI
+from .ci_cohens_d import CohensDCI, CohensDCIResult
+from .ci_dispersion import mad_ci, sd_ci, MADCIResult, SDCIResult
 
 __all__ = [
     "central_ci_one_sample",
@@ -28,5 +30,11 @@ __all__ = [
     "cramer_v_ci",
     "log_scale_ci",
     "EtaSquaredCI",
+    "CohensDCI",
+    "CohensDCIResult",
+    "mad_ci",
+    "sd_ci",
+    "MADCIResult",
+    "SDCIResult",
 ]
 
