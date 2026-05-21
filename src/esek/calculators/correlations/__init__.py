@@ -9,6 +9,7 @@ from .ordinal_partial_correlation import OrdinalPartialCorrelation
 from .interval_by_interval import PearsonCorrelation
 from .multiple_r_squared import MultipleRSquared, MultipleRSquaredResult, compute_adjusted_r_squared
 from .partial_pearson import PartialPearsonCorrelation, PartialCorrelationResult
+from .correlation_differences import PearsonCorrelationDifference, CorrelationDifferenceResult
 
 __all__ = [
     "NominalByNominal",
@@ -23,4 +24,6 @@ __all__ = [
     "compute_adjusted_r_squared",
     "PartialPearsonCorrelation",
     "PartialCorrelationResult",
+    "PearsonCorrelationDifference",
+    "CorrelationDifferenceResult",
 ]
