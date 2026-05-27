@@ -1,0 +1,35 @@
+{
+  "migrated": [
+    "Calculator/one_sample_mean/one_sample_t",
+    "Calculator/one_sample_mean/one_sample_z",
+    "Calculator/one_sample_mean/one_sample_aparametric",
+    "Calculator/one_sample_mean/one_sample_cles",
+    "Calculator/two_independent_mean/two_independent_t",
+    "Calculator/two_independent_mean/two_independent_z",
+    "Calculator/two_independent_mean/two_independent_aparametric",
+    "Calculator/two_independent_mean/two_independent_control_group",
+    "Calculator/two_independent_mean/two_independent_robust",
+    "Calculator/two_independent_mean/two_independent_unequal_var",
+    "Calculator/two_paired_mean/two_paired_t",
+    "Calculator/two_paired_mean/two_paired_z",
+    "Calculator/two_paired_mean/two_paired_aparametric",
+    "Calculator/two_paired_mean/two_paired_robust",
+    "Calculator/two_paired_mean/two_paired_common_lang"
+  ],
+  "pending": [
+    "Calculator/Proportions/one_sample_proportion",
+    "Calculator/Proportions/two_independent_proportions",
+    "Calculator/Proportions/two_dependent_proportions",
+    "Calculator/Proportions/multiple_proportions"
+  ],
+  "shims_added": [
+    "Calculator/one_sample_mean/one_sample_t",
+    "Calculator/one_sample_mean/one_sample_z",
+    "Calculator/two_independent_mean/two_independent_t",
+    "Calculator/two_independent_mean/two_independent_z",
+    "Calculator/two_paired_mean/two_paired_t",
+    "Calculator/two_paired_mean/two_paired_z"
+  ],
+  "notes": "Proportions/ submodule has no counterpart in calculator/ yet — highest migration priority.",
+  "last_updated": "2026-05-14"
+}

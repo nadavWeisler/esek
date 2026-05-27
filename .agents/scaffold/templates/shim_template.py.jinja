@@ -1,0 +1,16 @@
+"""{{ calculator_name }} — canonical implementation lives in calculator.{{ family }}.{{ module }}."""
+import warnings
+
+warnings.warn(
+    "Importing from esek.Calculator is deprecated and will be removed in a future version. "
+    "Use esek.calculator.{{ family }}.{{ module }} instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+from ...calculator.{{ family }}.{{ module }} import (  # noqa: F401, E402
+    {{ calculator_name }}Results,
+    {{ calculator_name }}Test,
+)
+
+__all__ = ["{{ calculator_name }}Results", "{{ calculator_name }}Test"]

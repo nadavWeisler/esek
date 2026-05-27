@@ -1,0 +1,53 @@
+name: regression-guard-agent
+version: "1.0"
+description: >
+  Detects numerical regressions by comparing current calculator outputs
+  against serialized golden files. Ensures that NumPy/SciPy upgrades or
+  refactors never silently change the numbers researchers cite in papers.
+
+model:
+  ref: local                 # purely mechanical comparison
+  temperature: 0.0
+
+trigger:
+  type: ci_event
+  ci_events:
+    - pull_request           # on any PR touching calculator/ or utils/
+    - dependency_update      # on Dependabot PRs for numpy/scipy
+  path_filter:
+    - src/esek/calculator/**
+    - src/esek/utils/**
+    - requirements.txt
+    - pyproject.toml
+
+context_files:
+  - src/esek/calculator/
+  - tests/
+  - tests/golden/
+
+outputs:
+  - type: file_creation
+    target_dir: tests/golden/
+    description: >
+      JSON golden files per calculator:
+      { "inputs": {...}, "outputs": {...}, "esek_version": "x.y.z", "numpy_version": "..." }
+  - type: github_pr_comment
+    description: Reports which golden files matched and which deviated
+  - type: github_issue
+    condition: on_regression
+    title_template: "REGRESSION: {calculator}.{method} output changed"
+    labels:
+      - p0
+  - type: github_pr
+    condition: on_intentional_update
+    title_template: "chore(golden): update golden files for {calculator}"
+    labels:
+      - tests
+
+autonomy: full
+# Fully autonomous for detection and reporting.
+# Human approval required for updating golden files (intentional changes).
+
+collaborates_with:
+  - numerical-validation-agent  # shares test-case generation
+  - release-agent               # gates releases on zero regressions

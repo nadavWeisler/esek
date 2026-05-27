@@ -1,0 +1,50 @@
+name: interpretation-agent
+version: "1.0"
+description: >
+  Implements and maintains the utils/texts.py interpretive engine. Produces
+  APA 7th edition statistical report sentences, plain-English summaries, and
+  LaTeX-formatted statistical lines from any Results dataclass instance.
+  Differentiates ESEK from raw SciPy by bridging the gap between a Python
+  library and a full statistical reporting tool.
+
+model:
+  ref: cloud_strong          # statistical domain knowledge required
+  temperature: 0.3
+
+trigger:
+  type: on_demand
+  # Also triggered by scaffold-agent after generating a new Results class
+
+context_files:
+  - src/esek/utils/texts.py
+  - src/esek/utils/results.py
+  - src/esek/utils/effect_sizes.py
+  - src/esek/calculator/
+  - .agents/interpretation/apa7_examples.md
+
+outputs:
+  - type: file_modification
+    target: src/esek/utils/texts.py
+    description: >
+      interpret_{calculator_name}(result) -> InterpretationResult functions,
+      one per calculator, returning apa_string, plain_string, and latex_string
+  - type: file_creation
+    target_dir: src/esek/utils/interpretation/
+    description: Per-family interpretation submodule (one file per test family)
+  - type: file_modification
+    target_dir: tests/
+    description: Tests for interpretation strings (format, required fields, significance thresholds)
+
+autonomy: semi
+# Generates interpretation logic; developer reviews APA accuracy before merge.
+
+required_inputs:
+  - calculator_name: "e.g. OneSampleTTest"
+  - results_class: "path to the Results dataclass, e.g. calculator.one_sample_mean.one_sample_t.OneSampleTResults"
+optional_inputs:
+  - output_formats: "list of formats to generate (default: [apa, plain, latex])"
+  - magnitude_thresholds: "custom Cohen thresholds (default: Cohen 1988)"
+
+collaborates_with:
+  - scaffold-agent           # receives Results class schema for new calculators
+  - doc-agent                # interpretation examples appear in docs
