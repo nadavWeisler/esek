@@ -1,17 +1,14 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
+# Install Python dependencies, lint, and run the full unit-test suite.
 name: Python package
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main", "release", "cursor/**"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main", "release"]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -19,24 +16,48 @@ jobs:
         python-version: ["3.10", "3.11", "3.12"]
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        # Install the package so dependencies declared in pyproject.toml (e.g. statsmodels) are installed
-        python -m pip install -e .
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        python -m pytest tests/
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e ".[dev]"
+          python -m pip install flake8
+
+      - name: Lint with flake8
+        run: |
+          # Stop the build on syntax errors / undefined names.
+          flake8 src tests --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Soft complexity/style report (non-blocking).
+          flake8 src tests --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Compile sources
+        run: python -m compileall -q src/
+
+      - name: Test with pytest
+        run: |
+          python -m pytest tests/ \
+            --cov=esek.calculators.agreements \
+            --cov=esek.calculators.anova \
+            --cov=esek.calculators.stratified_contingency \
+            --cov=esek.calculators.two_independent_mean.two_independent_cles \
+            --cov=esek.confidence_intervals.ci_correlations \
+            --cov=esek.calculators.correlations.ordinal_by_ordinal \
+            --cov-report=term-missing:skip-covered \
+            --cov-report=xml \
+            -q
+
+      - name: Upload coverage XML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-py${{ matrix.python-version }}
+          path: coverage.xml
+          if-no-files-found: ignore

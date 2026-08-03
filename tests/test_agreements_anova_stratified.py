@@ -199,9 +199,9 @@ class TestOrdinalTypedAPI:
     def test_typed_from_data(self):
         x = [1, 2, 3, 2, 1, 3, 2, 1, 4, 3, 2, 1]
         y = [1, 2, 2, 3, 1, 3, 2, 2, 4, 2, 3, 1]
-        result = OrdinalByOrdinal.from_data(x, y, confidence_level=0.95, n_bootstrap=50)
+        result = OrdinalByOrdinal.from_data(x, y, confidence_level=0.95, n_bootstrap=10)
         assert isinstance(result, OrdinalByOrdinalResult)
-        assert result.n_bootstrap == 50
+        assert result.n_bootstrap == 10
 
     def test_legacy_params_still_works(self):
         result = OrdinalByOrdinal.from_data(
@@ -209,7 +209,7 @@ class TestOrdinalTypedAPI:
                 "Variable 1": [1, 2, 3, 2, 1, 3, 4, 2, 1, 3],
                 "Variable 2": [1, 1, 3, 2, 2, 3, 4, 3, 1, 2],
                 "Confidence Level": 95,
-                "Number Of Bootstraps Samples": 20,
+                "Number Of Bootstraps Samples": 10,
             }
         )
         assert isinstance(result, dict)

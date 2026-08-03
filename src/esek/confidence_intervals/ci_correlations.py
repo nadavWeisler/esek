@@ -173,18 +173,40 @@ def _ncp_chi2_ci(
     ulim = 1.0 - alpha / 2
     llim = alpha / 2
 
+    # Degenerate observed χ²: lower NCP is 0; search upper NCP with a fixed step.
+    if chival <= 0.0:
+        chival_eps = 1e-12
+        ncp_lo = 0.0
+        hi = [0.0, 1.0, 2.0]
+        while ncx2.cdf(chival_eps, df, hi[2]) > llim:
+            hi = [hi[0], hi[2], hi[2] * 2.0]
+            if hi[2] > 1e8:
+                break
+        diff = 1.0
+        iters = 0
+        while diff > 1e-5 and iters < 200:
+            if ncx2.cdf(chival_eps, df, hi[1]) < llim:
+                hi = [hi[0], (hi[0] + hi[1]) / 2.0, hi[1]]
+            else:
+                hi = [hi[1], (hi[1] + hi[2]) / 2.0, hi[2]]
+            diff = abs(ncx2.cdf(chival_eps, df, hi[1]) - llim)
+            iters += 1
+        return ncp_lo, max(hi[1], 0.0)
+
     # lower NCP
     lo = [1e-3, chival / 2.0, chival]
     if ncx2.cdf(chival, df, lo[0]) < ulim:
         ncp_lo = 0.0
     else:
         diff = 1.0
-        while diff > 1e-5:
+        iters = 0
+        while diff > 1e-5 and iters < 200:
             if ncx2.cdf(chival, df, lo[1]) < ulim:
                 lo = [lo[0], (lo[0] + lo[1]) / 2.0, lo[1]]
             else:
                 lo = [lo[1], (lo[1] + lo[2]) / 2.0, lo[2]]
             diff = abs(ncx2.cdf(chival, df, lo[1]) - ulim)
+            iters += 1
         ncp_lo = lo[1]
 
     # upper NCP
@@ -192,14 +214,16 @@ def _ncp_chi2_ci(
     while ncx2.cdf(chival, df, hi[0]) < llim:
         hi = [hi[0] / 4.0, hi[0], hi[2]]
     while ncx2.cdf(chival, df, hi[2]) > llim:
-        hi = [hi[0], hi[2], hi[2] + chival]
+        hi = [hi[0], hi[2], hi[2] + max(chival, 1.0)]
     diff = 1.0
-    while diff > 1e-5:
+    iters = 0
+    while diff > 1e-5 and iters < 200:
         if ncx2.cdf(chival, df, hi[1]) < llim:
             hi = [hi[0], (hi[0] + hi[1]) / 2.0, hi[1]]
         else:
             hi = [hi[1], (hi[1] + hi[2]) / 2.0, hi[2]]
         diff = abs(ncx2.cdf(chival, df, hi[1]) - llim)
+        iters += 1
     ncp_hi = hi[1]
 
     return ncp_lo, ncp_hi

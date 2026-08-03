@@ -45,23 +45,41 @@ def pivotal_ci_t(
     upper_limit = 1 - (1 - confidence_level) / 2
     lower_limit = (1 - confidence_level) / 2
 
+    # t ≈ 0 makes the classic bracket updates stationary (subtract/add 0).
+    # Use a central-t NCP approximation which is exact at the null.
+    if t_score < 1e-12:
+        crit = float(stats.t.ppf(upper_limit, df))
+        half_width = crit / math.sqrt(sample_size)
+        return -half_width, half_width
+
+    step = max(float(t_score), 1e-6)
+
     # --- lower NCP bracket ---
     lower_criterion = [-t_score, t_score / 2, t_score]
-    while stats.nct.cdf(t_score, df, lower_criterion[0]) < upper_limit:
-        lower_criterion = [lower_criterion[0] - t_score, lower_criterion[0], lower_criterion[2]]
+    iters = 0
+    while stats.nct.cdf(t_score, df, lower_criterion[0]) < upper_limit and iters < 10_000:
+        lower_criterion = [lower_criterion[0] - step, lower_criterion[0], lower_criterion[2]]
+        iters += 1
 
     # --- upper NCP bracket ---
     upper_criterion = [t_score, 2 * t_score, 3 * t_score]
-    while stats.nct.cdf(t_score, df, upper_criterion[0]) < lower_limit:
+    iters = 0
+    while stats.nct.cdf(t_score, df, upper_criterion[0]) < lower_limit and iters < 10_000:
         if stats.nct.cdf(t_score, df) < lower_limit:
             upper_criterion = [upper_criterion[0] / 4, upper_criterion[0], upper_criterion[2]]
-    while stats.nct.cdf(t_score, df, upper_criterion[2]) > lower_limit:
-        upper_criterion = [upper_criterion[0], upper_criterion[2], upper_criterion[2] + t_score]
+        else:
+            break
+        iters += 1
+    iters = 0
+    while stats.nct.cdf(t_score, df, upper_criterion[2]) > lower_limit and iters < 10_000:
+        upper_criterion = [upper_criterion[0], upper_criterion[2], upper_criterion[2] + step]
+        iters += 1
 
     # Bisect for lower CI
     lower_ci = 0.0
     diff = 1.0
-    while diff > 1e-5:
+    iters = 0
+    while diff > 1e-5 and iters < 200:
         mid = lower_criterion[1]
         if stats.nct.cdf(t_score, df, mid) < upper_limit:
             lower_criterion = [lower_criterion[0], (lower_criterion[0] + mid) / 2, mid]
@@ -69,11 +87,13 @@ def pivotal_ci_t(
             lower_criterion = [mid, (mid + lower_criterion[2]) / 2, lower_criterion[2]]
         diff = abs(stats.nct.cdf(t_score, df, lower_criterion[1]) - upper_limit)
         lower_ci = lower_criterion[1] / math.sqrt(sample_size)
+        iters += 1
 
     # Bisect for upper CI
     upper_ci = 0.0
     diff = 1.0
-    while diff > 1e-5:
+    iters = 0
+    while diff > 1e-5 and iters < 200:
         mid = upper_criterion[1]
         if stats.nct.cdf(t_score, df, mid) < lower_limit:
             upper_criterion = [upper_criterion[0], (upper_criterion[0] + mid) / 2, mid]
@@ -81,6 +101,7 @@ def pivotal_ci_t(
             upper_criterion = [mid, (mid + upper_criterion[2]) / 2, upper_criterion[2]]
         diff = abs(stats.nct.cdf(t_score, df, upper_criterion[1]) - lower_limit)
         upper_ci = upper_criterion[1] / math.sqrt(sample_size)
+        iters += 1
 
     if is_negative:
         return -upper_ci, -lower_ci
