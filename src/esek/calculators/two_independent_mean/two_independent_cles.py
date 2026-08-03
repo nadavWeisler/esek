@@ -15,17 +15,21 @@ confidence intervals.
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Callable
 
+import numpy as np
 from scipy.stats import norm, t
 
-from ...core import InvalidInputError
+from ...core import InvalidInputError, StatisticalComputationError
 from ...core.validation import (
     validate_confidence_level,
+    validate_non_empty,
     validate_not_nan,
     validate_proportion,
     validate_sample_size,
+    validate_standard_deviation,
 )
 from ...utils.distribution_helpers import pivotal_ci_t
 
@@ -170,6 +174,109 @@ class TwoIndependentCLES:
                 central_effect_ci=(dpop_central_low, dpop_central_high),
                 pivotal_effect_ci=(dpop_pivotal_low, dpop_pivotal_high),
             ),
+        )
+
+    @staticmethod
+    def from_parameters(
+        mean1: float,
+        mean2: float,
+        sd1: float,
+        sd2: float,
+        n1: int,
+        n2: int,
+        confidence_level: float = 0.95,
+        pop_diff: float = 0.0,
+    ) -> TwoIndependentCLESResult:
+        """Create parametric CLES results from summary statistics.
+
+        Parameters
+        ----------
+        mean1, mean2:
+            Sample means for the two groups.
+        sd1, sd2:
+            Sample standard deviations for the two groups.
+        n1, n2:
+            Sample sizes for the two groups.
+        confidence_level:
+            Confidence level in ``(0, 1)``.
+        pop_diff:
+            Reference population mean difference under the null.
+        """
+        validate_not_nan(mean1, name="mean1")
+        validate_not_nan(mean2, name="mean2")
+        validate_not_nan(pop_diff, name="pop_diff")
+        validate_standard_deviation(sd1, name="sd1")
+        validate_standard_deviation(sd2, name="sd2")
+        validate_sample_size(n1, name="n1")
+        validate_sample_size(n2, name="n2")
+        validate_confidence_level(confidence_level)
+
+        if n1 < 2 or n2 < 2:
+            raise InvalidInputError("'n1' and 'n2' must each be at least 2.")
+
+        df = n1 + n2 - 2
+        if df <= 2:
+            raise InvalidInputError(
+                "'n1 + n2' must be greater than 4 for central effect-size intervals."
+            )
+
+        pooled_variance = (
+            ((n1 - 1) * float(sd1) ** 2) + ((n2 - 1) * float(sd2) ** 2)
+        ) / df
+        pooled_sd = math.sqrt(pooled_variance)
+        se = pooled_sd * math.sqrt((1.0 / n1) + (1.0 / n2))
+        if se == 0.0:
+            raise StatisticalComputationError(
+                "The pooled standard error is zero; the t-statistic is undefined."
+            )
+
+        t_score = (float(mean1) - float(mean2) - float(pop_diff)) / se
+        return TwoIndependentCLES.from_t_score(
+            t_score=t_score,
+            n1=n1,
+            n2=n2,
+            confidence_level=confidence_level,
+        )
+
+    @staticmethod
+    def from_data(
+        group1: Sequence[float],
+        group2: Sequence[float],
+        confidence_level: float = 0.95,
+        pop_diff: float = 0.0,
+    ) -> TwoIndependentCLESResult:
+        """Create parametric CLES results from raw group data.
+
+        Parameters
+        ----------
+        group1, group2:
+            Observed values for the two independent groups.
+        confidence_level:
+            Confidence level in ``(0, 1)``.
+        pop_diff:
+            Reference population mean difference under the null.
+        """
+        validate_non_empty(group1, name="group1")
+        validate_non_empty(group2, name="group2")
+        validate_confidence_level(confidence_level)
+        validate_not_nan(pop_diff, name="pop_diff")
+
+        arr1 = np.asarray(group1, dtype=float)
+        arr2 = np.asarray(group2, dtype=float)
+        if arr1.ndim != 1 or arr2.ndim != 1:
+            raise InvalidInputError("'group1' and 'group2' must be one-dimensional.")
+        if np.any(~np.isfinite(arr1)) or np.any(~np.isfinite(arr2)):
+            raise InvalidInputError("'group1' and 'group2' must contain only finite values.")
+
+        return TwoIndependentCLES.from_parameters(
+            mean1=float(np.mean(arr1)),
+            mean2=float(np.mean(arr2)),
+            sd1=float(np.std(arr1, ddof=1)),
+            sd2=float(np.std(arr2, ddof=1)),
+            n1=int(arr1.size),
+            n2=int(arr2.size),
+            confidence_level=confidence_level,
+            pop_diff=pop_diff,
         )
 
 
