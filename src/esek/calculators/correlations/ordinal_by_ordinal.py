@@ -1,12 +1,26 @@
 """Module for Ordinal by Ordinal correlation measures."""
 
+from __future__ import annotations
+
+from collections.abc import Sequence
+from dataclasses import dataclass, field
+from typing import Any
+
 import numpy as np
 import pandas as pd
 from scipy.stats import norm, weightedtau
 
+from ...core import InvalidInputError
+from ...core.validation import (
+    validate_confidence_level,
+    validate_contingency_table,
+    validate_groups_equal_length,
+    validate_non_empty,
+    validate_sample_size,
+)
 from .ordinal_by_interval import (
-    _ginis_gamma,
     _gaussian_rank_correlation,
+    _ginis_gamma,
     _shepherd,
     _skipped_correlation,
     _spearman_correlation,
@@ -235,6 +249,25 @@ def _gamma_family_measures(column_1, column_2, confidence_level):
     return "\n".join([f"{k}: {v}" for k, v in results.items()])
 
 
+@dataclass(frozen=True)
+class OrdinalByOrdinalResult:
+    """Typed container for ordinal-by-ordinal association measures.
+
+    Measure payloads keep the legacy string/object forms produced by the
+    migrated helpers; the dataclass provides a stable typed entry API.
+    """
+
+    skipped_correlation: Any
+    gaussian_rank_correlation: Any
+    ginis_gamma: Any
+    shepherds_pi: Any
+    gamma_family: Any
+    spearman_correlation: Any
+    confidence_level: float
+    n_bootstrap: int
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
 class OrdinalByOrdinal:
     """Ordinal by Ordinal correlation measures.
 
@@ -245,40 +278,125 @@ class OrdinalByOrdinal:
     """
 
     @staticmethod
-    def from_contingency_table(params: dict) -> dict:
+    def from_contingency_table(
+        table: np.ndarray | list[list[float]] | dict | None = None,
+        confidence_level: float = 0.95,
+        n_bootstrap: int = 1000,
+        *,
+        params: dict | None = None,
+    ) -> OrdinalByOrdinalResult | dict:
         """Calculate measures from a contingency table.
 
-        Parameters
-        ----------
-        params : dict
-            Keys:
-            - ``"Contingency Table"`` : 2-D numpy array.
-            - ``"Confidence Level"`` : float, percentage (e.g. 95).
-            - ``"Number Of Bootstraps Samples"`` : int.
-
-        Returns
-        -------
-        dict
-            Result dictionary containing all ordinal-by-ordinal correlation
-            measures.
+        Prefer the typed kwargs API.  The legacy ``params`` dict form
+        (confidence as a percentage) remains available for compatibility.
         """
+        if params is not None:
+            return OrdinalByOrdinal._from_contingency_table_params(params)
+        if table is None:
+            raise InvalidInputError("'table' is required unless params= is provided.")
+        validate_contingency_table(table, name="table")
+        validate_confidence_level(confidence_level)
+        validate_sample_size(n_bootstrap, name="n_bootstrap")
+
+        arr = np.asarray(table, dtype=int)
+        cl = float(confidence_level)
+        var1 = np.array(
+            [
+                j + 1
+                for i in range(arr.shape[0])
+                for j in range(arr.shape[1])
+                for _ in range(int(arr[i, j]))
+            ],
+            dtype=float,
+        )
+        var2 = np.array(
+            [
+                i + 1
+                for i in range(arr.shape[0])
+                for j in range(arr.shape[1])
+                for _ in range(int(arr[i, j]))
+            ],
+            dtype=float,
+        )
+        return OrdinalByOrdinalResult(
+            skipped_correlation=_skipped_correlation(var1, var2, cl),
+            gaussian_rank_correlation=_gaussian_rank_correlation(var1, var2, cl),
+            ginis_gamma=_ginis_gamma(var1, var2, cl),
+            shepherds_pi=_shepherd(var1, var2, n_bootstrap, cl),
+            gamma_family=_gamma_family_measures(var1, var2, cl),
+            spearman_correlation=_spearman_correlation(var1, var2, cl),
+            confidence_level=cl,
+            n_bootstrap=n_bootstrap,
+            metadata={"table_shape": arr.shape, "n": int(np.sum(arr))},
+        )
+
+    @staticmethod
+    def from_data(
+        variable1: Sequence[float] | dict | None = None,
+        variable2: Sequence[float] | None = None,
+        confidence_level: float = 0.95,
+        n_bootstrap: int = 1000,
+        *,
+        params: dict | None = None,
+    ) -> OrdinalByOrdinalResult | dict:
+        """Calculate measures from raw ordinal vectors.
+
+        Prefer the typed kwargs API.  The legacy ``params`` dict form
+        (confidence as a percentage) remains available for compatibility.
+        """
+        if params is not None or (isinstance(variable1, dict) and variable2 is None):
+            legacy = params if params is not None else variable1
+            assert isinstance(legacy, dict)
+            return OrdinalByOrdinal._from_data_params(legacy)
+
+        if variable1 is None or variable2 is None:
+            raise InvalidInputError("'variable1' and 'variable2' are required.")
+        validate_non_empty(variable1, name="variable1")
+        validate_non_empty(variable2, name="variable2")
+        validate_groups_equal_length(variable1, variable2, "variable1", "variable2")
+        validate_confidence_level(confidence_level)
+        validate_sample_size(n_bootstrap, name="n_bootstrap")
+
+        var1 = np.asarray(variable1, dtype=float)
+        var2 = np.asarray(variable2, dtype=float)
+        cl = float(confidence_level)
+        return OrdinalByOrdinalResult(
+            skipped_correlation=_skipped_correlation(var1, var2, cl),
+            gaussian_rank_correlation=_gaussian_rank_correlation(var1, var2, cl),
+            ginis_gamma=_ginis_gamma(var1, var2, cl),
+            shepherds_pi=_shepherd(var1, var2, n_bootstrap, cl),
+            gamma_family=_gamma_family_measures(var1, var2, cl),
+            spearman_correlation=_spearman_correlation(var1, var2, cl),
+            confidence_level=cl,
+            n_bootstrap=n_bootstrap,
+            metadata={"n": int(var1.size)},
+        )
+
+    @staticmethod
+    def _from_contingency_table_params(params: dict) -> dict:
         table = np.array(params["Contingency Table"])
         cl_pct = float(params["Confidence Level"])
         n_boot = int(params["Number Of Bootstraps Samples"])
         cl = cl_pct / 100
 
-        var1 = np.array([
-            j + 1
-            for i in range(table.shape[0])
-            for j in range(table.shape[1])
-            for _ in range(table[i, j])
-        ], dtype=float)
-        var2 = np.array([
-            i + 1
-            for i in range(table.shape[0])
-            for j in range(table.shape[1])
-            for _ in range(table[i, j])
-        ], dtype=float)
+        var1 = np.array(
+            [
+                j + 1
+                for i in range(table.shape[0])
+                for j in range(table.shape[1])
+                for _ in range(table[i, j])
+            ],
+            dtype=float,
+        )
+        var2 = np.array(
+            [
+                i + 1
+                for i in range(table.shape[0])
+                for j in range(table.shape[1])
+                for _ in range(table[i, j])
+            ],
+            dtype=float,
+        )
 
         return {
             "Contingency Table": table,
@@ -291,24 +409,7 @@ class OrdinalByOrdinal:
         }
 
     @staticmethod
-    def from_data(params: dict) -> dict:
-        """Calculate measures from raw data vectors.
-
-        Parameters
-        ----------
-        params : dict
-            Keys:
-            - ``"Variable 1"`` : array-like, first ordinal variable.
-            - ``"Variable 2"`` : array-like, second ordinal variable.
-            - ``"Confidence Level"`` : float, percentage (e.g. 95).
-            - ``"Number Of Bootstraps Samples"`` : int.
-
-        Returns
-        -------
-        dict
-            Result dictionary containing all ordinal-by-ordinal correlation
-            measures.
-        """
+    def _from_data_params(params: dict) -> dict:
         var1 = np.asarray(params["Variable 1"], dtype=float)
         var2 = np.asarray(params["Variable 2"], dtype=float)
         cl_pct = float(params["Confidence Level"])

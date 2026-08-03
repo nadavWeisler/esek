@@ -41,7 +41,6 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
 addopts = "--strict-markers"
 
 [tool.ruff]

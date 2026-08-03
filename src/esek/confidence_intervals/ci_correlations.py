@@ -113,6 +113,48 @@ class CramerVCIResult:
     ci: tuple[float, float]
 
 
+@dataclass(frozen=True)
+class CohensWCIResult:
+    """Confidence interval for Cohen's *w* (and φ for 2×2 tables).
+
+    Attributes:
+        cohens_w: Cohen's *w* point estimate.
+        chi_square: χ² statistic used.
+        n: Sample size.
+        df: Degrees of freedom for χ².
+        confidence_level: Nominal CI level.
+        ci: NCP-based CI (lower, upper).
+    """
+
+    cohens_w: float
+    chi_square: float
+    n: int
+    df: int
+    confidence_level: float
+    ci: tuple[float, float]
+
+
+@dataclass(frozen=True)
+class ContingencyCoefficientCIResult:
+    """Confidence interval for Pearson's contingency coefficient *C*.
+
+    Attributes:
+        contingency_coefficient: Contingency coefficient point estimate.
+        chi_square: χ² statistic used.
+        n: Sample size.
+        df: Degrees of freedom for χ².
+        confidence_level: Nominal CI level.
+        ci: NCP-based CI (lower, upper).
+    """
+
+    contingency_coefficient: float
+    chi_square: float
+    n: int
+    df: int
+    confidence_level: float
+    ci: tuple[float, float]
+
+
 # ---------------------------------------------------------------------------
 # Internal NCP χ² CI
 # ---------------------------------------------------------------------------
@@ -131,18 +173,40 @@ def _ncp_chi2_ci(
     ulim = 1.0 - alpha / 2
     llim = alpha / 2
 
+    # Degenerate observed χ²: lower NCP is 0; search upper NCP with a fixed step.
+    if chival <= 0.0:
+        chival_eps = 1e-12
+        ncp_lo = 0.0
+        hi = [0.0, 1.0, 2.0]
+        while ncx2.cdf(chival_eps, df, hi[2]) > llim:
+            hi = [hi[0], hi[2], hi[2] * 2.0]
+            if hi[2] > 1e8:
+                break
+        diff = 1.0
+        iters = 0
+        while diff > 1e-5 and iters < 200:
+            if ncx2.cdf(chival_eps, df, hi[1]) < llim:
+                hi = [hi[0], (hi[0] + hi[1]) / 2.0, hi[1]]
+            else:
+                hi = [hi[1], (hi[1] + hi[2]) / 2.0, hi[2]]
+            diff = abs(ncx2.cdf(chival_eps, df, hi[1]) - llim)
+            iters += 1
+        return ncp_lo, max(hi[1], 0.0)
+
     # lower NCP
     lo = [1e-3, chival / 2.0, chival]
     if ncx2.cdf(chival, df, lo[0]) < ulim:
         ncp_lo = 0.0
     else:
         diff = 1.0
-        while diff > 1e-5:
+        iters = 0
+        while diff > 1e-5 and iters < 200:
             if ncx2.cdf(chival, df, lo[1]) < ulim:
                 lo = [lo[0], (lo[0] + lo[1]) / 2.0, lo[1]]
             else:
                 lo = [lo[1], (lo[1] + lo[2]) / 2.0, lo[2]]
             diff = abs(ncx2.cdf(chival, df, lo[1]) - ulim)
+            iters += 1
         ncp_lo = lo[1]
 
     # upper NCP
@@ -150,14 +214,16 @@ def _ncp_chi2_ci(
     while ncx2.cdf(chival, df, hi[0]) < llim:
         hi = [hi[0] / 4.0, hi[0], hi[2]]
     while ncx2.cdf(chival, df, hi[2]) > llim:
-        hi = [hi[0], hi[2], hi[2] + chival]
+        hi = [hi[0], hi[2], hi[2] + max(chival, 1.0)]
     diff = 1.0
-    while diff > 1e-5:
+    iters = 0
+    while diff > 1e-5 and iters < 200:
         if ncx2.cdf(chival, df, hi[1]) < llim:
             hi = [hi[0], (hi[0] + hi[1]) / 2.0, hi[1]]
         else:
             hi = [hi[1], (hi[1] + hi[2]) / 2.0, hi[2]]
         diff = abs(ncx2.cdf(chival, df, hi[1]) - llim)
+        iters += 1
     ncp_hi = hi[1]
 
     return ncp_lo, ncp_hi
@@ -268,5 +334,112 @@ def cramer_v_ci(
         df=df,
         confidence_level=confidence_level,
         ci=(round(lo_v, 6), round(hi_v, 6)),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Cohen's w CI
+# ---------------------------------------------------------------------------
+
+
+def cohens_w_ci(
+    cohens_w: float,
+    n: int,
+    df: int,
+    confidence_level: float = 0.95,
+) -> CohensWCIResult:
+    """Non-central χ²–based CI for Cohen's *w*.
+
+    Converts *w* → χ² = *w*²·*n*, finds the NCP CI, then converts back with
+    ``√(λ / n)``.
+
+    Parameters
+    ----------
+    cohens_w:
+        Cohen's *w* value (≥ 0).
+    n:
+        Total sample size.
+    df:
+        Degrees of freedom for the χ² distribution.
+    confidence_level:
+        Nominal CI level in ``(0, 1)``.
+    """
+    if cohens_w < 0:
+        raise ValueError(f"cohens_w must be ≥ 0 (got {cohens_w}).")
+    if n < 2:
+        raise ValueError(f"n must be ≥ 2 (got {n}).")
+    if df < 1:
+        raise ValueError(f"df must be ≥ 1 (got {df}).")
+    if not (0.0 < confidence_level < 1.0):
+        raise ValueError(f"confidence_level must be in (0, 1) (got {confidence_level}).")
+
+    chi_sq = float(cohens_w) ** 2 * n
+    ncp_lo, ncp_hi = _ncp_chi2_ci(chi_sq, df, confidence_level)
+    lo_w = math.sqrt(ncp_lo / n) if n > 0 else 0.0
+    hi_w = math.sqrt(ncp_hi / n)
+    return CohensWCIResult(
+        cohens_w=float(cohens_w),
+        chi_square=float(chi_sq),
+        n=n,
+        df=df,
+        confidence_level=confidence_level,
+        ci=(round(lo_w, 6), round(hi_w, 6)),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Contingency coefficient CI
+# ---------------------------------------------------------------------------
+
+
+def contingency_coefficient_ci(
+    contingency_coefficient: float,
+    n: int,
+    df: int,
+    confidence_level: float = 0.95,
+) -> ContingencyCoefficientCIResult:
+    """Non-central χ²–based CI for Pearson's contingency coefficient *C*.
+
+    Converts *C* → χ² = (*C*²·*n*) / (1 − *C*²), finds the NCP CI, then
+    converts back with ``√(λ / (λ + n))``.
+
+    Parameters
+    ----------
+    contingency_coefficient:
+        Contingency coefficient in ``[0, 1)``.
+    n:
+        Total sample size.
+    df:
+        Degrees of freedom for the χ² distribution.
+    confidence_level:
+        Nominal CI level in ``(0, 1)``.
+    """
+    c_val = float(contingency_coefficient)
+    if not (0.0 <= c_val < 1.0):
+        raise ValueError(
+            f"contingency_coefficient must be in [0, 1) (got {contingency_coefficient})."
+        )
+    if n < 2:
+        raise ValueError(f"n must be ≥ 2 (got {n}).")
+    if df < 1:
+        raise ValueError(f"df must be ≥ 1 (got {df}).")
+    if not (0.0 < confidence_level < 1.0):
+        raise ValueError(f"confidence_level must be in (0, 1) (got {confidence_level}).")
+
+    denom = 1.0 - c_val**2
+    if denom <= 0.0:
+        raise ValueError("contingency_coefficient must be strictly less than 1.")
+
+    chi_sq = (c_val**2 * n) / denom
+    ncp_lo, ncp_hi = _ncp_chi2_ci(chi_sq, df, confidence_level)
+    lo_c = math.sqrt(ncp_lo / (ncp_lo + n)) if (ncp_lo + n) > 0 else 0.0
+    hi_c = math.sqrt(ncp_hi / (ncp_hi + n))
+    return ContingencyCoefficientCIResult(
+        contingency_coefficient=c_val,
+        chi_square=float(chi_sq),
+        n=n,
+        df=df,
+        confidence_level=confidence_level,
+        ci=(round(lo_c, 6), round(hi_c, 6)),
     )
 

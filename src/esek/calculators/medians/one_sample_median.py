@@ -24,12 +24,14 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
-from astropy.stats import biweight_midvariance  # type: ignore[import]
-from arch.bootstrap import IndependentSamplesBootstrap  # type: ignore[import]
 from scipy.stats import iqr, norm, t, wilcoxon
 from scipy.stats.mstats import hdmedian  # type: ignore[import]
 from statsmodels.stats.descriptivestats import sign_test  # type: ignore[import]
 
+from esek.calculators.medians._optional_deps import (
+    biweight_midvariance,
+    independent_samples_bootstrap,
+)
 from esek.utils.nonparametric_ci import (
     hodges_lehmann_ci,
     sign_test_ci,
@@ -252,7 +254,7 @@ class OneSampleMedian:
         ci = {}
 
         # Bootstrap CIs for the median
-        boot = IndependentSamplesBootstrap(data)
+        boot = independent_samples_bootstrap(data)
         ci_basic = boot.conf_int(
             lambda x: np.median(x), n_bootstrap, method="basic", size=confidence_level
         )
@@ -308,7 +310,7 @@ class OneSampleMedian:
             es = _median_effect_sizes(dat, population_median)
             return np.array(list(es.values()))
 
-        boot_es = IndependentSamplesBootstrap(data)
+        boot_es = independent_samples_bootstrap(data)
         try:
             ci_es = boot_es.conf_int(
                 _boot_es, n_bootstrap, method="percentile", size=confidence_level

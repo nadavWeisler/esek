@@ -1,6 +1,6 @@
 """Tests for the Two Paired Robust calculator."""
 
-from src.esek.calculator.two_paired_mean.two_paired_robust import (
+from esek.calculator.two_paired_mean.two_paired_robust import (
     TwoPairedRobustResults,
     TwoPairedRobustTests,
 )

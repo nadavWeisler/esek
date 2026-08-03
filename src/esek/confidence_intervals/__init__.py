@@ -12,7 +12,17 @@ from .ci_mean_difference import (
     ncp_ci_one_sample,
     multiple_se_ci_two_samples,
 )
-from .ci_correlations import fisher_z_ci, spearman_ci, cramer_v_ci
+from .ci_correlations import (
+    fisher_z_ci,
+    spearman_ci,
+    cramer_v_ci,
+    cohens_w_ci,
+    contingency_coefficient_ci,
+    SpearmanCIResult,
+    CramerVCIResult,
+    CohensWCIResult,
+    ContingencyCoefficientCIResult,
+)
 from .ci_odds_ratio import log_scale_ci
 from .ci_eta_squared import EtaSquaredCI
 from .ci_cohens_d import CohensDCI, CohensDCIResult
@@ -34,6 +44,12 @@ __all__ = [
     "fisher_z_ci",
     "spearman_ci",
     "cramer_v_ci",
+    "cohens_w_ci",
+    "contingency_coefficient_ci",
+    "SpearmanCIResult",
+    "CramerVCIResult",
+    "CohensWCIResult",
+    "ContingencyCoefficientCIResult",
     "log_scale_ci",
     "EtaSquaredCI",
     "CohensDCI",

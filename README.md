@@ -90,6 +90,10 @@ ci_low, ci_high = fisher_z_ci(r=0.6, n=50, confidence_level=0.95)
 | Two independent groups | Cohen's d, Hedges' g, Glass's Δ, Ratio of Means, Cliff's delta, VDA, U1/U3 |
 | Two paired groups | Cohen's dav, gav, drm, grm, rank-biserial, robust measures |
 | Proportions | Cohen's h, g, Phi, OR, RR, Cramer's V |
+| Associations | Pearson/Spearman, nominal/ordinal associations, R², partial correlations |
+| Agreement | Cohen/Fleiss κ, ICC, Gwet AC, Krippendorff α, Kendall W, Bhapkar, Aiken α |
+| ANOVA | Two-way mixed (between × within) |
+| Stratified tables | Mantel–Haenszel common OR / risk ratio |
 | Converters | d↔r, d↔OR, r↔Fisher z, OR↔d |
 
 ---
@@ -115,9 +119,9 @@ python -m compileall src/
 src/esek/
     core/          ← exceptions, validation, type aliases
     results/       ← frozen dataclass result objects
-    calculators/   ← statistical calculators (t, z, aparametric, proportions)
+    calculators/   ← means, proportions, associations, agreements, ANOVA, contingency
     converters/    ← effect size conversion functions
-    confidence_intervals/  ← CI methods
+    confidence_intervals/  ← CI methods (d, η², correlations, proportions, dispersion)
     utils/         ← math helpers, distribution helpers
 ```
 
