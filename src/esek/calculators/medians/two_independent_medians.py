@@ -22,7 +22,6 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
-from astropy.stats import biweight_midvariance  # type: ignore[import]
 from scipy.stats import binom, iqr, median_abs_deviation, norm
 from scipy.stats.mstats import hdmedian  # type: ignore[import]
 
